@@ -58,6 +58,8 @@ namespace DataProvider.DataLoaders {
 
             var rtRunMode = mode.ToAdxMode();
             _adxRtList.StartUpdates(rtRunMode);
+
+            // todo do I get it right, that no need to start a separate thread here?
     }
 
         public void Stop() {
@@ -90,15 +92,20 @@ namespace DataProvider.DataLoaders {
         }
 
         private void OnUpdateHandler(string name, object tag, RT_ItemStatus status) {
-            OnUpdateAction(name, tag, ItemStatus.FromAdxStatus(status));
+            // todo! I have already did OnUpdate - see Fields
+            if (OnUpdateAction != null)
+                OnUpdateAction(name, tag, ItemStatus.FromAdxStatus(status));
         }
 
         private void OnTimeHandler() {
-            OnTimeAction();
+            // todo! Similar to OnImage - see Snapshot, I guess
+            if (OnTimeAction != null)
+                OnTimeAction();
         }
 
         private void OnStatusChangeHandler(RT_ListStatus status, RT_SourceStatus sourceStatus, RT_RunMode mode) {
-            // todo it can show
+            // todo notify user on source failures
+            if (OnFeedStatusAction != null) OnFeedStatusAction();
         }
 
         public ILogger Logger { get; set; }

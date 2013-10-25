@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using DataProvider.DataLoaders.Status;
 using LoggingFacility;
 using LoggingFacility.LoggingSupport;
@@ -112,107 +111,6 @@ namespace DataProvider.DataLoaders {
                 // time to stop stupid attempts, source not up.
                 TryChangeState(State.Invalid); // indicate failure
             }
-        }
-    }
-
-    public interface ISnapshot {
-        IEnumerable<ISnapshotItem> Data { get; }
-        ISourceStatus Status { get; }
-    }
-
-    public class Snapshot : ISnapshot {
-        private readonly ISourceStatus _status;
-        private readonly List<ISnapshotItem> _data;
-
-        public IEnumerable<ISnapshotItem> Data {
-            get { return new ReadOnlyCollection<ISnapshotItem>(_data); }
-        }
-
-        public ISourceStatus Status {
-            get { return _status; }
-        }
-
-        public Snapshot() {
-            _data = new List<ISnapshotItem>();
-        }
-
-        public Snapshot(ISourceStatus status, List<ISnapshotItem> data) {
-            _status = status;
-            _data = data;
-        }
-
-        public Snapshot(ISourceStatus status) {
-            _status = status;
-            _data = null;
-        }
-
-        public void Add(ISnapshotItem item) {
-            _data.Add(item);
-        }
-    }
-
-    public interface ISnapshotItem {
-        string Ric { get; }
-        IItemStatus Status { get; }
-        IEnumerable<IField> Fields { get; }
-    }
-
-    public interface IField {
-        string Name { get; }
-        string Value { get; }
-        IFieldStatus Status { get; }
-    }
-
-    public class Field : IField {
-        private readonly string _name;
-        private readonly string _value;
-        private readonly IFieldStatus _status;
-
-        public Field(string name, string value, IFieldStatus status) {
-            _name = name;
-            _value = value;
-            _status = status;
-        }
-
-        public string Name {
-            get { return _name; }
-        }
-
-        public string Value {
-            get { return _value; }
-        }
-
-        public IFieldStatus Status {
-            get { return _status; }
-        }
-    }
-
-    public class SnapshotItem : ISnapshotItem {
-
-        private readonly string _ric;
-        private readonly IItemStatus _status;
-        private readonly List<IField> _fields;
-
-        public SnapshotItem(string ric, IItemStatus status) {
-            _ric = ric;
-            _status = status;
-            _fields = new List<IField>();
-        }
-
-        public string Ric {
-            get { return _ric; }
-        }
-
-        public IItemStatus Status {
-            get { return _status; }
-        }
-
-        public IEnumerable<IField> Fields {
-            get { return new ReadOnlyCollection<IField>(_fields); }
-        }
-
-        public void AddField(string fieldName, string fieldValue, IFieldStatus fieldStatus) {
-            _fields.Add(new Field(fieldName, fieldValue, fieldStatus));
         }
     }
 }
