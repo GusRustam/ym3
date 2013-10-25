@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<settings name="settings" descr="">
+  <viewport name="Viewport settings" descr="Chart axis parameters">
+    <modified-duration name="modified duration" descr="X axis modified duration settings">
+      <max-modified-duration name="Maximum modified duration" descr="Maximum modified duration visible on the chart" value="10" />
+      <min-modified-duration name="Minimum modified duration" descr="Minimum modified duration visible on the chart" value="0" />
+      <max-modified-duration-fixed name="Fix maximum modified duration" descr="Fix right side of X axis" value="False" />
+      <min-modified-duration-fixed name="Fix minimum modified duration" descr="Fix left side of X axis" value="True" />
+    </modified-duration>
+    <average-life name="average life" descr="X axis average life settings">
+      <max-average-life name="Maximum average life" descr="Maximum average life visible on the chart" value="0" />
+      <min-average-life name="Minimum average life" descr="Minimum average life visible on the chart" value="0" />
+      <max-average-life-fixed name="Fix maximum average life" descr="Fix right side of X axis" value="False" />
+      <min-average-life-fixed name="Fix minimum average life" descr="Fix left side of X axis" value="False" />
+    </average-life>
+    <macauley-duration name="Macauley duration" descr="X axis Macauley duration settings">
+      <max-macauley-duration name="Maximum Macauley duration" descr="Maximum Macauley duration visible on the chart" value="0" />
+      <min-macauley-duration name="Minimum Macauley duration" descr="Minimum Macauley duration visible on the chart" value="0" />
+      <max-macauley-duration-fixed name="Fix maximum Macauley duration" descr="Fix right side of X axis" value="False" />
+      <min-macauley-duration-fixed name="Fix minimum Macauley duration" descr="Fix left side of X axis" value="False" />
+    </macauley-duration>
+  </viewport>
+  <num-interp-points name="Number of interpolation points" descr="Number of points used to calculate interpolated curve" value="30" />
+</settings>

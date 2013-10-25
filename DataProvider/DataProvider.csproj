@@ -1,0 +1,178 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{EF0CC6F6-BD2E-4106-8138-927312257B53}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DataProvider</RootNamespace>
+    <AssemblyName>DataProvider</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <OutputPath>bin\x86\Release\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Interop.AdfinXAnalyticsFunctions">
+      <HintPath>..\..\..\..\..\AppData\Local\Thomson Reuters\TRD 6\Program\Interop.AdfinXAnalyticsFunctions.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Interop.Dex2">
+      <HintPath>..\..\..\..\..\AppData\Local\Thomson Reuters\TRD 6\Program\Interop.Dex2.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Interop.RTX">
+      <HintPath>..\..\..\..\..\AppData\Local\Thomson Reuters\TRD 6\Program\Interop.RTX.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Interop.TSI6">
+      <HintPath>..\..\..\..\..\AppData\Local\Thomson Reuters\TRD 6\Program\Interop.TSI6.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DataLoaders\AdfinFieldsTicker.cs" />
+    <Compile Include="DataLoaders\AdfinRealtime.cs" />
+    <Compile Include="DataLoaders\AdfinSnapshotTicker.cs" />
+    <Compile Include="DataLoaders\AdfinSubscription.cs" />
+    <Compile Include="DataLoaders\AdfinSubscriptionSetup.cs" />
+    <Compile Include="DataLoaders\AdfinTimeoutRequest.cs" />
+    <Compile Include="DataLoaders\IData.cs" />
+    <Compile Include="DataLoaders\IFieldsTicker.cs" />
+    <Compile Include="DataLoaders\IHistory.cs" />
+    <Compile Include="DataLoaders\IRicFields.cs" />
+    <Compile Include="DataLoaders\IRicsFields.cs" />
+    <Compile Include="DataLoaders\ISnapshotTicker.cs" />
+    <Compile Include="DataLoaders\ITimeout.cs" />
+    <Compile Include="DataLoaders\RicFields.cs" />
+    <Compile Include="DataLoaders\RicsFields.cs" />
+    <Compile Include="DataLoaders\Status\DataStatus.cs" />
+    <Compile Include="DataLoaders\Status\IDataStatus.cs" />
+    <Compile Include="DataLoaders\Status\IItemStatus.cs" />
+    <Compile Include="DataLoaders\Status\IListStatus.cs" />
+    <Compile Include="DataLoaders\IRealtime.cs" />
+    <Compile Include="DataLoaders\Status\IRunMode.cs" />
+    <Compile Include="DataLoaders\Status\ISourceStatus.cs" />
+    <Compile Include="DataLoaders\ISubscription.cs" />
+    <Compile Include="DataLoaders\ISubscriptionSetup.cs" />
+    <Compile Include="DataLoaders\Status\ItemStatus.cs" />
+    <Compile Include="DataLoaders\Status\ListStatus.cs" />
+    <Compile Include="DataLoaders\Status\RunMode.cs" />
+    <Compile Include="DataLoaders\Status\SourceStatus.cs" />
+    <Compile Include="RawData\EikonObjectsBase.cs" />
+    <Compile Include="RawData\EikonObjectsPlain.cs" />
+    <Compile Include="RawData\EikonObjectsSdk.cs" />
+    <Compile Include="RawData\IEikonObjects.cs" />
+    <Compile Include="RawData\EikonObjectsPlVba.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="EikonDesktopDataAPILib">
+      <Guid>{CF3E8564-F9F5-4852-8297-BC0A2CFADFAD}</Guid>
+      <VersionMajor>7</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Connection\Connect.csproj">
+      <Project>{477731d9-54d2-4806-900c-0bdc2bc06dbf}</Project>
+      <Name>Connect</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LoggingFacility\LoggingFacility.csproj">
+      <Project>{75317712-FB97-4039-9876-7A9A583A089E}</Project>
+      <Name>LoggingFacility</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MainPatterns\Toolbox.csproj">
+      <Project>{3D117A27-C652-4B5C-9D00-43AF82243AB5}</Project>
+      <Name>Toolbox</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
