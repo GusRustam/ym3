@@ -5,8 +5,8 @@ using ThomsonReuters.Interop.RTX;
 namespace DataProvider.DataLoaders.Status {
     public class ListStatus : IListStatus {
         private readonly string _name;
-        private static readonly IListStatus Inactive = new ListStatus("Inactive");
-        private static readonly IListStatus Running = new ListStatus("Running");
+        public static readonly IListStatus Inactive = new ListStatus("Inactive");
+        public static readonly IListStatus Running = new ListStatus("Running");
 
         private static readonly IListStatus[] Statuses = { Inactive, Running };
 

@@ -24,8 +24,6 @@ namespace DataProvider.DataLoaders.Status {
                     return Down;
 
                 case RT_SourceStatus.RT_SOURCE_INVALID:
-                    return Down;
-
                 case RT_SourceStatus.RT_SOURCE_UNDEFINED:
                 case RT_SourceStatus.RT_SOURCE_NOT_SET:
                     return Unknown;

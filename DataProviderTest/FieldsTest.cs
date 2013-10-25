@@ -10,11 +10,9 @@ using NUnit.Framework;
 namespace DataProviderTest {
     [TestFixture]
     public class FieldsTest {
-        private int _onUpdates;
         private int _onImages;
         private int _onTimes;
         private int _onTimeouts;
-        private int _onFields;
 
         [SetUp]
         public void SetUp() {
@@ -27,48 +25,28 @@ namespace DataProviderTest {
         }
 
         private void ClearCounters() {
-            _onUpdates = 0;
             _onImages = 0;
             _onTimes = 0;
             _onTimeouts = 0;
-            _onFields = 0;
         }
+
         private void OnTimeout() {
             Console.WriteLine("OnTimeout()");
             _onTimeouts++;
         }
 
-        private void OnFields(IRicsFields ricsFields) {
-            Console.WriteLine("OnFields()");
-            if (ricsFields.SourceStatus != SourceStatus.Up) {
-                Console.WriteLine("Source down, no data maaan");
-            } else {
-                var dictionary = ricsFields.Data;
-                foreach (var key in dictionary.Keys) {
-                    Console.WriteLine("{0} => {3} status, {1} fields, i.e. \n {2}",
-                        key,
-                        dictionary[key].Fields.Count(),
-                        string.Join(", ", dictionary[key].Fields),
-                        dictionary[key].Status);
-                }
+        private void OnImage(ISnapshot snapshot) {
+            Console.WriteLine("OnImage()");
+            Console.WriteLine("Status = {0}", snapshot.Status);
+            foreach (var item in snapshot.Data) {
+                Console.WriteLine(" -> ric {0}, status {1}", item.Ric, item.Status);
+                foreach (var field in item.Fields) 
+                    Console.WriteLine(" -> -> field {0} status {1} value {2}", field.Name, field.Status, field.Value);
             }
-            _onFields++;
-        }
 
-        private  void OnUpdate(string name, object tag, IItemStatus status) {
-            Console.WriteLine("OnUpdate({0}, {1}, {2})", name, tag, status);
-            _onUpdates++;
-        }
-
-        private static void OnStatusChange(IListStatus status, ISourceStatus sourceStatus, IRunMode mode) {
-            Console.WriteLine("OnStatusChange({0}, {1}, {2})", status, sourceStatus, mode);  
-        }
-
-        private void OnImage(IDataStatus status) {
-            Console.WriteLine("OnImage({0})", status);
             _onImages++;
         }
-
+       
         private void OnTimeHandler() {
             Console.WriteLine("OnTime()");
             _onTimes++;
@@ -127,7 +105,7 @@ namespace DataProviderTest {
         }
 
         [TestCase]
-        public void Snapshot() {
+        public void SnapshotTimeout() {
             var factory = Agent.Factory();
             var conn = factory.GetInstance<IConnection>();
 
@@ -142,14 +120,14 @@ namespace DataProviderTest {
             subscriptionSetup = subscriptionSetup.WithFields("BID", "ASK");
 
 
-            var subscription = subscriptionSetup.ReuqestSnapshot(TimeSpan.FromSeconds(1));
+            var subscription = subscriptionSetup.ReuqestSnapshot(TimeSpan.FromMilliseconds(1));
             subscription = subscription.WithCallback(OnImage);
             var tm = subscription.WithTimeout(OnTimeout);
             tm.Request();
 
-            Thread.Sleep(TimeSpan.FromSeconds(5));
+            Thread.Sleep(TimeSpan.FromSeconds(1));
 
-            Assert.AreEqual(_onImages, 1);
+            Assert.AreEqual(_onTimeouts, 1);
         }
 
         [TestCase]
@@ -177,58 +155,161 @@ namespace DataProviderTest {
             Assert.AreEqual(_onTimes, 10);
         }
 
+        private int _images;
+        private int _rics;
+        private int _totalFields;
+        private ISourceStatus _status;
+
+        private int _fields;
+        private int _delayedRics;
+        private int _okRics;
+        private int _unknownRics;
+
+        private void GetSnaphot(string feed) {
+            var factory = Agent.Factory();
+            var conn = factory.GetInstance<IConnection>();
+
+            _images = 0;
+            _rics = 0;
+            _totalFields = 0;
+
+            if (!conn.ConnectAndWait(10))
+                Assert.Inconclusive();
+
+            var x1 = factory.GetInstance<IRealtime>();
+            x1 = x1.WithFeed(feed);
+            x1 = x1.WithRics("GAZP.MM", "RUB=", "RU25YT=RR", "Babushka");
+            var t1 = x1.Subscribe();
+            t1 = t1.WithFields("BID", "ASK");
+            var q1 = t1.ReuqestSnapshot(TimeSpan.FromSeconds(5));
+
+            q1 = q1.WithCallback(snapshot => {
+                _images++;
+                _status = snapshot.Status;
+                Console.WriteLine("Got image; status = {0}", snapshot.Status);
+                foreach (var item in snapshot.Data) {
+                    _rics++;
+                    Console.WriteLine(" -> ric {0}, status {1}", item.Ric, item.Status);
+                    foreach (var field in item.Fields) {
+                        _totalFields++;
+                        Console.WriteLine(" -> -> field {0} status {1} value {2}", field.Name, field.Status, field.Value);
+                    }
+                }
+            });
+            var p1 = q1.WithTimeout(OnTimeout);
+            p1.Request();
+
+            Console.WriteLine("========= Wait start =============");
+            Thread.Sleep(TimeSpan.FromSeconds(5));
+            Console.WriteLine("========== Wait end ==============");
+        }
+
+        private void GetFields(string feed, params string[] rics) {
+            var factory = Agent.Factory();
+            var conn = factory.GetInstance<IConnection>();
+
+            if (!conn.ConnectAndWait(10))
+                Assert.Inconclusive();
+
+            _fields = 0;
+            _delayedRics = 0;
+            _okRics = 0;
+            _unknownRics = 0;
+
+            var x1 = factory.GetInstance<IRealtime>();
+            x1 = x1.WithFeed(feed);
+            x1 = x1.WithRics(rics);
+
+            var t1 = x1.Subscribe();
+            var q1 = t1.RequestFields(TimeSpan.FromSeconds(5));
+            q1 = q1.WithFields(ricsFields => {
+                _fields++;
+                if (ricsFields.SourceStatus != SourceStatus.Up) {
+                    Console.WriteLine("Source down, no data maaan");
+                } else {
+                    var dictionary = ricsFields.Data;
+                    foreach (var key in dictionary.Keys) {
+                        if (dictionary[key].Status == ItemStatus.Delayed)
+                            _delayedRics++;
+                        else if (dictionary[key].Status == ItemStatus.Ok)
+                            _okRics++;
+                        else if (dictionary[key].Status == ItemStatus.UnknownOrInvalid)
+                            _unknownRics++;
+
+                        Console.WriteLine("{0} => {3} status, {1} fields, i.e. \n {2}",
+                            key,
+                            dictionary[key].Fields.Count(),
+                            string.Join(", ", dictionary[key].Fields),
+                            dictionary[key].Status);
+                    }
+                }
+            });
+            var p1 = q1.WithTimeout(OnTimeout);
+            p1.Request();
+            Console.WriteLine("======================");
+            Thread.Sleep(TimeSpan.FromSeconds(10));
+            Console.WriteLine("======================");
+        }
+
         [TestCase]
         public void LoadFields() {
-            // todo test invalid feed => Shows all rics to be invalid, not quite good
-            // todo play with feeding from excel and from here
-            // todo try getting source list
-            // 
-            // todo test invalid ric -> ok
-            var factory = Agent.Factory();
-            var conn = factory.GetInstance<IConnection>();
-
-            if (!conn.ConnectAndWait(10))
-                Assert.Inconclusive();
-
-            var x1 = factory.GetInstance<IRealtime>();
-            x1 = x1.WithFeed("IDN");
-            x1 = x1.WithRics("GAZP.MM", "RUB=", "RU25YT=RR", "Babushka");
-
-            var t1 = x1.Subscribe();
-            var q1 = t1.RequestFields(TimeSpan.FromSeconds(5));
-            q1 = q1.WithFields(OnFields);
-            var p1 = q1.WithTimeout(OnTimeout);
-            p1.Request();
-            Console.WriteLine("======================");
-            Thread.Sleep(TimeSpan.FromSeconds(10));
-            Console.WriteLine("======================");
-            Assert.AreEqual(_onFields, 1);   
+            GetFields("IDN", "GAZP.MM", "RUB=", "RU25YT=RR", "Babushka");
+            Assert.AreEqual(_fields, 1);
+            Assert.AreEqual(_delayedRics, 1);
+            Assert.AreEqual(_okRics, 2);
+            Assert.AreEqual(_unknownRics, 1);
         }
 
         [TestCase]
-        public void LoadRustam() {
-            // todo test separately wrong ric and wrong IDN
-
-            var factory = Agent.Factory();
-            var conn = factory.GetInstance<IConnection>();
-
-            if (!conn.ConnectAndWait(10))
-                Assert.Inconclusive();
-
-            var x1 = factory.GetInstance<IRealtime>();
-            x1 = x1.WithFeed("IDN");
-            x1 = x1.WithRics("RUSTAM");
-
-            var t1 = x1.Subscribe();
-            var q1 = t1.RequestFields(TimeSpan.FromSeconds(5));
-            q1 = q1.WithFields(OnFields);
-            var p1 = q1.WithTimeout(OnTimeout);
-            p1.Request();
-            Console.WriteLine("======================");
-            Thread.Sleep(TimeSpan.FromSeconds(10));
-            Console.WriteLine("======================");
-            Assert.AreEqual(_onFields, 1);
+        public void LoadFieldsFromBadFeed() {
+            GetFields("IDSSDN", "GAZP.MM", "RUB=", "RU25YT=RR", "Babushka");
+            Assert.AreEqual(_fields, 1);
+            Assert.AreEqual(_delayedRics, 0);
+            Assert.AreEqual(_okRics, 0);
+            Assert.AreEqual(_unknownRics, 0);
         }
 
+        [TestCase]
+        public void LoadSnapshotValidFeed() {
+            GetSnaphot("IDN");
+            Assert.AreEqual(_images, 1);
+            Assert.AreEqual(_rics, 4);
+            Assert.AreEqual(_totalFields, 4 * 2);
+            Assert.AreEqual(_status, SourceStatus.Up);
+        }
+
+        [TestCase]
+        public void LoadSnapshotInvalidFeed() {
+            GetSnaphot("ZZZ");
+            Assert.AreEqual(_images, 1);
+            Assert.AreEqual(_rics, 0);
+            Assert.AreEqual(_totalFields, 0);
+            Assert.AreEqual(_status, SourceStatus.Unknown);
+        }
+
+        //[TestCase]
+        //public void LoadRustam() {
+        //    // todo test separately wrong ric and wrong IDN
+
+        //    var factory = Agent.Factory();
+        //    var conn = factory.GetInstance<IConnection>();
+
+        //    if (!conn.ConnectAndWait(10))
+        //        Assert.Inconclusive();
+
+        //    var x1 = factory.GetInstance<IRealtime>();
+        //    x1 = x1.WithFeed("IDN");
+        //    x1 = x1.WithRics("RUSTAM");
+
+        //    var t1 = x1.Subscribe();
+        //    var q1 = t1.RequestFields(TimeSpan.FromSeconds(5));
+        //    q1 = q1.WithFields(OnFields);
+        //    var p1 = q1.WithTimeout(OnTimeout);
+        //    p1.Request();
+        //    Console.WriteLine("======================");
+        //    Thread.Sleep(TimeSpan.FromSeconds(10));
+        //    Console.WriteLine("======================");
+        //    Assert.AreEqual(_onFields, 1);
+        //}
     }
 }

@@ -101,7 +101,9 @@
     <Compile Include="DataLoaders\RicFields.cs" />
     <Compile Include="DataLoaders\RicsFields.cs" />
     <Compile Include="DataLoaders\Status\DataStatus.cs" />
+    <Compile Include="DataLoaders\Status\FieldStatus.cs" />
     <Compile Include="DataLoaders\Status\IDataStatus.cs" />
+    <Compile Include="DataLoaders\Status\IFieldStatus.cs" />
     <Compile Include="DataLoaders\Status\IItemStatus.cs" />
     <Compile Include="DataLoaders\Status\IListStatus.cs" />
     <Compile Include="DataLoaders\IRealtime.cs" />
@@ -166,6 +168,9 @@
       <Project>{3D117A27-C652-4B5C-9D00-43AF82243AB5}</Project>
       <Name>Toolbox</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -49,20 +49,35 @@ namespace DataProvider.DataLoaders {
         }
 
         public ISnapshotTicker ReuqestSnapshot(TimeSpan? timeout = null) {
-            //return new AdfinSnapshotTicker(this, Logger, _objects.CreateAdxRtList(), timeout);
-            return null;
+            Validate(true);
+            return new AdfinSnapshotTicker(
+                Logger, _objects.CreateAdxRtList(), timeout, 
+                _rics.ToArray(), _feed,  _fields.ToArray());
         }
 
         public IFieldsTicker RequestFields(TimeSpan? timeout = null) {
-            return new AdfinFieldsTicker(Logger, _objects.CreateAdxRtList(), timeout, _rics.ToArray(), _feed);
+            Validate(false);
+            return new AdfinFieldsTicker(
+                Logger, _objects.CreateAdxRtList(), timeout, 
+                _rics.ToArray(), _feed);
         }
 
         // Entrance to the next level
         public ISubscription Create() {
             if (string.IsNullOrEmpty(_feed)) throw new InvalidOperationException("Invalid feed");
-            if (_fields == null || !_fields.Any())
+            Validate(true);
+            return new AdfinSubscription(
+                Logger, _objects.CreateAdxRtList(), 
+                _feed, _mode, _rics, _fields);
+        }
+
+        private void Validate(bool checkFields) {
+            if (_rics == null || !_rics.Any())
+                throw new InvalidOperationException("No rics");
+            if (checkFields && (_fields == null || !_fields.Any()))
                 throw new InvalidOperationException("No fields");
-            return new AdfinSubscription(Logger, _objects.CreateAdxRtList(), _feed, _mode, _rics, _fields);
+            if (_feed == "")
+                throw new InvalidOperationException("feed");
         }
 
         public ILogger Logger { get; private set; }
