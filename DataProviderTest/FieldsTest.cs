@@ -3,8 +3,9 @@ using System.Linq;
 using System.Threading;
 using Connect;
 using ContainerAgent;
-using DataProvider.DataLoaders;
-using DataProvider.DataLoaders.Status;
+using DataProvider.Loaders.Realtime;
+using DataProvider.Loaders.Realtime.Data;
+using DataProvider.Loaders.Status;
 using NUnit.Framework;
 using Toolbox;
 
@@ -59,7 +60,7 @@ namespace DataProviderTest {
             x1 = x1.WithRics("GAZP.MM");
             var subscriptionSetup1 = x1.Subscribe();
             subscriptionSetup1 = subscriptionSetup1.WithFields("BID", "ASK");
-            var sub1 = subscriptionSetup1.Create();
+            var sub1 = subscriptionSetup1.DataRequest();
             sub1.Stop();
             sub1.Close();
         }
@@ -81,14 +82,14 @@ namespace DataProviderTest {
 
             var sS1 = x1.Subscribe();
             sS1 = sS1.WithFields("BID", "ASK");
-            var s1 = sS1.ReuqestSnapshot();
+            var s1 = sS1.SnapshotReuqest();
             s1 = s1.WithCallback(OnImage);
             var t1 = s1.WithTimeout(OnTimeout);
             t1.Request();    
 
             var sS2 = x2.Subscribe(); // todo works both with x1 and x2
             sS2 = sS2.WithFields("BID", "ASK");
-            var s2 = sS2.ReuqestSnapshot();
+            var s2 = sS2.SnapshotReuqest();
             s2 = s2.WithCallback(OnImage);
             var t2 = s2.WithTimeout(OnTimeout);
             t2.Request();    
@@ -114,7 +115,7 @@ namespace DataProviderTest {
             subscriptionSetup = subscriptionSetup.WithFields("BID", "ASK");
 
 
-            var subscription = subscriptionSetup.ReuqestSnapshot(TimeSpan.FromMilliseconds(1));
+            var subscription = subscriptionSetup.SnapshotReuqest(TimeSpan.FromMilliseconds(1));
             subscription = subscription.WithCallback(OnImage);
             var tm = subscription.WithTimeout(OnTimeout);
             tm.Request();
@@ -164,9 +165,9 @@ namespace DataProviderTest {
             var subscriptionSetup1 = x1.Subscribe();
             subscriptionSetup1 = subscriptionSetup1.WithFields("BID", "ASK");
             subscriptionSetup1 = subscriptionSetup1.WithMode("TYPE:STRING");
-            var sub1 = subscriptionSetup1.Create();
+            var sub1 = subscriptionSetup1.DataRequest();
 
-            sub1 = sub1.Callback(upd => {
+            sub1 = sub1.WithCallback(upd => {
                 cb();
                 var data = upd.Data.ToSomeArray();
                 Console.WriteLine("Update with source status {0} and list status {1}", upd.SourceStatus, upd.ListStatus);
@@ -176,7 +177,7 @@ namespace DataProviderTest {
                 else
                     Console.WriteLine("No rics :(");
             });
-            sub1 = sub1.OnStatus((feedName, status, listStatus) =>
+            sub1 = sub1.WithStatus((feedName, status, listStatus) =>
                 Console.WriteLine("Feed {0} -> feed status {1}, list status {2}", feedName, status, listStatus));
             sub1.Start(RunMode.OnUpdate);
             return sub1;
@@ -199,9 +200,9 @@ namespace DataProviderTest {
             sS1 = sS1.WithFields("BID", "ASK");
             sS1 = sS1.WithMode("TYPE:STRING");
             sS1 = sS1.WithFrq(TimeSpan.FromSeconds(1));
-            var sub1 = sS1.Create();
+            var sub1 = sS1.DataRequest();
             var times = 0;
-            sub1 = sub1.Callback(snapshot => {
+            sub1 = sub1.WithCallback(snapshot => {
                 Console.WriteLine("Got snapshot. Feed status is {0}, list status is {1}", snapshot.SourceStatus, snapshot.ListStatus);
                 foreach (var row in snapshot.Data) {
                     Console.WriteLine(" -> got ric {0} status {1}", row.Ric, row.Status);
@@ -245,7 +246,7 @@ namespace DataProviderTest {
             x1 = x1.WithRics("GAZP.MM", "RUB=", "RU25YT=RR", "Babushka");
             var t1 = x1.Subscribe();
             t1 = t1.WithFields("BID", "ASK");
-            var q1 = t1.ReuqestSnapshot(TimeSpan.FromSeconds(5));
+            var q1 = t1.SnapshotReuqest(TimeSpan.FromSeconds(5));
 
             q1 = q1.WithCallback(snapshot => {
                 _images++;
@@ -285,7 +286,7 @@ namespace DataProviderTest {
             x1 = x1.WithRics(rics);
 
             var t1 = x1.Subscribe();
-            var q1 = t1.RequestFields(TimeSpan.FromSeconds(5));
+            var q1 = t1.FieldsRequest(TimeSpan.FromSeconds(5));
             q1 = q1.WithFields(ricsFields => {
                 _fields++;
                 if (ricsFields.SourceStatus != SourceStatus.Up) {

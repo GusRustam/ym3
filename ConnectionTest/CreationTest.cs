@@ -1,6 +1,6 @@
 ﻿using Connect;
 using ContainerAgent;
-using DataProvider.RawData;
+using DataProvider.Objects;
 using NUnit.Framework;
 
 namespace ConnectionTest {

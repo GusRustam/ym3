@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Interface Name="DataProvider.Loaders.History.IHistoryRequest">
+    <Position X="3.25" Y="0.5" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAACAAAABAABAgAAAAAAEAAAAAggAAAAAEAAAAAAA=</HashCode>
+      <FileName>Loaders\History\IHistory.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="DataProvider.Loaders.History.IHistory">
+    <Position X="0.5" Y="0.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Loaders\History\IHistory.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="DataProvider.Loaders.History.IHistoricalRecord">
+    <Position X="1.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Loaders\History\IHistoricalRecord.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="DataProvider.Loaders.History.ITimeSeriesRecord" Collapsed="true">
+    <Position X="0.5" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAIAAAAgAAAAAAAAgAAAABAAAAAACAAAA=</HashCode>
+      <FileName>Loaders\History\ITimeSeriesRecord.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="DataProvider.Loaders.History.ITimeSalesRecord" Collapsed="true">
+    <Position X="2.5" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACQAAAAAAAAgAAAACAUQAAAAAAgAQAABAAAgAAAAACA=</HashCode>
+      <FileName>Loaders\History\ITimeSalesRecord.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="DataProvider.Loaders.History.HistoryInterval" Collapsed="true">
+    <Position X="6.5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAJAAAAAAAAAAAAAAAAAAAACIEAAAAAIAAQAA=</HashCode>
+      <FileName>Loaders\History\IHistory.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="DataProvider.Loaders.History.HistoryMode" Collapsed="true">
+    <Position X="6.75" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAECAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Loaders\History\IHistory.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

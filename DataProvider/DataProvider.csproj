@@ -85,47 +85,55 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataLoaders\AdfinFieldsTicker.cs" />
-    <Compile Include="DataLoaders\AdfinRealtime.cs" />
-    <Compile Include="DataLoaders\AdfinSnapshotTicker.cs" />
-    <Compile Include="DataLoaders\AdfinSubscription.cs" />
-    <Compile Include="DataLoaders\AdfinSubscriptionSetup.cs" />
-    <Compile Include="DataLoaders\AdfinTimeoutRequest.cs" />
-    <Compile Include="DataLoaders\Field.cs" />
-    <Compile Include="DataLoaders\IData.cs" />
-    <Compile Include="DataLoaders\IField.cs" />
-    <Compile Include="DataLoaders\IFieldsTicker.cs" />
-    <Compile Include="DataLoaders\IHistory.cs" />
-    <Compile Include="DataLoaders\IRicFields.cs" />
-    <Compile Include="DataLoaders\IRicsFields.cs" />
-    <Compile Include="DataLoaders\ISnapshot.cs" />
-    <Compile Include="DataLoaders\ISnapshotItem.cs" />
-    <Compile Include="DataLoaders\ISnapshotTicker.cs" />
-    <Compile Include="DataLoaders\ITimeout.cs" />
-    <Compile Include="DataLoaders\RicFields.cs" />
-    <Compile Include="DataLoaders\RicsFields.cs" />
-    <Compile Include="DataLoaders\Snapshot.cs" />
-    <Compile Include="DataLoaders\SnapshotItem.cs" />
-    <Compile Include="DataLoaders\Status\DataStatus.cs" />
-    <Compile Include="DataLoaders\Status\FieldStatus.cs" />
-    <Compile Include="DataLoaders\Status\IDataStatus.cs" />
-    <Compile Include="DataLoaders\Status\IFieldStatus.cs" />
-    <Compile Include="DataLoaders\Status\IItemStatus.cs" />
-    <Compile Include="DataLoaders\Status\IListStatus.cs" />
-    <Compile Include="DataLoaders\IRealtime.cs" />
-    <Compile Include="DataLoaders\Status\IRunMode.cs" />
-    <Compile Include="DataLoaders\Status\ISourceStatus.cs" />
-    <Compile Include="DataLoaders\ISubscription.cs" />
-    <Compile Include="DataLoaders\ISubscriptionSetup.cs" />
-    <Compile Include="DataLoaders\Status\ItemStatus.cs" />
-    <Compile Include="DataLoaders\Status\ListStatus.cs" />
-    <Compile Include="DataLoaders\Status\RunMode.cs" />
-    <Compile Include="DataLoaders\Status\SourceStatus.cs" />
-    <Compile Include="RawData\EikonObjectsBase.cs" />
-    <Compile Include="RawData\EikonObjectsPlain.cs" />
-    <Compile Include="RawData\EikonObjectsSdk.cs" />
-    <Compile Include="RawData\IEikonObjects.cs" />
-    <Compile Include="RawData\EikonObjectsPlVba.cs" />
+    <Compile Include="Loaders\History\AdxHistory.cs" />
+    <Compile Include="Loaders\History\AdxHistoryRequest.cs" />
+    <Compile Include="Loaders\History\Data\IHistoricalRecord.cs" />
+    <Compile Include="Loaders\History\Data\ITimeSalesRecord.cs" />
+    <Compile Include="Loaders\History\Data\ITimeSeriesRecord.cs" />
+    <Compile Include="Loaders\History\HistoryInterval.cs" />
+    <Compile Include="Loaders\History\HistoryMode.cs" />
+    <Compile Include="Loaders\History\IHistoryRequest.cs" />
+    <Compile Include="Loaders\History\Data\IHistorySnapshot.cs" />
+    <Compile Include="Loaders\Realtime\AdfinFieldsTicker.cs" />
+    <Compile Include="Loaders\Realtime\AdfinRealtime.cs" />
+    <Compile Include="Loaders\Realtime\AdfinSnapshotTicker.cs" />
+    <Compile Include="Loaders\Realtime\AdfinSubscription.cs" />
+    <Compile Include="Loaders\Realtime\AdfinSubscriptionSetup.cs" />
+    <Compile Include="Loaders\Realtime\AdfinTimeoutRequest.cs" />
+    <Compile Include="Loaders\Realtime\Data\Field.cs" />
+    <Compile Include="Loaders\Realtime\Data\IField.cs" />
+    <Compile Include="Loaders\Realtime\Data\IRicFields.cs" />
+    <Compile Include="Loaders\Realtime\Data\IRicsFields.cs" />
+    <Compile Include="Loaders\Realtime\Data\ISnapshot.cs" />
+    <Compile Include="Loaders\Realtime\Data\ISnapshotItem.cs" />
+    <Compile Include="Loaders\Realtime\ISnapshotTicker.cs" />
+    <Compile Include="Loaders\Realtime\Data\RicFields.cs" />
+    <Compile Include="Loaders\Realtime\Data\RicsFields.cs" />
+    <Compile Include="Loaders\Realtime\Data\Snapshot.cs" />
+    <Compile Include="Loaders\Realtime\Data\SnapshotItem.cs" />
+    <Compile Include="Loaders\Realtime\IFieldsTicker.cs" />
+    <Compile Include="Loaders\History\IHistory.cs" />
+    <Compile Include="Loaders\Realtime\ITimeout.cs" />
+    <Compile Include="Loaders\Status\DataStatus.cs" />
+    <Compile Include="Loaders\Status\FieldStatus.cs" />
+    <Compile Include="Loaders\Status\IDataStatus.cs" />
+    <Compile Include="Loaders\Status\IFieldStatus.cs" />
+    <Compile Include="Loaders\Status\IItemStatus.cs" />
+    <Compile Include="Loaders\Status\IListStatus.cs" />
+    <Compile Include="Loaders\Realtime\IRealtime.cs" />
+    <Compile Include="Loaders\Status\IRunMode.cs" />
+    <Compile Include="Loaders\Status\ISourceStatus.cs" />
+    <Compile Include="Loaders\Realtime\ISubscription.cs" />
+    <Compile Include="Loaders\Realtime\ISubscriptionSetup.cs" />
+    <Compile Include="Loaders\Status\ItemStatus.cs" />
+    <Compile Include="Loaders\Status\ListStatus.cs" />
+    <Compile Include="Loaders\Status\RunMode.cs" />
+    <Compile Include="Loaders\Status\SourceStatus.cs" />
+    <Compile Include="Objects\EikonObjectsBase.cs" />
+    <Compile Include="Objects\EikonObjectsPlain.cs" />
+    <Compile Include="Objects\EikonObjectsSdk.cs" />
+    <Compile Include="Objects\IEikonObjects.cs" />
+    <Compile Include="Objects\EikonObjectsPlVba.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -176,7 +184,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram1.cd" />
+    <None Include="History.cd" />
+    <None Include="Realtime.cd" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

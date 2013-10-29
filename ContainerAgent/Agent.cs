@@ -1,7 +1,6 @@
 ﻿using Connect;
-using DataProvider.DataLoaders;
-using DataProvider.DataLoaders.Status;
-using DataProvider.RawData;
+using DataProvider.Loaders.Realtime;
+using DataProvider.Objects;
 using LoggingFacility;
 using StructureMap;
 
