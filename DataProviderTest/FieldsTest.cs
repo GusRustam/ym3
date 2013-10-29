@@ -93,7 +93,7 @@ namespace DataProviderTest {
             var t2 = s2.WithTimeout(OnTimeout);
             t2.Request();    
 
-            Thread.Sleep(TimeSpan.FromSeconds(5));
+            Thread.Sleep(TimeSpan.FromSeconds(10));
 
             Assert.AreEqual(_onImages, 2);
         }

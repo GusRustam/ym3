@@ -17,9 +17,12 @@ namespace DataProvider.DataLoaders {
         // Actions necessary for Subscription
         private Action<ISnapshot> _callback;
         private Action<string, ISourceStatus, IListStatus> _onSourceAction;
+
+        // Return values
         private ISourceStatus _status;
         private IListStatus _listStatus;
 
+        // Subscription
         public ISubscription OnStatus(Action<string, ISourceStatus, IListStatus> action) {
             _onSourceAction = action;
             return this;
@@ -30,6 +33,7 @@ namespace DataProvider.DataLoaders {
             return this;
         }
 
+        // constructor
         internal AdfinSubscription(ILogger logger, AdxRtList adxRtList, string feed, string mode, IEnumerable<string> rics, IEnumerable<string> fields) {
             Logger = logger;
             _adxRtList = adxRtList;
@@ -42,12 +46,6 @@ namespace DataProvider.DataLoaders {
             
             _adxRtList.ErrorMode = AdxErrorMode.EXCEPTION;
             _adxRtList.DebugLevel = RT_DebugLevel.RT_DEBUG_IMMEDIATE;
-        }
-
-        public void Snapshot() {
-            ResetAdxRtList();
-
-            _adxRtList.StartUpdates(RT_RunMode.RT_MODE_IMAGE);
         }
 
         public void Start(IRunMode mode) {
@@ -74,6 +72,7 @@ namespace DataProvider.DataLoaders {
             _adxRtList.CloseAllLinks();
         }
 
+        // private methods
         private void ResetAdxRtList() {
             _adxRtList.OnUpdate -= OnUpdateHandler;
             _adxRtList.OnTime -= OnTimeHandler;
