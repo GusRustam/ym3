@@ -14,6 +14,7 @@ namespace DataProvider.DataLoaders {
 
         // Return data
         private ISourceStatus _status;
+        private IListStatus _listStatus;
         private readonly List<ISnapshotItem> _snapshot;
 
         protected override void RegisterHandlers() {
@@ -24,12 +25,12 @@ namespace DataProvider.DataLoaders {
 
         protected override void ReportInvalid() {
             if (_callbackAction != null) 
-                _callbackAction(new Snapshot(_status));
+                _callbackAction(new Snapshot(_status, _listStatus));
         }
 
         protected override void ReportOk() {
             if (_callbackAction != null)
-                _callbackAction(new Snapshot(_status, _snapshot));
+                _callbackAction(new Snapshot(_status, _listStatus, _snapshot));
         }
 
         protected override IRunMode AdfinMode {
@@ -98,13 +99,15 @@ namespace DataProvider.DataLoaders {
             lock (LockObj) {
                 this.Trace(string.Format("OnStatusChangeHandler({0}, {1}, {2})", aListstatus, aSourcestatus, aRunmode));
 
+                _listStatus = ListStatus.FromAdxStatus(aListstatus);
+
                 // save status
                 _status = SourceStatus.FromAdxStatus(aSourcestatus);
 
                 if (aSourcestatus == RT_SourceStatus.RT_SOURCE_UP)
                     return;
 
-                // unregister all requests
+                // source not up! unregister all requests
                 if (AdxRtList.ListStatus == RT_ListStatus.RT_LIST_RUNNING)
                     AdxRtList.UnregisterAllItems();
 

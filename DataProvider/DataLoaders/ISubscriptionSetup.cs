@@ -3,6 +3,7 @@
 namespace DataProvider.DataLoaders {
     public interface ISubscriptionSetup {
         ISubscriptionSetup WithFrq(TimeSpan span);
+        ISubscriptionSetup WithMode(string mode);
         ISubscriptionSetup WithFields(params string[] fields);
 
         ISnapshotTicker ReuqestSnapshot(TimeSpan? timeout = null);

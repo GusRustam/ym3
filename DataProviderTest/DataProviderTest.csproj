@@ -129,6 +129,10 @@
       <Project>{75317712-FB97-4039-9876-7A9A583A089E}</Project>
       <Name>LoggingFacility</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MainPatterns\Toolbox.csproj">
+      <Project>{3D117A27-C652-4B5C-9D00-43AF82243AB5}</Project>
+      <Name>Toolbox</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

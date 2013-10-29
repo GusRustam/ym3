@@ -8,5 +8,14 @@ namespace Toolbox {
         public static bool Belongs<T>(this T who, params T[] arr)  {
             return arr.Contains(who);
         }
+
+        public static T[] ToSomeArray<T>(this IEnumerable<T> data) {
+            return data != null ? data.ToArray() : new T[0];
+        }
+
+        public static IList<T> ToSomeList<T>(this IEnumerable<T> data) {
+            return data != null ? data.ToList() : new List<T>();
+        }
+
     }
 }

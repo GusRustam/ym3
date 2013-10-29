@@ -29,14 +29,22 @@ namespace DataProvider.DataLoaders {
             
             if (span < TimeSpan.FromSeconds(1))
                 throw new InvalidOperationException("refresh period too short");
-            
-            if (span > TimeSpan.FromHours(1)) 
-                _mode = string.Format("FRQ:{0}H", span.Hours);
+
+            var addon = "";
+            if (span > TimeSpan.FromHours(1))
+                addon = string.Format("FRQ:{0}H", span.Hours);
             else if (span > TimeSpan.FromMinutes(1))
-                _mode = string.Format("FRQ:{0}M", span.Minutes);
+                addon = string.Format("FRQ:{0}M", span.Minutes);
             else
-                _mode = string.Format("FRQ:{0}S", span.Seconds);
+                addon = string.Format("FRQ:{0}S", span.Seconds);
+
+            _mode = string.IsNullOrEmpty(_mode) ? addon : string.Format("{0} {1}", _mode, addon);
             
+            return this;
+        }
+
+        public ISubscriptionSetup WithMode(string mode) {
+            _mode = string.IsNullOrEmpty(_mode) ? mode : string.Format("{0} {1}", _mode, mode);
             return this;
         }
 

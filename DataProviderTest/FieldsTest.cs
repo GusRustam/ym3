@@ -6,12 +6,12 @@ using ContainerAgent;
 using DataProvider.DataLoaders;
 using DataProvider.DataLoaders.Status;
 using NUnit.Framework;
+using Toolbox;
 
 namespace DataProviderTest {
     [TestFixture]
     public class FieldsTest {
         private int _onImages;
-        private int _onTimes;
         private int _onTimeouts;
 
         [SetUp]
@@ -26,7 +26,6 @@ namespace DataProviderTest {
 
         private void ClearCounters() {
             _onImages = 0;
-            _onTimes = 0;
             _onTimeouts = 0;
         }
 
@@ -37,7 +36,7 @@ namespace DataProviderTest {
 
         private void OnImage(ISnapshot snapshot) {
             Console.WriteLine("OnImage()");
-            Console.WriteLine("Status = {0}", snapshot.Status);
+            Console.WriteLine("Status = {0}", snapshot.SourceStatus);
             foreach (var item in snapshot.Data) {
                 Console.WriteLine(" -> ric {0}, status {1}", item.Ric, item.Status);
                 foreach (var field in item.Fields) 
@@ -47,11 +46,6 @@ namespace DataProviderTest {
             _onImages++;
         }
        
-        private void OnTimeHandler() {
-            Console.WriteLine("OnTime()");
-            _onTimes++;
-        }
-
         [TestCase]
         public void CreateAndKill() {
             var factory = Agent.Factory();
@@ -131,7 +125,67 @@ namespace DataProviderTest {
         }
 
         [TestCase]
+        public void OnUpdateValidFeed() {
+            var updates = 0;
+            var sub1 = UpdateCall(() => updates++, "IDN", "EUR=", "GAZP.MM");
+
+            Thread.Sleep(TimeSpan.FromSeconds(5));
+
+            sub1.Stop();
+            sub1.Close();
+            Assert.GreaterOrEqual(updates, 1);
+        }
+
+        [TestCase]
+        public void OnUpdateInvalidFeed() {
+            var updates = 0;
+            var sub1 = UpdateCall(() => {
+                updates++; 
+                
+            }, "IDN1111", "EUR=", "GAZP.MM");
+
+            Thread.Sleep(TimeSpan.FromSeconds(5));
+
+            sub1.Stop();
+            sub1.Close();
+            Assert.AreEqual(updates, 0);
+        }
+
+        private static ISubscription UpdateCall(Action cb, string feed, params string[] rics) {
+            var factory = Agent.Factory();
+            var conn = factory.GetInstance<IConnection>();
+
+            if (!conn.ConnectAndWait(10))
+                Assert.Inconclusive();
+
+            var x1 = factory.GetInstance<IRealtime>();
+            x1 = x1.WithFeed(feed);
+            x1 = x1.WithRics(rics);
+            var subscriptionSetup1 = x1.Subscribe();
+            subscriptionSetup1 = subscriptionSetup1.WithFields("BID", "ASK");
+            subscriptionSetup1 = subscriptionSetup1.WithMode("TYPE:STRING");
+            var sub1 = subscriptionSetup1.Create();
+
+            sub1 = sub1.Callback(upd => {
+                cb();
+                var data = upd.Data.ToSomeArray();
+                Console.WriteLine("Update with source status {0} and list status {1}", upd.SourceStatus, upd.ListStatus);
+
+                if (data.Any())
+                    Console.WriteLine("Got update on ric {0}", data.First().Ric);
+                else
+                    Console.WriteLine("No rics :(");
+            });
+            sub1 = sub1.OnStatus((feedName, status, listStatus) =>
+                Console.WriteLine("Feed {0} -> feed status {1}, list status {2}", feedName, status, listStatus));
+            sub1.Start(RunMode.OnUpdate);
+            return sub1;
+        }
+
+        [TestCase]
         public void OnTime() {
+            // todo develop some version with invalid feeds and rics
+            // todo I tried to turn the network off during the test but it didn't change anything
             var factory = Agent.Factory();
             var conn = factory.GetInstance<IConnection>();
 
@@ -140,19 +194,29 @@ namespace DataProviderTest {
 
             var x1 = factory.GetInstance<IRealtime>();
             x1 = x1.WithFeed("IDN");
-            x1 = x1.WithRics("GAZP.MM");
-            var subscriptionSetup1 = x1.Subscribe();
-            subscriptionSetup1 = subscriptionSetup1.WithFields("BID", "ASK");
-            subscriptionSetup1 = subscriptionSetup1.WithFrq(TimeSpan.FromSeconds(1));
-            var sub1 = subscriptionSetup1.Create();
-            sub1 = sub1.OnTime(OnTimeHandler);
+            x1 = x1.WithRics("GAZP.MM", "EUR=");
+            var sS1 = x1.Subscribe();
+            sS1 = sS1.WithFields("BID", "ASK");
+            sS1 = sS1.WithMode("TYPE:STRING");
+            sS1 = sS1.WithFrq(TimeSpan.FromSeconds(1));
+            var sub1 = sS1.Create();
+            var times = 0;
+            sub1 = sub1.Callback(snapshot => {
+                Console.WriteLine("Got snapshot. Feed status is {0}, list status is {1}", snapshot.SourceStatus, snapshot.ListStatus);
+                foreach (var row in snapshot.Data) {
+                    Console.WriteLine(" -> got ric {0} status {1}", row.Ric, row.Status);
+                    foreach (var field in row.Fields) 
+                        Console.WriteLine(" -> -> got field {0} status {1} value {2}", field.Name, field.Status, field.Value);
+                }
+                times++;
+            });
             sub1.Start(RunMode.OnTime);
 
             Thread.Sleep(TimeSpan.FromSeconds(10));
 
             sub1.Stop();
             sub1.Close();
-            Assert.AreEqual(_onTimes, 10);
+            Assert.GreaterOrEqual(times, 9);
         }
 
         private int _images;
@@ -185,8 +249,8 @@ namespace DataProviderTest {
 
             q1 = q1.WithCallback(snapshot => {
                 _images++;
-                _status = snapshot.Status;
-                Console.WriteLine("Got image; status = {0}", snapshot.Status);
+                _status = snapshot.SourceStatus;
+                Console.WriteLine("Got image; status = {0}", snapshot.SourceStatus);
                 foreach (var item in snapshot.Data) {
                     _rics++;
                     Console.WriteLine(" -> ric {0}, status {1}", item.Ric, item.Status);
@@ -286,30 +350,5 @@ namespace DataProviderTest {
             Assert.AreEqual(_totalFields, 0);
             Assert.AreEqual(_status, SourceStatus.Unknown);
         }
-
-        //[TestCase]
-        //public void LoadRustam() {
-        //    // todo test separately wrong ric and wrong IDN
-
-        //    var factory = Agent.Factory();
-        //    var conn = factory.GetInstance<IConnection>();
-
-        //    if (!conn.ConnectAndWait(10))
-        //        Assert.Inconclusive();
-
-        //    var x1 = factory.GetInstance<IRealtime>();
-        //    x1 = x1.WithFeed("IDN");
-        //    x1 = x1.WithRics("RUSTAM");
-
-        //    var t1 = x1.Subscribe();
-        //    var q1 = t1.RequestFields(TimeSpan.FromSeconds(5));
-        //    q1 = q1.WithFields(OnFields);
-        //    var p1 = q1.WithTimeout(OnTimeout);
-        //    p1.Request();
-        //    Console.WriteLine("======================");
-        //    Thread.Sleep(TimeSpan.FromSeconds(10));
-        //    Console.WriteLine("======================");
-        //    Assert.AreEqual(_onFields, 1);
-        //}
     }
 }
