@@ -1,23 +1,23 @@
 using System;
-using DataProvider.Objects;
 using LoggingFacility;
 using LoggingFacility.LoggingSupport;
+using StructureMap;
 
 namespace DataProvider.Loaders.History {
     // todo - I could get rid of Adx prefix if I used DI here
-    public class AdxHistory : IHistory, ISupportsLogging {
-        private readonly IEikonObjects _objects;
+    public class History : IHistory, ISupportsLogging {
         private string _ric;
+        private readonly IContainer _container;
 
-        public AdxHistory(ILogger logger, IEikonObjects objects) {
-            _objects = objects;
-            Logger = logger;
+        public History(IContainer container) {
+            _container = container;
+            Logger = container.GetInstance<ILogger>();
         }
 
         public IHistoryRequest Subscribe(string ric) {
             _ric = ric;
             Validate();
-            return new AdxHistoryRequest(_objects, Logger, ric);
+            return _container.With("ric").EqualTo(ric).GetInstance<IHistoryRequest>();
         }
 
         private void Validate() {

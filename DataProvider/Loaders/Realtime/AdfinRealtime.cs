@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using DataProvider.Objects;
 using LoggingFacility;
 using LoggingFacility.LoggingSupport;
+using StructureMap;
 
 namespace DataProvider.Loaders.Realtime {
     public class AdfinRealtime : IRealtime, ISupportsLogging {
-        private readonly IEikonObjects _objects;
+        private readonly IContainer _container;
         private string _feed = "Q";
         private List<string> _rics;
 
-        public AdfinRealtime(IEikonObjects objects, ILogger logger) {
-            _objects = objects;
-            if (objects == null)
-                throw new InvalidOperationException("objects");
-            Logger = logger;
+        public AdfinRealtime(IContainer container) {
+            _container = container;
+            Logger = container.GetInstance<ILogger>();
         }
 
         public IRealtime WithFeed(string feed) {
@@ -35,7 +33,11 @@ namespace DataProvider.Loaders.Realtime {
         public ISubscriptionSetup Subscribe() {
             if (_rics == null || !_rics.Any())
                 throw new InvalidOperationException("rics");
-            return new AdfinSubscriptionSetup(_rics, _feed, _objects, Logger);
+            return _container
+                        .With("rics").EqualTo(_rics)
+                        .With("feed").EqualTo(_feed)
+                        .GetInstance<ISubscriptionSetup>();
+            //return new AdfinSubscriptionSetup(_rics, _feed);
         }
 
         public ILogger Logger { get; set; }

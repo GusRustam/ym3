@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using DataProvider.Loaders.Realtime.Data;
 using DataProvider.Loaders.Status;
-using LoggingFacility;
 using LoggingFacility.LoggingSupport;
+using StructureMap;
 using ThomsonReuters.Interop.RTX;
 using Toolbox;
 
 namespace DataProvider.Loaders.Realtime {
-    internal class AdfinFieldsTicker : AdfinTimeoutRequest, IFieldsTicker {
+    public class AdfinFieldsTicker : AdfinTimeoutRequest, IFieldsTicker {
         private int _countdown;
 
         // Callbacks
@@ -21,8 +21,9 @@ namespace DataProvider.Loaders.Realtime {
         // Storage for return data
         private readonly Dictionary<string, IRicFields> _fields = new Dictionary<string, IRicFields>();
 
-        public AdfinFieldsTicker(ILogger logger, AdxRtList adxRtList, TimeSpan? waitTime, string[] rics, string feed) :
-            base(logger, adxRtList, waitTime, rics, feed) {
+        // todo how to initialize base class using IContainer
+        public AdfinFieldsTicker(IContainer container, TimeSpan? timeout, string[] rics, string feed) :
+            base(container, timeout, rics, feed) {
         }
 
         /// <summary>

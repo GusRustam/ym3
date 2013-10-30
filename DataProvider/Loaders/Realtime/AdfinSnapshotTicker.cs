@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using DataProvider.Loaders.Realtime.Data;
 using DataProvider.Loaders.Status;
-using LoggingFacility;
 using LoggingFacility.LoggingSupport;
+using StructureMap;
 using ThomsonReuters.Interop.RTX;
 
 namespace DataProvider.Loaders.Realtime {
-    internal class AdfinSnapshotTicker : AdfinTimeoutRequest, ISnapshotTicker {
+    public class AdfinSnapshotTicker : AdfinTimeoutRequest, ISnapshotTicker {
         private Action<ISnapshot> _callbackAction;
 
         // Adfin status
@@ -43,8 +43,8 @@ namespace DataProvider.Loaders.Realtime {
             return this;
         }
 
-        public AdfinSnapshotTicker(ILogger logger, AdxRtList adxRtList, TimeSpan? timeout, string[] rics, string feed, string[] fields) : 
-            base(logger, adxRtList, timeout, rics, feed) {
+        public AdfinSnapshotTicker(IContainer container, TimeSpan? timeout, string[] rics, string feed, string[] fields) :
+            base(container, timeout, rics, feed) {
             _fields = fields;
             _snapshot = new List<ISnapshotItem>();
         }

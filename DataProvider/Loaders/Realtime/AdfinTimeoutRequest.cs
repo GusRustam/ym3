@@ -3,12 +3,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DataProvider.Loaders.Status;
+using DataProvider.Objects;
 using LoggingFacility;
 using LoggingFacility.LoggingSupport;
+using StructureMap;
 using ThomsonReuters.Interop.RTX;
 
 namespace DataProvider.Loaders.Realtime {
-    internal abstract class AdfinTimeoutRequest : ISupportsLogging, ITimeout {
+    public abstract class AdfinTimeoutRequest : ISupportsLogging, ITimeout {
         // State machine
         protected enum State {
             Init,
@@ -26,7 +28,7 @@ namespace DataProvider.Loaders.Realtime {
         // Outer data
         protected readonly string[] Rics;
         protected readonly AdxRtList AdxRtList;
-        protected readonly TimeSpan? WaitTime;
+        protected readonly TimeSpan? Timeout;
         protected readonly string Feed;
 
         // Threading data
@@ -49,11 +51,11 @@ namespace DataProvider.Loaders.Realtime {
             return this;
         }
 
-        protected AdfinTimeoutRequest(ILogger logger, AdxRtList adxRtList, TimeSpan? waitTime, string[] rics, string feed) {
-            AdxRtList = adxRtList;
-            WaitTime = waitTime;
+        protected AdfinTimeoutRequest(IContainer container, TimeSpan? timeout, string[] rics, string feed) {
+            AdxRtList = container.GetInstance<IEikonObjects>().CreateAdxRtList();
+            Logger = container.GetInstance<ILogger>();
+            Timeout = timeout;
             Rics = rics;
-            Logger = logger;
             Feed = feed;
         }
 
@@ -87,8 +89,8 @@ namespace DataProvider.Loaders.Realtime {
 
             // and waits for cancellation or receipt of all data
             CancelSrc.Token.WaitHandle.WaitOne(
-                WaitTime.HasValue ?
-                    WaitTime.Value :
+                Timeout.HasValue ?
+                    Timeout.Value :
                     TimeSpan.FromMilliseconds(-1));
 
             // waiting finished

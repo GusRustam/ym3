@@ -3,6 +3,7 @@ using DataProvider.Loaders.Realtime;
 using DataProvider.Objects;
 using LoggingFacility;
 using StructureMap;
+using ThomsonReuters.Interop.RTX;
 
 namespace ContainerAgent {
     
@@ -33,6 +34,15 @@ namespace ContainerAgent {
                 
             //---------------- Data Providers
             c.For<IRealtime>().Use<AdfinRealtime>();
+
+            c.For<ISubscriptionSetup>().Use<AdfinSubscriptionSetup>();
+            c.For<ISnapshotTicker>().Use<AdfinSnapshotTicker>();
+            c.For<IFieldsTicker>().Use<AdfinFieldsTicker>();
+            c.For<ISubscription>().Use<AdfinSubscription>();
+            c.For<ISubscriptionSetup>().Use<AdfinSubscriptionSetup>();
+
+            // Adfin RT
+            //c.For<AdxRtList>().Use(context => context.GetInstance<IEikonObjects>().CreateAdxRtList());
         }
     }
 }

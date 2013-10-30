@@ -74,7 +74,7 @@ namespace DataProvider.Loaders.History {
         }
 
         private void OnUpdate(RT_DataStatus dataStatus) {
-            if (_callback != null) _callback();
+            //if (_callback != null) _callback();
         }
 
         private object[] GetFields() {
@@ -86,6 +86,7 @@ namespace DataProvider.Loaders.History {
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+            throw new NotImplementedException();
         }
 
         private string CompileModeString() {
