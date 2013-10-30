@@ -21,5 +21,7 @@ namespace DataProvider.Objects {
         TsiSession CreateTsiSession();
         TsiConnectInfo CreateTsiConnectInfo();
         TsiConnectRequest CreateTsiConnectRequest();
+        TsiReqInfo CreateTsiReqInfo();
+        TsiGetDataRequest CreateTsiGetDataRequest();
     }
 }

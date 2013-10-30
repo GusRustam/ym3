@@ -60,6 +60,10 @@
     <OutputPath>bin\x86\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DataProvider, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>obj\x86\Debug\DataProvider.dll</HintPath>
+    </Reference>
     <Reference Include="Interop.AdfinXAnalyticsFunctions">
       <HintPath>..\..\..\..\..\AppData\Local\Thomson Reuters\TRD 6\Program\Interop.AdfinXAnalyticsFunctions.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -88,15 +92,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Loaders\History\AdxHistory.cs" />
+    <Compile Include="Loaders\History\History.cs" />
     <Compile Include="Loaders\History\AdxHistoryRequest.cs" />
-    <Compile Include="Loaders\History\Data\IHistoricalRecord.cs" />
-    <Compile Include="Loaders\History\Data\ITimeSalesRecord.cs" />
-    <Compile Include="Loaders\History\Data\ITimeSeriesRecord.cs" />
-    <Compile Include="Loaders\History\HistoryInterval.cs" />
-    <Compile Include="Loaders\History\HistoryMode.cs" />
+    <Compile Include="Loaders\History\Data\HistoryField.cs" />
+    <Compile Include="Loaders\History\Data\IHistoryField.cs" />
+    <Compile Include="Loaders\History\HistorySetup.cs" />
     <Compile Include="Loaders\History\IHistoryRequest.cs" />
     <Compile Include="Loaders\History\Data\IHistorySnapshot.cs" />
+    <Compile Include="Loaders\History\TsiHistoryRequest.cs" />
     <Compile Include="Loaders\Realtime\AdfinFieldsTicker.cs" />
     <Compile Include="Loaders\Realtime\AdfinRealtime.cs" />
     <Compile Include="Loaders\Realtime\AdfinSnapshotTicker.cs" />
@@ -116,7 +119,7 @@
     <Compile Include="Loaders\Realtime\Data\SnapshotItem.cs" />
     <Compile Include="Loaders\Realtime\IFieldsTicker.cs" />
     <Compile Include="Loaders\History\IHistory.cs" />
-    <Compile Include="Loaders\Realtime\ITimeout.cs" />
+    <Compile Include="Loaders\ITimeout.cs" />
     <Compile Include="Loaders\Status\DataStatus.cs" />
     <Compile Include="Loaders\Status\FieldStatus.cs" />
     <Compile Include="Loaders\Status\IDataStatus.cs" />
@@ -191,6 +194,7 @@
     <None Include="packages.config" />
     <None Include="Realtime.cd" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DataProvider.Loaders.Realtime {
+namespace DataProvider.Loaders {
     public interface ITimeout {
         ITimeout WithTimeout(Action callback);
         void Request();

@@ -1,112 +1,80 @@
 using System;
-using System.Linq;
-using DataProvider.Loaders.History.Data;
 using DataProvider.Objects;
 using LoggingFacility;
 using LoggingFacility.LoggingSupport;
+using StructureMap;
 using ThomsonReuters.Interop.RTX;
+using Toolbox.Async;
 
 namespace DataProvider.Loaders.History {
-    public class AdxHistoryRequest : IHistoryRequest, ISupportsLogging {
-        private readonly string _ric;
-        private string _feed = "IDN";
-        private HistoryInterval _interval = HistoryInterval.Day;
-        private DateTime? _since;
-        private DateTime? _till;
-        private int? _rows;
-        private Action<IHistorySnapshot> _callback;
-        private HistoryMode _mode = HistoryMode.TimeSales;
+    public sealed class AdxHistoryRequest : IHistoryRequest, ISupportsLogging {
+        private readonly AdxHistoryAlgorithm _algo;
 
-        private readonly AdxRtHistory _adxRtHistory;
+        private class AdxHistoryAlgorithm : TimeoutCall, ISupportsLogging {
+            private readonly HistorySetup _setup;
+            private readonly AdxRtHistory _adxRtHistory;
 
-        public AdxHistoryRequest(IEikonObjects objects, ILogger logger, string ric) {
-            _ric = ric;
-            _adxRtHistory = objects.CreateAdxRtHistory();
-            Logger = logger;
+            public AdxHistoryAlgorithm(AdxRtHistory adxRtHistory, ILogger logger, HistorySetup setup) {
+                _setup = setup;
+                _adxRtHistory = adxRtHistory;
+                Logger = logger;
+            }
+
+            protected override void Prepare() {
+                // nothing to prepare
+            }
+
+            protected override void Perform() {
+                _adxRtHistory.ErrorMode = AdxErrorMode.EXCEPTION;
+                _adxRtHistory.Source = _setup.Feed;
+                _adxRtHistory.Mode = GetModeString();
+                _adxRtHistory.ItemName = _setup.Ric;
+                _adxRtHistory.OnUpdate += OnUpdate;
+                _adxRtHistory.RequestHistory(GetFields());
+            }
+
+            protected override void Success() {
+                if (_setup.Callback != null)
+                    _setup.Callback();
+            }
+
+            private object[] GetFields() {
+                throw new NotImplementedException();
+            }
+
+            private string GetModeString() {
+                throw new NotImplementedException();
+            }
+
+            private void OnUpdate(RT_DataStatus dataStatus) {
+                // todo parse and extract
+            }
+
+            public ILogger Logger { get; private set; }
         }
 
-        public IHistoryRequest WithFeed(string feed) {
-            _feed = feed;
+
+        public AdxHistoryRequest(IContainer container, ILogger logger, HistorySetup setup) {
+            _algo = new AdxHistoryAlgorithm(container.GetInstance<IEikonObjects>().CreateAdxRtHistory(), logger, setup);
+        }
+
+        public void Start() {
+        }
+
+        public ITimeoutCall WithCallback(Action callback) {
+            _algo.WithCallback(callback);
             return this;
         }
 
-        public IHistoryRequest WithInterval(HistoryInterval interval) {
-            _interval = interval;
-            return this;
-        }
-
-        public IHistoryRequest WithSince(DateTime date) {
-            _since = date;
-            return this;
-        }
-
-        public IHistoryRequest WithTill(DateTime date) {
-            _till = date;
-            return this;
-        }
-
-        public IHistoryRequest WithNumRecords(int num) {
-            _rows = num;
-            return this;
-        }
-
-        public IHistoryRequest WithCallback(Action<IHistorySnapshot> callback) {
-            _callback = callback;
-            return this;
-        }
-
-        public IHistoryRequest WithMode(HistoryMode mode) {
-            _mode = mode;
+        public ITimeoutCall WithTimeout(TimeSpan? timeout) {
+            _algo.WithTimeout(timeout);
             return this;
         }
 
         public void Request() {
-            Validate();
-
-            var fields = GetFields();
-
-            _adxRtHistory.ErrorMode = AdxErrorMode.EXCEPTION;
-            _adxRtHistory.Source = _feed;
-            _adxRtHistory.Mode = CompileModeString();
-            _adxRtHistory.ItemName = _ric;
-            _adxRtHistory.OnUpdate += OnUpdate;
-            _adxRtHistory.RequestHistory(fields);
+            _algo.Request();
         }
 
-        private void OnUpdate(RT_DataStatus dataStatus) {
-            //if (_callback != null) _callback();
-        }
-
-        private object[] GetFields() {
-            switch (_mode) {
-                case HistoryMode.TimeSales:
-                    break;
-                case HistoryMode.TimeSeries:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-            throw new NotImplementedException();
-        }
-
-        private string CompileModeString() {
-            throw new NotImplementedException();
-        }
-
-        private void Validate() {
-            if (string.IsNullOrEmpty(_feed))
-                throw new ArgumentException("feed");
-
-            var elems = new object[] {_since, _till, _rows};
-            var countNulls = elems.Count(o => o == null);
-
-            if (countNulls == 0)
-                throw new ArgumentException("since, till and nbrows together");
-            if (countNulls >= 2)
-                throw new ArgumentException("insufficient since, till and nbrows data");
-
-        }
-
-        public ILogger Logger { get; private set; }
+        public ILogger Logger { get; protected set; }
     }
 }

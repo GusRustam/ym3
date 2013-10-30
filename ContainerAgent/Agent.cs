@@ -3,7 +3,6 @@ using DataProvider.Loaders.Realtime;
 using DataProvider.Objects;
 using LoggingFacility;
 using StructureMap;
-using ThomsonReuters.Interop.RTX;
 
 namespace ContainerAgent {
     

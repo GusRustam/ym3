@@ -73,6 +73,15 @@ namespace DataProvider.Objects {
             return CreateT(GetTsiConnectRequest);
         }
 
+        public TsiReqInfo CreateTsiReqInfo() {
+            return CreateT(GetTsiReqInfo);
+        }
+
+
+        public TsiGetDataRequest CreateTsiGetDataRequest() {
+            return CreateT(GetTsiGetDataRequest);
+        }
+
         protected abstract AdxRtChain GetAdxRtChain();
         protected abstract AdxRtList GetAdxRtList();
         protected abstract AdxRtHistory GetAdxRtHistory();
@@ -86,6 +95,8 @@ namespace DataProvider.Objects {
         protected abstract TsiSession GetTsiSession();
         protected abstract TsiConnectInfo GetTsiConnectInfo();
         protected abstract TsiConnectRequest GetTsiConnectRequest();
+        protected abstract TsiReqInfo GetTsiReqInfo();
+        protected abstract TsiGetDataRequest GetTsiGetDataRequest();
 
         private bool _disposed;
         private readonly bool _keepComObjectsForDisposal;

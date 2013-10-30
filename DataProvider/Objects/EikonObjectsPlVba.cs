@@ -81,5 +81,12 @@ namespace DataProvider.Objects {
             return GetObject<TsiConnectRequest>("TSI6.TsiConnectRequest");
         }
 
+        protected override TsiReqInfo GetTsiReqInfo() {
+            return GetObject<TsiReqInfo>("TSI6.TsiReqInfo");
+        }
+
+        protected override TsiGetDataRequest GetTsiGetDataRequest() {
+            return GetObject<TsiGetDataRequest>("TSI6.TsiGetDataRequest");
+        }
     }
 }

@@ -85,14 +85,14 @@ namespace DataProviderTest {
             var s1 = sS1.SnapshotReuqest();
             s1 = s1.WithCallback(OnImage);
             var t1 = s1.WithTimeout(OnTimeout);
-            t1.Request();    
+            t1.Start();    
 
             var sS2 = x2.Subscribe(); // todo works both with x1 and x2
             sS2 = sS2.WithFields("BID", "ASK");
             var s2 = sS2.SnapshotReuqest();
             s2 = s2.WithCallback(OnImage);
             var t2 = s2.WithTimeout(OnTimeout);
-            t2.Request();    
+            t2.Start();    
 
             Thread.Sleep(TimeSpan.FromSeconds(10));
 
@@ -118,7 +118,7 @@ namespace DataProviderTest {
             var subscription = subscriptionSetup.SnapshotReuqest(TimeSpan.FromMilliseconds(1));
             subscription = subscription.WithCallback(OnImage);
             var tm = subscription.WithTimeout(OnTimeout);
-            tm.Request();
+            tm.Start();
 
             Thread.Sleep(TimeSpan.FromSeconds(1));
 
@@ -262,7 +262,7 @@ namespace DataProviderTest {
                 }
             });
             var p1 = q1.WithTimeout(OnTimeout);
-            p1.Request();
+            p1.Start();
 
             Console.WriteLine("========= Wait start =============");
             Thread.Sleep(TimeSpan.FromSeconds(5));
@@ -310,7 +310,7 @@ namespace DataProviderTest {
                 }
             });
             var p1 = q1.WithTimeout(OnTimeout);
-            p1.Request();
+            p1.Start();
             Console.WriteLine("======================");
             Thread.Sleep(TimeSpan.FromSeconds(10));
             Console.WriteLine("======================");
