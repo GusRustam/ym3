@@ -10,7 +10,7 @@ namespace DataProvider.Loaders.History {
         public DateTime? Since;
         public DateTime? Till;
         public int? Rows;
-        public Action<IHistorySnapshot> Callback;
+        public Action<IHistoryContainer> Callback;
         public ICollection<IHistoryField> Fields;
 
         public void Validate() {

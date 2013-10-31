@@ -7,21 +7,24 @@ namespace DataProvider.Loaders.Status {
         private readonly string _name;
 
         public static readonly IItemStatus Ok = new ItemStatus("Ok");
-        public static readonly IItemStatus UnknownOrInvalid = new ItemStatus("UnknownOrInvalid");
+        public static readonly IItemStatus Unknown = new ItemStatus("Unknown");
+        public static readonly IItemStatus Invalid = new ItemStatus("Invalid");
         public static readonly IItemStatus NotPermissioned = new ItemStatus("NotPermissioned");
         public static readonly IItemStatus Delayed = new ItemStatus("Delayed");
 
-        private static readonly IItemStatus[] Statuses = { Ok, UnknownOrInvalid, NotPermissioned, Delayed };
+        private static readonly IItemStatus[] Statuses = { Ok, Unknown, Invalid, NotPermissioned, Delayed };
 
         public static IItemStatus FromAdxStatus(RT_ItemStatus status) {
             switch (status) {
                 case RT_ItemStatus.RT_ITEM_OK:
                     return Ok;
 
-                case RT_ItemStatus.RT_ITEM_INVALID:
-                case RT_ItemStatus.RT_ITEM_UNKNOWN:
                 case RT_ItemStatus.RT_ITEM_STALE:
-                    return UnknownOrInvalid;
+                case RT_ItemStatus.RT_ITEM_INVALID:
+                    return Invalid;
+
+                case RT_ItemStatus.RT_ITEM_UNKNOWN:
+                    return Unknown;
 
                 case RT_ItemStatus.RT_ITEM_DELAYED:
                     return Delayed;

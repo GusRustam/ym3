@@ -30,7 +30,7 @@ namespace DataProvider.Loaders.History {
             return this;
         }
 
-        public IHistory WithCallback(Action<IHistorySnapshot> callback) {
+        public IHistory WithCallback(Action<IHistoryContainer> callback) {
             _setup.Callback = callback;
             return this;
         }

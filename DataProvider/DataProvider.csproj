@@ -92,13 +92,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Loaders\History\Data\IHistoryContainer.cs" />
+    <Compile Include="Loaders\History\Data\IStorage.cs" />
+    <Compile Include="Loaders\History\Data\SparseStorage.cs" />
+    <Compile Include="Loaders\History\Data\StorageBase.cs" />
     <Compile Include="Loaders\History\History.cs" />
     <Compile Include="Loaders\History\AdxHistoryRequest.cs" />
     <Compile Include="Loaders\History\Data\HistoryField.cs" />
     <Compile Include="Loaders\History\Data\IHistoryField.cs" />
     <Compile Include="Loaders\History\HistorySetup.cs" />
     <Compile Include="Loaders\History\IHistoryRequest.cs" />
-    <Compile Include="Loaders\History\Data\IHistorySnapshot.cs" />
+    <Compile Include="Loaders\History\Data\HistoryContainer.cs" />
     <Compile Include="Loaders\History\TsiHistoryRequest.cs" />
     <Compile Include="Loaders\Realtime\AdfinFieldsTicker.cs" />
     <Compile Include="Loaders\Realtime\AdfinRealtime.cs" />

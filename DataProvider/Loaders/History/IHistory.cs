@@ -24,7 +24,7 @@ namespace DataProvider.Loaders.History {
 
         /// <summary>Set data callback</summary>
         /// <param name="callback">Interval type</param>
-        IHistory WithCallback(Action<IHistorySnapshot> callback);
+        IHistory WithCallback(Action<IHistoryContainer> callback);
 
         /// <summary>Append field to request</summary>
         /// <param name="field">field</param>

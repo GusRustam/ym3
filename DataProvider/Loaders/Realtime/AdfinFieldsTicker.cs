@@ -21,7 +21,6 @@ namespace DataProvider.Loaders.Realtime {
         // Storage for return data
         private readonly Dictionary<string, IRicFields> _fields = new Dictionary<string, IRicFields>();
 
-        // todo how to initialize base class using IContainer
         public AdfinFieldsTicker(IContainer container, TimeSpan? timeout, string[] rics, string feed) :
             base(container, timeout, rics, feed) {
         }

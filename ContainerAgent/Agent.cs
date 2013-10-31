@@ -1,4 +1,5 @@
 ﻿using Connect;
+using DataProvider.Loaders.History.Data;
 using DataProvider.Loaders.Realtime;
 using DataProvider.Objects;
 using LoggingFacility;
@@ -42,6 +43,9 @@ namespace ContainerAgent {
 
             // Adfin RT
             //c.For<AdxRtList>().Use(context => context.GetInstance<IEikonObjects>().CreateAdxRtList());
+            //---------------- History container
+            c.For<IHistoryContainer>().Use<HistoryContainer>();
+            c.For(typeof (IStorage<>)).Use(typeof(SparseStorage<>));
         }
     }
 }

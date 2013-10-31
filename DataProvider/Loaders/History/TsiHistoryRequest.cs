@@ -75,6 +75,7 @@ namespace DataProvider.Loaders.History {
 
             private void LoadFinished(TsiGetDataRequest request) {
                 lock (LockObj) {
+                    // todo parse and extract - see Lukoil
                     TryChangeState(State.Succeded);
                 }
             }

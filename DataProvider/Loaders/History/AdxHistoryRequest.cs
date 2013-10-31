@@ -1,4 +1,5 @@
 using System;
+using DataProvider.Loaders.History.Data;
 using DataProvider.Objects;
 using LoggingFacility;
 using LoggingFacility.LoggingSupport;
@@ -13,11 +14,14 @@ namespace DataProvider.Loaders.History {
         private class AdxHistoryAlgorithm : TimeoutCall, ISupportsLogging {
             private readonly HistorySetup _setup;
             private readonly AdxRtHistory _adxRtHistory;
+            private readonly IContainer _container;
+            private IHistoryContainer _res;
 
-            public AdxHistoryAlgorithm(AdxRtHistory adxRtHistory, ILogger logger, HistorySetup setup) {
+            public AdxHistoryAlgorithm(IContainer container, HistorySetup setup) {
                 _setup = setup;
-                _adxRtHistory = adxRtHistory;
-                Logger = logger;
+                _container = container;
+                _adxRtHistory = container.GetInstance<IEikonObjects>().CreateAdxRtHistory();
+                Logger = container.GetInstance<ILogger>();
             }
 
             protected override void Prepare() {
@@ -35,7 +39,7 @@ namespace DataProvider.Loaders.History {
 
             protected override void Success() {
                 if (_setup.Callback != null)
-                    _setup.Callback();
+                    _setup.Callback(_res);
             }
 
             private object[] GetFields() {
@@ -43,11 +47,50 @@ namespace DataProvider.Loaders.History {
             }
 
             private string GetModeString() {
+                // todo add HEADER:YES
                 throw new NotImplementedException();
             }
 
             private void OnUpdate(RT_DataStatus dataStatus) {
-                // todo parse and extract
+                lock (LockObj) {
+                    switch (dataStatus) {
+                        case RT_DataStatus.RT_DS_FULL:
+                            try {
+                                _res = _container.GetInstance<HistoryContainer>();
+                                object[,] data = _adxRtHistory.Data;
+
+                                var firstRow = data.GetLowerBound(0);
+                                var firstColumn = data.GetLowerBound(1);
+                                var lastRow = data.GetUpperBound(0);
+                                var lastColumn = data.GetUpperBound(1);
+
+                                for (var col = firstColumn; col <= lastColumn; col++) {
+                                    var dateValue = data.GetValue(0, col).ToString();
+                                    DateTime ricDate;
+                                    if (!DateTime.TryParse(dateValue, out ricDate)) continue;
+
+                                    for (var row = firstRow; row <= lastRow; row++) {
+                                            var fieldName = data.GetValue(row, 0).ToString();
+                                            var fieldValue = data.GetValue(row, col).ToString();
+                                            _res.Set(_setup.Ric, ricDate, HistoryField.FromAdxName(fieldName), fieldValue);
+                                        }
+                                    }
+                                TryChangeState(State.Succeded);
+                            } catch (Exception ex) {
+                                this.Warn("Failed to parse", ex);
+                            } finally {
+                                _adxRtHistory.FlushData();
+                            }
+                            break;
+                        case RT_DataStatus.RT_DS_PARTIAL:
+                            this.Info("Got partial data!!!");
+                            break;
+                        default:
+                            TryChangeState(State.Invalid);
+                            break;
+                    }
+                    
+                }
             }
 
             public ILogger Logger { get; private set; }
@@ -55,10 +98,8 @@ namespace DataProvider.Loaders.History {
 
 
         public AdxHistoryRequest(IContainer container, ILogger logger, HistorySetup setup) {
-            _algo = new AdxHistoryAlgorithm(container.GetInstance<IEikonObjects>().CreateAdxRtHistory(), logger, setup);
-        }
-
-        public void Start() {
+            _algo = new AdxHistoryAlgorithm(container, setup);
+            Logger = logger;
         }
 
         public ITimeoutCall WithCallback(Action callback) {
@@ -75,6 +116,6 @@ namespace DataProvider.Loaders.History {
             _algo.Request();
         }
 
-        public ILogger Logger { get; protected set; }
+        public ILogger Logger { get; private set; }
     }
 }

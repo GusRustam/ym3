@@ -20,10 +20,10 @@ namespace DataProvider.Loaders.Status {
                 case RT_SourceStatus.RT_SOURCE_UP:
                     return Up;
 
+                case RT_SourceStatus.RT_SOURCE_INVALID: // todo I moved it from Unknown
                 case RT_SourceStatus.RT_SOURCE_DOWN:
                     return Down;
 
-                case RT_SourceStatus.RT_SOURCE_INVALID:
                 case RT_SourceStatus.RT_SOURCE_UNDEFINED:
                 case RT_SourceStatus.RT_SOURCE_NOT_SET:
                     return Unknown;
