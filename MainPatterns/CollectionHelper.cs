@@ -17,5 +17,9 @@ namespace Toolbox {
             return data != null ? data.ToList() : new List<T>();
         }
 
+        public static string ToReutersDate(this DateTime date) {
+            return string.Format("{0:ddMMMyyyy}", date);
+        }
+
     }
 }

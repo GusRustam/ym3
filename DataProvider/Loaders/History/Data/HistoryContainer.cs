@@ -21,15 +21,15 @@ namespace DataProvider.Loaders.History.Data {
             _data.Set(i1, i2, i3, value);
         }
 
-        IStorage<DateTime, IHistoryField, string> IStorage<string, DateTime, IHistoryField, string>.this[string i1] {
+        public IStorage<DateTime, IHistoryField, string> this[string i1] {
             get { return _data[i1]; }
         }
 
-        IStorage<string, IHistoryField, string> IStorage<string, DateTime, IHistoryField, string>.this[DateTime i2] {
+        public IStorage<string, IHistoryField, string> this[DateTime i2] {
             get { return _data[i2]; }
         }
 
-        IStorage<string, DateTime, string> IStorage<string, DateTime, IHistoryField, string>.this[IHistoryField i3] {
+        public IStorage<string, DateTime, string> this[IHistoryField i3] {
             get { return _data[i3]; }
         }
     }

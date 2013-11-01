@@ -41,7 +41,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Interop.EikonDesktopDataAPILib">
-      <HintPath>..\DataProvider\obj\Debug\Interop.EikonDesktopDataAPILib.dll</HintPath>
+      <HintPath>..\DataProvider\obj\x86\Debug\Interop.EikonDesktopDataAPILib.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="System" />

@@ -26,6 +26,7 @@ namespace Toolbox.Async {
 
         public ITimeoutCall WithTimeout(TimeSpan? timeout) {
             _timeout = timeout;
+            return this;
         }
 
         public void Request() {

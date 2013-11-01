@@ -1,4 +1,5 @@
 using System;
+using DataProvider.Loaders.History.Data;
 using DataProvider.Objects;
 using Interop.TSI6;
 using LoggingFacility;
@@ -12,6 +13,7 @@ namespace DataProvider.Loaders.History {
             private readonly IContainer _container;
             private readonly HistorySetup _setup;
             private TsiSession _session;
+            private IHistoryContainer _res;
 
             public TsiAlgorithm(IContainer container, ILogger logger, HistorySetup setup) {
                 _container = container;
@@ -31,6 +33,8 @@ namespace DataProvider.Loaders.History {
                 if (!session.IsConnected())
                     throw new InvalidOperationException("tsi6 not connected");
                 _session = session;
+
+                _res = _container.GetInstance<IHistoryContainer>();
             }
 
             protected override void Perform() {
@@ -75,20 +79,40 @@ namespace DataProvider.Loaders.History {
 
             private void LoadFinished(TsiGetDataRequest request) {
                 lock (LockObj) {
-                    // todo parse and extract - see Lukoil
                     TryChangeState(State.Succeded);
                 }
             }
 
             private void Loading(TsiGetDataRequest request, TsiTable table) {
                 lock (LockObj) {
-                    
+                    this.Trace(string.Format("Got data on ric {0}", _setup.Ric));
+                    var facts = new IHistoryField[table.Columns];
+                    for (var col = 0; col < table.Columns; col++) {
+                        var name = table.FactForColumn[col];
+                        this.Trace(string.Format(" -> fact {0}, type {1}", name, table.TypeForColumn[col]));
+                        facts[col] = HistoryField.FromTsiName(name);
+                    }
+
+                    for (var row = 0; row < table.Rows; row++) {
+                        object dateValue = table.Value[row, 0].ToString();
+                        this.Trace(string.Format("Row {0}, date {1}", row, dateValue));
+
+                        DateTime ricDate;
+                        if (!DateTime.TryParse(dateValue.ToString(), out ricDate)) continue;
+
+                        for (var col = 1; col < table.Columns; col++) {
+                            this.Trace(string.Format(" -> field {0} status {1} value {2}", 
+                                facts[col], table.Status[row, col], (object)table.Value[row, col]));
+                            
+                            _res.Set(_setup.Ric, ricDate, facts[col], table.Value[row, col].ToString());
+                        }
+                    }
                 }
             }
 
             protected override void Success() {
-                if (_setup.Callback != null) 
-                    _setup.Callback(); // todo data
+                //if (_setup.Callback != null) 
+                    //_setup.Callback(); // todo data
             }
 
             public ILogger Logger { get; private set; }

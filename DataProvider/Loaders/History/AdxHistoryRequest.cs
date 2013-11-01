@@ -1,10 +1,13 @@
 using System;
+using System.Globalization;
+using System.Linq;
 using DataProvider.Loaders.History.Data;
 using DataProvider.Objects;
 using LoggingFacility;
 using LoggingFacility.LoggingSupport;
 using StructureMap;
 using ThomsonReuters.Interop.RTX;
+using Toolbox;
 using Toolbox.Async;
 
 namespace DataProvider.Loaders.History {
@@ -25,7 +28,7 @@ namespace DataProvider.Loaders.History {
             }
 
             protected override void Prepare() {
-                // nothing to prepare
+                _res = _container.GetInstance<HistoryContainer>();
             }
 
             protected override void Perform() {
@@ -43,12 +46,26 @@ namespace DataProvider.Loaders.History {
             }
 
             private object[] GetFields() {
-                throw new NotImplementedException();
+                return _setup.Fields.Select(x => (object)x.AdxName).ToArray();
             }
 
             private string GetModeString() {
-                // todo add HEADER:YES
-                throw new NotImplementedException();
+                var res = "HEADER:YES";
+
+                if (_setup.Since.HasValue)
+                    JoinStr(_setup.Since.Value.ToReutersDate(), ref res);
+
+                if (_setup.Till.HasValue)
+                    JoinStr(_setup.Till.Value.ToReutersDate(), ref res);
+
+                if (_setup.Rows.HasValue)
+                    JoinStr(_setup.Rows.Value.ToString(CultureInfo.InvariantCulture), ref res);
+
+                return res;
+            }
+
+            private static void JoinStr(string str, ref string res) {
+                res = string.IsNullOrEmpty(res) ? str : string.Format("{0} {1}", res, str);
             }
 
             private void OnUpdate(RT_DataStatus dataStatus) {
@@ -56,7 +73,6 @@ namespace DataProvider.Loaders.History {
                     switch (dataStatus) {
                         case RT_DataStatus.RT_DS_FULL:
                             try {
-                                _res = _container.GetInstance<HistoryContainer>();
                                 object[,] data = _adxRtHistory.Data;
 
                                 var firstRow = data.GetLowerBound(0);
@@ -89,7 +105,6 @@ namespace DataProvider.Loaders.History {
                             TryChangeState(State.Invalid);
                             break;
                     }
-                    
                 }
             }
 

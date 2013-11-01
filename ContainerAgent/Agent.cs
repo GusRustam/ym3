@@ -6,8 +6,6 @@ using LoggingFacility;
 using StructureMap;
 
 namespace ContainerAgent {
-    
-
     public class Agent {
         private static Container _container;
 
@@ -45,7 +43,7 @@ namespace ContainerAgent {
             //c.For<AdxRtList>().Use(context => context.GetInstance<IEikonObjects>().CreateAdxRtList());
             //---------------- History container
             c.For<IHistoryContainer>().Use<HistoryContainer>();
-            c.For(typeof (IStorage<>)).Use(typeof(SparseStorage<>));
+            c.For(typeof (IStorage<,,>)).Use(typeof(SparseStorage<,,>));
         }
     }
 }

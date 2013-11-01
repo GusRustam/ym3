@@ -60,10 +60,6 @@
     <OutputPath>bin\x86\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DataProvider, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>obj\x86\Debug\DataProvider.dll</HintPath>
-    </Reference>
     <Reference Include="Interop.AdfinXAnalyticsFunctions">
       <HintPath>..\..\..\..\..\AppData\Local\Thomson Reuters\TRD 6\Program\Interop.AdfinXAnalyticsFunctions.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>

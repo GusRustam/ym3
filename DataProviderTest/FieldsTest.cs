@@ -85,14 +85,14 @@ namespace DataProviderTest {
             var s1 = sS1.SnapshotReuqest();
             s1 = s1.WithCallback(OnImage);
             var t1 = s1.WithTimeout(OnTimeout);
-            t1.Start();    
+            t1.Request();    
 
             var sS2 = x2.Subscribe(); // todo works both with x1 and x2
             sS2 = sS2.WithFields("BID", "ASK");
             var s2 = sS2.SnapshotReuqest();
             s2 = s2.WithCallback(OnImage);
             var t2 = s2.WithTimeout(OnTimeout);
-            t2.Start();    
+            t2.Request();    
 
             Thread.Sleep(TimeSpan.FromSeconds(10));
 
@@ -118,7 +118,7 @@ namespace DataProviderTest {
             var subscription = subscriptionSetup.SnapshotReuqest(TimeSpan.FromMilliseconds(1));
             subscription = subscription.WithCallback(OnImage);
             var tm = subscription.WithTimeout(OnTimeout);
-            tm.Start();
+            tm.Request();
 
             Thread.Sleep(TimeSpan.FromSeconds(1));
 
@@ -262,7 +262,7 @@ namespace DataProviderTest {
                 }
             });
             var p1 = q1.WithTimeout(OnTimeout);
-            p1.Start();
+            p1.Request();
 
             Console.WriteLine("========= Wait start =============");
             Thread.Sleep(TimeSpan.FromSeconds(5));
@@ -298,7 +298,7 @@ namespace DataProviderTest {
                             _delayedRics++;
                         else if (dictionary[key].Status == ItemStatus.Ok)
                             _okRics++;
-                        else if (dictionary[key].Status == ItemStatus.UnknownOrInvalid)
+                        else if (dictionary[key].Status == ItemStatus.Invalid)
                             _unknownRics++;
 
                         Console.WriteLine("{0} => {3} status, {1} fields, i.e. \n {2}",
@@ -310,7 +310,7 @@ namespace DataProviderTest {
                 }
             });
             var p1 = q1.WithTimeout(OnTimeout);
-            p1.Start();
+            p1.Request();
             Console.WriteLine("======================");
             Thread.Sleep(TimeSpan.FromSeconds(10));
             Console.WriteLine("======================");
@@ -349,7 +349,7 @@ namespace DataProviderTest {
             Assert.AreEqual(_images, 1);
             Assert.AreEqual(_rics, 0);
             Assert.AreEqual(_totalFields, 0);
-            Assert.AreEqual(_status, SourceStatus.Unknown);
+            Assert.AreEqual(_status, SourceStatus.Down);
         }
     }
 }
