@@ -7,6 +7,8 @@ namespace DataProvider.Loaders.History.Data {
         public abstract void Set(T1 i1, T2 i2, TValue value);
         public abstract IDictionary<T1, TValue> this[T2 i2] { get; }
         public abstract IDictionary<T2, TValue> this[T1 i1] { get; }
+        public abstract T1[] Slice1();
+        public abstract T2[] Slice2();
 
         public bool TryGet(T1 i1, T2 i2, out TValue value) {
             try {
@@ -25,6 +27,9 @@ namespace DataProvider.Loaders.History.Data {
         public abstract IStorage<T1, T2, TValue> this[T3 i3] { get; }
         public abstract IStorage<T2, T3, TValue> this[T1 i1] { get; }
         public abstract IStorage<T1, T3, TValue> this[T2 i2] { get; }
+        public abstract T1[] Slice1();
+        public abstract T2[] Slice2();
+        public abstract T3[] Slice3();
 
         public bool TryGet(T1 i1, T2 i2, T3 i3, out TValue value) {
             try {

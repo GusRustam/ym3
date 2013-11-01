@@ -9,18 +9,37 @@ namespace Toolbox.Async {
 
         private TimeSpan? _timeout;
         private Action _callback;
+        private Exception _report;
+
+        protected Exception Report {
+            set { _report = value; }
+        }
 
         // Internal state
         protected State InternalState;
+        private Action<Exception> _error;
+        private Action _cancel;
 
         protected enum State {
             Init,
             Timeout,
             Succeded,
-            Invalid
+            Invalid,
+            Cancelled
         }
-        public ITimeoutCall WithCallback(Action callback) {
+
+        public ITimeoutCall WithCancelCallback(Action callback) {
+            _cancel = callback;
+            return this;
+        }
+
+        public ITimeoutCall WithTimeoutCallback(Action callback) {
             _callback = callback;
+            return this;
+        }
+
+        public ITimeoutCall WithErrorCallback(Action<Exception> callback) {
+            _error = callback;
             return this;
         }
 
@@ -43,19 +62,29 @@ namespace Toolbox.Async {
                     TryChangeState(State.Timeout);
                     switch (InternalState) {
                         case State.Timeout:
-                            if (_callback != null)
-                                _callback();
+                            if (_callback != null) _callback();
                             break;
+
                         case State.Invalid:
-                            ReportInvalid();
+                            if (_error != null) _error(_report);
                             break;
-                        default:
+
+                        case State.Cancelled:
+                            if (_cancel != null) _cancel();
+                            break;
+
+                        case State.Succeded:
                             Success();
                             break;
                     }
                 }
             }, CancelSrc.Token);
         }
+
+        public void Cancel() {
+            TryChangeState(State.Cancelled);
+        }
+
         /// <summary>
         /// Changes state only if state hasn't been already changed
         /// </summary>
@@ -66,11 +95,6 @@ namespace Toolbox.Async {
             InternalState = newState;
             if (!CancelSrc.IsCancellationRequested)
                 CancelSrc.Cancel();
-        }
-
-        protected virtual void ReportInvalid() {
-            if (_callback != null)
-                _callback();
         }
 
         protected abstract void Perform();

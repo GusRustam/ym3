@@ -28,78 +28,79 @@ namespace DataProvider.Loaders.History {
             }
 
             protected override void Prepare() {
-                _res = _container.GetInstance<HistoryContainer>();
+                this.Trace("Prepare()");
+                _res = _container.GetInstance<IHistoryContainer>();
             }
 
             protected override void Perform() {
-                _adxRtHistory.ErrorMode = AdxErrorMode.EXCEPTION;
-                _adxRtHistory.Source = _setup.Feed;
-                _adxRtHistory.Mode = GetModeString();
-                _adxRtHistory.ItemName = _setup.Ric;
-                _adxRtHistory.OnUpdate += OnUpdate;
-                _adxRtHistory.RequestHistory(GetFields());
+                this.Trace("Perform()");
+                try {
+                    _adxRtHistory.ErrorMode = AdxErrorMode.EXCEPTION;
+                    _adxRtHistory.Source = _setup.Feed;
+                    _adxRtHistory.Mode = GetModeString();
+                    _adxRtHistory.ItemName = _setup.Ric;
+                    _adxRtHistory.OnUpdate += OnUpdate;
+                    _adxRtHistory.RequestHistory(GetFields());
+                } catch (Exception e) {
+                    this.Error("Failed", e);
+                }
             }
 
             protected override void Success() {
+                this.Trace("Success()");
                 if (_setup.Callback != null)
                     _setup.Callback(_res);
             }
 
-            private object[] GetFields() {
-                return _setup.Fields.Select(x => (object)x.AdxName).ToArray();
+            private string GetFields() {
+                this.Trace("GetFields()");
+                var z = string.Join(",", _setup.Fields.Select(x => x.AdxName));
+                z = string.Format("{0}, {1}", HistoryField.Date.AdxName, z);
+                return z;
             }
 
             private string GetModeString() {
-                var res = "HEADER:YES";
+                this.Trace("GetModeString()");
+                var res = "HEADER:YES NULL:SKIP";
 
                 if (_setup.Since.HasValue)
-                    JoinStr(_setup.Since.Value.ToReutersDate(), ref res);
+                    JoinStr("START", _setup.Since.Value.ToReutersDate(), ref res);
 
                 if (_setup.Till.HasValue)
-                    JoinStr(_setup.Till.Value.ToReutersDate(), ref res);
+                    JoinStr("END", _setup.Till.Value.ToReutersDate(), ref res);
 
                 if (_setup.Rows.HasValue)
-                    JoinStr(_setup.Rows.Value.ToString(CultureInfo.InvariantCulture), ref res);
+                    JoinStr("NBEVENTS", _setup.Rows.Value.ToString(CultureInfo.InvariantCulture), ref res);
 
                 return res;
             }
 
-            private static void JoinStr(string str, ref string res) {
-                res = string.IsNullOrEmpty(res) ? str : string.Format("{0} {1}", res, str);
+            private static void JoinStr(string name, string str, ref string res) {
+                res = string.IsNullOrEmpty(res) ? str : string.Format("{0} {1}:{2}", res, name, str);
             }
 
             private void OnUpdate(RT_DataStatus dataStatus) {
+                this.Trace("OnUpdate()");
                 lock (LockObj) {
                     switch (dataStatus) {
+                        case RT_DataStatus.RT_DS_PARTIAL:
+                            this.Info("Got partial data!!!");
+                            if (!ImportTable()) {
+                                Report = new InvalidOperationException("Failed to import");
+                                TryChangeState(State.Invalid);
+                            }
+                            break;
+
                         case RT_DataStatus.RT_DS_FULL:
                             try {
-                                object[,] data = _adxRtHistory.Data;
-
-                                var firstRow = data.GetLowerBound(0);
-                                var firstColumn = data.GetLowerBound(1);
-                                var lastRow = data.GetUpperBound(0);
-                                var lastColumn = data.GetUpperBound(1);
-
-                                for (var col = firstColumn; col <= lastColumn; col++) {
-                                    var dateValue = data.GetValue(0, col).ToString();
-                                    DateTime ricDate;
-                                    if (!DateTime.TryParse(dateValue, out ricDate)) continue;
-
-                                    for (var row = firstRow; row <= lastRow; row++) {
-                                            var fieldName = data.GetValue(row, 0).ToString();
-                                            var fieldValue = data.GetValue(row, col).ToString();
-                                            _res.Set(_setup.Ric, ricDate, HistoryField.FromAdxName(fieldName), fieldValue);
-                                        }
-                                    }
-                                TryChangeState(State.Succeded);
-                            } catch (Exception ex) {
-                                this.Warn("Failed to parse", ex);
+                                if (!ImportTable()) {
+                                    Report = new InvalidOperationException("Failed to import");
+                                    TryChangeState(State.Invalid);
+                                } else
+                                    TryChangeState(State.Succeded);
                             } finally {
                                 _adxRtHistory.FlushData();
                             }
-                            break;
-                        case RT_DataStatus.RT_DS_PARTIAL:
-                            this.Info("Got partial data!!!");
                             break;
                         default:
                             TryChangeState(State.Invalid);
@@ -108,17 +109,64 @@ namespace DataProvider.Loaders.History {
                 }
             }
 
+            private int _startCol;
+            private bool ImportTable() {
+                try {
+                    this.Trace("ImportTable()");
+                    object[,] data = _adxRtHistory.Data;
+
+                    var firstRow = data.GetLowerBound(0);
+                    var firstColumn = Math.Max(data.GetLowerBound(1), _startCol);
+                    var lastRow = data.GetUpperBound(0);
+                    var lastColumn = data.GetUpperBound(1);
+
+                    var fields = new IHistoryField[lastRow - firstRow + 1];
+                    for (var row = firstRow; row <= lastRow; row++) {
+                        var fieldName = data.GetValue(row, 0).ToString();
+                        fields[row] = HistoryField.FromAdxName(fieldName);
+                    }
+
+                    for (var col = firstColumn+1; col <= lastColumn; col++) {
+                        var dateValue = data.GetValue(0, col).ToString();
+                        DateTime ricDate;
+                        if (!DateTime.TryParse(dateValue, out ricDate)) continue;
+
+                        this.Trace(string.Format(" -> date {0:dd/MMM/yyyy}", ricDate));
+                        for (var row = firstRow; row <= lastRow; row++) {
+                            var fieldName = data.GetValue(row, 0).ToString();
+                            var fieldValue = data.GetValue(row, col).ToString();
+                            this.Trace(string.Format(" -> -> field {0} value {1}", fieldName, fieldValue));
+                            _res.Set(_setup.Ric, ricDate, HistoryField.FromAdxName(fieldName), fieldValue);
+                        }
+                    }
+                    _startCol = lastColumn;
+                    return true;
+                } catch (Exception e) {
+                    this.Warn("Failed to parse", e);
+                    return false;
+                }
+            }
+
             public ILogger Logger { get; private set; }
         }
 
-
-        public AdxHistoryRequest(IContainer container, ILogger logger, HistorySetup setup) {
+        public AdxHistoryRequest(IContainer container, HistorySetup setup) {
             _algo = new AdxHistoryAlgorithm(container, setup);
-            Logger = logger;
+            Logger = container.GetInstance<ILogger>();
         }
 
-        public ITimeoutCall WithCallback(Action callback) {
-            _algo.WithCallback(callback);
+        public ITimeoutCall WithCancelCallback(Action callback) {
+            _algo.WithCancelCallback(callback);
+            return this;
+        }
+
+        public ITimeoutCall WithTimeoutCallback(Action callback) {
+            _algo.WithTimeoutCallback(callback);
+            return this;
+        }
+
+        public ITimeoutCall WithErrorCallback(Action<Exception> callback) {
+            _algo.WithErrorCallback(callback);
             return this;
         }
 
@@ -128,7 +176,12 @@ namespace DataProvider.Loaders.History {
         }
 
         public void Request() {
+            this.Info("Request()");
             _algo.Request();
+        }
+
+        public void Cancel() {
+            _algo.Cancel();
         }
 
         public ILogger Logger { get; private set; }

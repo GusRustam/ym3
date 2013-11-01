@@ -15,10 +15,10 @@ namespace DataProvider.Loaders.History {
             private TsiSession _session;
             private IHistoryContainer _res;
 
-            public TsiAlgorithm(IContainer container, ILogger logger, HistorySetup setup) {
+            public TsiAlgorithm(IContainer container, HistorySetup setup) {
                 _container = container;
                 _setup = setup;
-                Logger = logger;
+                Logger = container.GetInstance<ILogger>();
             }
 
             protected override void Prepare() {
@@ -122,13 +122,23 @@ namespace DataProvider.Loaders.History {
 
         // todo in all other similar classes add ILogger logger as a param - let container resolve it itself
         // todo in some cases I'll be able to get rid of IContainer container itself I guess
-        public TsiHistoryRequest(IContainer container, ILogger logger, HistorySetup setup)  {
-            _algo = new TsiAlgorithm(container, logger, setup);
-            Logger = logger;
+        public TsiHistoryRequest(IContainer container,  HistorySetup setup)  {
+            _algo = new TsiAlgorithm(container,  setup);
+            Logger = container.GetInstance<ILogger>();
         }
 
-        public ITimeoutCall WithCallback(Action callback) {
-            _algo.WithCallback(callback);
+        public ITimeoutCall WithCancelCallback(Action callback) {
+            _algo.WithCancelCallback(callback);
+            return this;
+        }
+
+        public ITimeoutCall WithTimeoutCallback(Action callback) {
+            _algo.WithTimeoutCallback(callback);
+            return this;
+        }
+
+        public ITimeoutCall WithErrorCallback(Action<Exception> callback) {
+            _algo.WithErrorCallback(callback);
             return this;
         }
 
@@ -139,6 +149,10 @@ namespace DataProvider.Loaders.History {
 
         public void Request() {
             _algo.Request();
+        }
+
+        public void Cancel() {
+            _algo.Cancel();
         }
 
         public ILogger Logger { get; private set; }

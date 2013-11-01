@@ -29,6 +29,18 @@ namespace DataProvider.Loaders.History.Data {
             get { return _data[i2]; }
         }
 
+        public string[] Slice1() {
+            return _data.Slice1();
+        }
+
+        public DateTime[] Slice2() {
+            return _data.Slice2();
+        }
+
+        public IHistoryField[] Slice3() {
+            return _data.Slice3();
+        }
+
         public IStorage<string, DateTime, string> this[IHistoryField i3] {
             get { return _data[i3]; }
         }

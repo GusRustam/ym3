@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DataProvider.Loaders.History.Data;
+using Toolbox;
 
 namespace DataProvider.Loaders.History {
     public struct HistorySetup {
@@ -17,6 +18,9 @@ namespace DataProvider.Loaders.History {
             if (string.IsNullOrEmpty(Feed))
                 throw new ArgumentException("feed");
 
+            if (!Fields.ToSomeArray().Any())
+                throw new ArgumentException("no fields");
+
             var cN = 0;
             cN += Since.HasValue ? 0 : 1;
             cN += Till.HasValue ? 0 : 1;
@@ -24,7 +28,7 @@ namespace DataProvider.Loaders.History {
 
             if (cN == 0)
                 throw new ArgumentException("since, till and nbrows together");
-            if (cN >= 2)
+            if (cN >= 3)
                 throw new ArgumentException("insufficient since, till and nbrows data");
 
             if (!Feed.Any())

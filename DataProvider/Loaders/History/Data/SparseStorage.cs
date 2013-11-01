@@ -30,6 +30,20 @@ namespace DataProvider.Loaders.History.Data {
                 return res;
             }
         }
+
+        public override T1[] Slice1() {
+            var res = new HashSet<T1>();
+            foreach (var value in _data.Keys)
+                res.Add(value.Item1);
+            return res.ToArray();
+        }
+
+        public override T2[] Slice2() {
+            var res = new HashSet<T2>();
+            foreach (var value in _data.Keys)
+                res.Add(value.Item2);
+            return res.ToArray();
+        }
     }
 
     public class SparseStorage<T1, T2, T3, TValue> : StorageBase<T1, T2, T3, TValue> {
@@ -67,6 +81,27 @@ namespace DataProvider.Loaders.History.Data {
                     res.Set(key.Item1, key.Item3, _data[key]);
                 return res;
             }
+        }
+
+        public override T1[] Slice1() {
+            var res = new HashSet<T1>();
+            foreach (var value in _data.Keys) 
+                res.Add(value.Item1);
+            return res.ToArray();
+        }
+
+        public override T2[] Slice2() {
+            var res = new HashSet<T2>();
+            foreach (var value in _data.Keys)
+                res.Add(value.Item2);
+            return res.ToArray();
+        }
+
+        public override T3[] Slice3() {
+            var res = new HashSet<T3>();
+            foreach (var value in _data.Keys)
+                res.Add(value.Item3);
+            return res.ToArray();
         }
     }
 }

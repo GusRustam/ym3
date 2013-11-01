@@ -1,8 +1,10 @@
 ﻿using Connect;
+using DataProvider.Loaders.History;
 using DataProvider.Loaders.History.Data;
 using DataProvider.Loaders.Realtime;
 using DataProvider.Objects;
 using LoggingFacility;
+using LoggingFacility.Loggers;
 using StructureMap;
 
 namespace ContainerAgent {
@@ -20,7 +22,21 @@ namespace ContainerAgent {
             //----------------- Loggging
             c.For<ILoggingContext>().Singleton().Use<LoggingContext>(); // singleton
 
-            c.AddRegistry<LoggerRegistry>();
+            c.For<ILogger>().AlwaysUnique().Use(context => {
+                var tp = context.ParentType ?? context.BuildStack.Current.ConcreteType;
+                if (tp == null)
+                    return new NullLogger();
+
+                var loggingContext = context.GetInstance<ILoggingContext>();
+                var name = tp.ToString();
+                var res = new NLogLogger(loggingContext.GlobalThreshold, name);
+                loggingContext.RegisterLogger(res);
+
+                return res;
+            });
+
+            // todo!! wut
+            //c.For<ILogger>().ConditionallyUse(x => x.If(c => c.))
 
             //----------------- Eikon Connection
             c.For<IConnection>().Singleton().Use<Connection>(); // singleton
@@ -30,7 +46,7 @@ namespace ContainerAgent {
             c.For<IEikonObjects>().Use<EikonObjectsPlain>().Named("plain");
             c.For<IEikonObjects>().Use<EikonObjectsSdk>().Named("sdk");     // last (i.e. default) option
                 
-            //---------------- Data Providers
+            //---------------- Realtime data 
             c.For<IRealtime>().Use<AdfinRealtime>();
 
             c.For<ISubscriptionSetup>().Use<AdfinSubscriptionSetup>();
@@ -41,9 +57,16 @@ namespace ContainerAgent {
 
             // Adfin RT
             //c.For<AdxRtList>().Use(context => context.GetInstance<IEikonObjects>().CreateAdxRtList());
+
+            //---------------- Historical data
+            c.For<IHistory>().Use<History>();
+            c.For<IHistoryRequest>().Use<TsiHistoryRequest>().Named("tsi6");
+            c.For<IHistoryRequest>().Use<AdxHistoryRequest>().Named("tsi1"); // last, i.e. default
+
             //---------------- History container
             c.For<IHistoryContainer>().Use<HistoryContainer>();
-            c.For(typeof (IStorage<,,>)).Use(typeof(SparseStorage<,,>));
+            c.For(typeof(IStorage<,,,>)).Use(typeof(SparseStorage<,,,>));
+            c.For(typeof(IStorage<,,>)).Use(typeof(SparseStorage<,,>));
         }
     }
 }

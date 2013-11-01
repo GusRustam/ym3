@@ -30,7 +30,7 @@ namespace DataProvider.Loaders.History {
             return this;
         }
 
-        public IHistory WithCallback(Action<IHistoryContainer> callback) {
+        public IHistory WithHistory(Action<IHistoryContainer> callback) {
             _setup.Callback = callback;
             return this;
         }
@@ -38,6 +38,16 @@ namespace DataProvider.Loaders.History {
         public IHistory AppendField(IHistoryField field) {
             if (_setup.Fields == null) _setup.Fields = new List<IHistoryField>();
             _setup.Fields.Add(field);
+            return this;
+        }
+
+        public IHistory AppendFields(IEnumerable<IHistoryField> fields) {
+            if (_setup.Fields == null)
+                _setup.Fields = new List<IHistoryField>();
+            
+            foreach (var field in fields) 
+                _setup.Fields.Add(field);
+            
             return this;
         }
 
@@ -50,7 +60,7 @@ namespace DataProvider.Loaders.History {
             _setup.Ric = ric;
             _setup.Validate();
             return _container.
-                        With("ric").EqualTo(ric).
+                        With("setup").EqualTo(_setup).
                         GetInstance<IHistoryRequest>();
         }
 
