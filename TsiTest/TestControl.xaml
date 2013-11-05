@@ -24,7 +24,7 @@
             <Expander Header="Expander" HorizontalAlignment="Left" Margin="432,223,0,0" VerticalAlignment="Top" Width="148">
                 <Grid Background="#FFE5E5E5"/>
             </Expander>
-            <ListBox HorizontalAlignment="Left" Height="108" Margin="468,27,0,0" VerticalAlignment="Top" Width="100" AlternationCount="1">
+            <ListBox HorizontalAlignment="Left" Height="108" Margin="470,17,0,0" VerticalAlignment="Top" Width="100" AlternationCount="1">
                 <system:String>Hello</system:String>
                 <system:String>Bye</system:String>
                 <system:String>Die</system:String>

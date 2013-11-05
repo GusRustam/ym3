@@ -1,7 +1,9 @@
 using System;
 using System.Globalization;
 using System.Linq;
+using DataProvider.Annotations;
 using DataProvider.Loaders.History.Data;
+using DataProvider.Loaders.Status;
 using DataProvider.Objects;
 using LoggingFacility;
 using LoggingFacility.LoggingSupport;
@@ -14,17 +16,19 @@ namespace DataProvider.Loaders.History {
     public sealed class AdxHistoryRequest : IHistoryRequest, ISupportsLogging {
         private readonly AdxHistoryAlgorithm _algo;
 
+        [UsedImplicitly]
         private class AdxHistoryAlgorithm : TimeoutCall, ISupportsLogging {
             private readonly HistorySetup _setup;
             private readonly AdxRtHistory _adxRtHistory;
             private readonly IContainer _container;
             private IHistoryContainer _res;
 
-            public AdxHistoryAlgorithm(IContainer container, HistorySetup setup) {
+            public AdxHistoryAlgorithm(IContainer container, IEikonObjects objects, ILogger logger, HistorySetup setup) {
                 _setup = setup;
                 _container = container;
-                _adxRtHistory = container.GetInstance<IEikonObjects>().CreateAdxRtHistory();
-                Logger = container.GetInstance<ILogger>();
+                _adxRtHistory = objects.CreateAdxRtHistory();
+                Logger = logger;
+                this.Trace(string.Format("OnAlgorithm({0})", objects.GetType().Name));
             }
 
             protected override void Prepare() {
@@ -80,31 +84,36 @@ namespace DataProvider.Loaders.History {
             }
 
             private void OnUpdate(RT_DataStatus dataStatus) {
-                this.Trace("OnUpdate()");
+                this.Trace(string.Format("OnUpdate({0})", DataStatus.FromAdxStatus(dataStatus)));
                 lock (LockObj) {
-                    switch (dataStatus) {
-                        case RT_DataStatus.RT_DS_PARTIAL:
-                            this.Info("Got partial data!!!");
-                            if (!ImportTable()) {
-                                Report = new InvalidOperationException("Failed to import");
-                                TryChangeState(State.Invalid);
-                            }
-                            break;
-
-                        case RT_DataStatus.RT_DS_FULL:
-                            try {
+                    try {
+                        switch (dataStatus) {
+                            case RT_DataStatus.RT_DS_PARTIAL:
+                                this.Info("Got partial data!!!");
                                 if (!ImportTable()) {
                                     Report = new InvalidOperationException("Failed to import");
                                     TryChangeState(State.Invalid);
-                                } else
-                                    TryChangeState(State.Succeded);
-                            } finally {
-                                _adxRtHistory.FlushData();
-                            }
-                            break;
-                        default:
-                            TryChangeState(State.Invalid);
-                            break;
+                                }
+                                break;
+
+                            case RT_DataStatus.RT_DS_FULL:
+                                try {
+                                    if (!ImportTable()) {
+                                        Report = new InvalidOperationException("Failed to import");
+                                        TryChangeState(State.Invalid);
+                                    } else
+                                        TryChangeState(State.Succeded);
+                                } finally {
+                                    _adxRtHistory.FlushData();
+                                }
+                                break;
+                            default:
+                                Report = new Exception(_adxRtHistory.ErrorString);
+                                TryChangeState(State.Invalid);
+                                break;
+                        }
+                    } catch (Exception e) {
+                        this.Error("Failed to update", e);
                     }
                 }
             }
@@ -150,9 +159,9 @@ namespace DataProvider.Loaders.History {
             public ILogger Logger { get; private set; }
         }
 
-        public AdxHistoryRequest(IContainer container, HistorySetup setup) {
-            _algo = new AdxHistoryAlgorithm(container, setup);
-            Logger = container.GetInstance<ILogger>();
+        public AdxHistoryRequest(IContainer container, ILogger logger, HistorySetup setup) {
+            _algo = container.With(setup).GetInstance<AdxHistoryAlgorithm>();
+            Logger = logger;
         }
 
         public ITimeoutCall WithCancelCallback(Action callback) {

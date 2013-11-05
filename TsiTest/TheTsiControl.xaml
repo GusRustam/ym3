@@ -10,7 +10,6 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/ThomsonReuters.Omaha.GlobalStyles;component/resources/skins/rd.dark.xaml"/>
-                <ResourceDictionary Source="Simple Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -19,16 +18,38 @@
             <Grid Margin="5">
                 <Rectangle Fill="#FF242424" Stroke="Black" RadiusX="5" RadiusY="5"/>
             </Grid>
-            <Grid Margin="5">
+            <Grid Margin="10">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition/>
-                    <RowDefinition/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <Button Content="Button" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" Width="75"/>
+                <StackPanel Margin="0,2,0,2" Grid.Row="0" Orientation="Horizontal">
+                    <Label Content="Feed"/>
+                    <TextBox TextWrapping="Wrap" Text="Enter feed here" Width="120" x:Name="FeedTextBox"/>
+                </StackPanel>
+                <StackPanel Margin="0,2,0,2" Grid.Row="1" Orientation="Horizontal">
+                    <Label Content="Ric   "/>
+                    <TextBox TextWrapping="Wrap"  Text="Enter RIC here" Width="120" x:Name="RicTextBox"/>
+                </StackPanel>
+                <StackPanel x:Name="ProgressPanel" Visibility="Collapsed" Margin="0,2,0,2"  Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Label x:Name="MessageLabel" Content="No messages" HorizontalAlignment="Right"/>
+                    <ProgressBar x:Name="ProgressBar" Width="200" Height="15"/>
+                </StackPanel>
+                <ListBox Margin="0,0,0,2" Grid.Row="2">
+                    <ListBox.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Hi"/>
+                            <MenuItem Header="Bye"/>
+                        </ContextMenu>
+                    </ListBox.ContextMenu>
+                </ListBox>
+                <StackPanel Grid.Row="3" Orientation="Horizontal">
+                    <Button Margin="0,0,2,2" Content="Load history" Click="ButtonBase_OnClick"/>
+                    <Button Visibility="Collapsed" Margin="0,0,2,2" x:Name="CreateNewWindowButton" Click="CreateNewWindowButton_OnClick" Content="New Window"/>
+                    <Button Visibility="Collapsed" Margin="0,0,2,2" x:Name="CreateAlert" Content="Alert" Click="CreateAlert_OnClick"/>
+                </StackPanel>
             </Grid>
         </Grid>
     </Grid>

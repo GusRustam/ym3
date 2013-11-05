@@ -34,6 +34,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="NLog, Version=2.1.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NLog.2.1.0\lib\net45\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="StructureMap">
+      <HintPath>..\packages\structuremap.2.6.4.1\lib\net40\StructureMap.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
@@ -81,21 +88,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SomeDialog.xaml.cs">
+      <DependentUpon>SomeDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TheTsiControl.xaml.cs">
       <DependentUpon>TheTsiControl.xaml</DependentUpon>
     </Compile>
-    <Page Include="Simple Styles.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="SomeDialog.xaml">
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="TestControl.xaml">
       <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
-    <Compile Include="TestControl.xaml.cs">
-      <DependentUpon>TestControl.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
     <Page Include="TheTsiControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -119,6 +121,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -126,6 +129,22 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ContainerAgent\ContainerAgent.csproj">
+      <Project>{03CEBDBD-C201-456B-A001-C94FBF889171}</Project>
+      <Name>ContainerAgent</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DataProvider\DataProvider.csproj">
+      <Project>{EF0CC6F6-BD2E-4106-8138-927312257B53}</Project>
+      <Name>DataProvider</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LoggingFacility\LoggingFacility.csproj">
+      <Project>{75317712-FB97-4039-9876-7A9A583A089E}</Project>
+      <Name>LoggingFacility</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MainPatterns\Toolbox.csproj">
+      <Project>{3D117A27-C652-4B5C-9D00-43AF82243AB5}</Project>
+      <Name>Toolbox</Name>
+    </ProjectReference>
     <ProjectReference Include="..\YieldMapUI\YieldMapUI.csproj">
       <Project>{8BF5CF09-6550-4FD0-B5A6-72DBCED419BF}</Project>
       <Name>YieldMapUI</Name>

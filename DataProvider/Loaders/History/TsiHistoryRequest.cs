@@ -1,4 +1,5 @@
 using System;
+using DataProvider.Annotations;
 using DataProvider.Loaders.History.Data;
 using DataProvider.Objects;
 using Interop.TSI6;
@@ -9,16 +10,18 @@ using Toolbox.Async;
 
 namespace DataProvider.Loaders.History {
     public class TsiHistoryRequest : IHistoryRequest, ISupportsLogging {
+        
+        [UsedImplicitly]
         private class TsiAlgorithm : TimeoutCall, ISupportsLogging {
             private readonly IContainer _container;
             private readonly HistorySetup _setup;
             private TsiSession _session;
             private IHistoryContainer _res;
 
-            public TsiAlgorithm(IContainer container, HistorySetup setup) {
+            public TsiAlgorithm(IContainer container, ILogger logger, HistorySetup setup) {
                 _container = container;
                 _setup = setup;
-                Logger = container.GetInstance<ILogger>();
+                Logger = logger;
             }
 
             protected override void Prepare() {
@@ -102,7 +105,9 @@ namespace DataProvider.Loaders.History {
 
                         for (var col = 1; col < table.Columns; col++) {
                             this.Trace(string.Format(" -> field {0} status {1} value {2}", 
+// ReSharper disable RedundantCast - it's not redundant, it casts from dynamic to object
                                 facts[col], table.Status[row, col], (object)table.Value[row, col]));
+// ReSharper restore RedundantCast
                             
                             _res.Set(_setup.Ric, ricDate, facts[col], table.Value[row, col].ToString());
                         }
@@ -111,8 +116,8 @@ namespace DataProvider.Loaders.History {
             }
 
             protected override void Success() {
-                //if (_setup.Callback != null) 
-                    //_setup.Callback(); // todo data
+                if (_setup.Callback != null) 
+                    _setup.Callback(_res);
             }
 
             public ILogger Logger { get; private set; }
@@ -123,7 +128,7 @@ namespace DataProvider.Loaders.History {
         // todo in all other similar classes add ILogger logger as a param - let container resolve it itself
         // todo in some cases I'll be able to get rid of IContainer container itself I guess
         public TsiHistoryRequest(IContainer container,  HistorySetup setup)  {
-            _algo = new TsiAlgorithm(container,  setup);
+            _algo = container.With("setup").EqualTo(setup).GetInstance<TsiAlgorithm>();
             Logger = container.GetInstance<ILogger>();
         }
 
