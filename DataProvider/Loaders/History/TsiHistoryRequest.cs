@@ -15,12 +15,14 @@ namespace DataProvider.Loaders.History {
         private class TsiAlgorithm : TimeoutCall, ISupportsLogging {
             private readonly IContainer _container;
             private readonly HistorySetup _setup;
+            private readonly string _ric;
             private TsiSession _session;
             private IHistoryContainer _res;
 
-            public TsiAlgorithm(IContainer container, ILogger logger, HistorySetup setup) {
+            public TsiAlgorithm(IContainer container, ILogger logger, HistorySetup setup, string ric) {
                 _container = container;
                 _setup = setup;
+                _ric = ric;
                 Logger = logger;
             }
 
@@ -43,7 +45,7 @@ namespace DataProvider.Loaders.History {
             protected override void Perform() {
                 var requestInfo = _container.GetInstance<TsiReqInfo>();
                 // ric and feed
-                requestInfo.RicFeed.Name = _setup.Ric;
+                requestInfo.RicFeed.Name = _ric;
                 requestInfo.RicFeed.Feed = _setup.Feed;
 
                 // interval
@@ -88,7 +90,7 @@ namespace DataProvider.Loaders.History {
 
             private void Loading(TsiGetDataRequest request, TsiTable table) {
                 lock (LockObj) {
-                    this.Trace(string.Format("Got data on ric {0}", _setup.Ric));
+                    this.Trace(string.Format("Got data on ric {0}", _ric));
                     var facts = new IHistoryField[table.Columns];
                     for (var col = 0; col < table.Columns; col++) {
                         var name = table.FactForColumn[col];
@@ -109,7 +111,7 @@ namespace DataProvider.Loaders.History {
                                 facts[col], table.Status[row, col], (object)table.Value[row, col]));
 // ReSharper restore RedundantCast
                             
-                            _res.Set(_setup.Ric, ricDate, facts[col], table.Value[row, col].ToString());
+                            _res.Set(_ric, ricDate, facts[col], table.Value[row, col].ToString());
                         }
                     }
                 }
@@ -127,8 +129,11 @@ namespace DataProvider.Loaders.History {
 
         // todo in all other similar classes add ILogger logger as a param - let container resolve it itself
         // todo in some cases I'll be able to get rid of IContainer container itself I guess
-        public TsiHistoryRequest(IContainer container,  HistorySetup setup)  {
-            _algo = container.With("setup").EqualTo(setup).GetInstance<TsiAlgorithm>();
+        public TsiHistoryRequest(IContainer container,  HistorySetup setup, string ric)  {
+            _algo = container
+                .With(typeof(string), ric)
+                .With(setup)
+                .GetInstance<TsiAlgorithm>();
             Logger = container.GetInstance<ILogger>();
         }
 

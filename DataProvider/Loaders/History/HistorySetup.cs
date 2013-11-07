@@ -6,7 +6,7 @@ using Toolbox;
 
 namespace DataProvider.Loaders.History {
     public struct HistorySetup {
-        public string Ric;
+        //public string Ric;
         public string Feed;
         public DateTime? Since;
         public DateTime? Till;
@@ -33,9 +33,6 @@ namespace DataProvider.Loaders.History {
 
             if (!Feed.Any())
                 throw new ArgumentException("No fields");
-
-            if (string.IsNullOrEmpty(Ric))
-                throw new ArgumentException("ric");
         }
     }
 }

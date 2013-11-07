@@ -19,12 +19,14 @@ namespace DataProvider.Loaders.History {
         [UsedImplicitly]
         private class AdxHistoryAlgorithm : TimeoutCall, ISupportsLogging {
             private readonly HistorySetup _setup;
+            private readonly string _ric;
             private readonly AdxRtHistory _adxRtHistory;
             private readonly IContainer _container;
             private IHistoryContainer _res;
 
-            public AdxHistoryAlgorithm(IContainer container, IEikonObjects objects, ILogger logger, HistorySetup setup) {
+            public AdxHistoryAlgorithm(IContainer container, IEikonObjects objects, ILogger logger, HistorySetup setup, string ric) {
                 _setup = setup;
+                _ric = ric;
                 _container = container;
                 _adxRtHistory = objects.CreateAdxRtHistory();
                 Logger = logger;
@@ -42,7 +44,7 @@ namespace DataProvider.Loaders.History {
                     _adxRtHistory.ErrorMode = AdxErrorMode.EXCEPTION;
                     _adxRtHistory.Source = _setup.Feed;
                     _adxRtHistory.Mode = GetModeString();
-                    _adxRtHistory.ItemName = _setup.Ric;
+                    _adxRtHistory.ItemName = _ric;
                     _adxRtHistory.OnUpdate += OnUpdate;
                     _adxRtHistory.RequestHistory(GetFields());
                 } catch (Exception e) {
@@ -145,7 +147,7 @@ namespace DataProvider.Loaders.History {
                             var fieldName = data.GetValue(row, 0).ToString();
                             var fieldValue = data.GetValue(row, col).ToString();
                             this.Trace(string.Format(" -> -> field {0} value {1}", fieldName, fieldValue));
-                            _res.Set(_setup.Ric, ricDate, HistoryField.FromAdxName(fieldName), fieldValue);
+                            _res.Set(_ric, ricDate, HistoryField.FromAdxName(fieldName), fieldValue);
                         }
                     }
                     _startCol = lastColumn;
@@ -159,8 +161,11 @@ namespace DataProvider.Loaders.History {
             public ILogger Logger { get; private set; }
         }
 
-        public AdxHistoryRequest(IContainer container, ILogger logger, HistorySetup setup) {
-            _algo = container.With(setup).GetInstance<AdxHistoryAlgorithm>();
+        public AdxHistoryRequest(IContainer container, ILogger logger, HistorySetup setup, string ric) {
+            _algo = container
+                .With(typeof(string), ric)
+                .With(setup)
+                .GetInstance<AdxHistoryAlgorithm>();
             Logger = logger;
         }
 

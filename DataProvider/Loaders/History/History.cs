@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using DataProvider.Loaders.History.Data;
 using LoggingFacility;
 using LoggingFacility.LoggingSupport;
 using StructureMap;
+using Toolbox;
 
 namespace DataProvider.Loaders.History {
     public class History : IHistory, ISupportsLogging {
@@ -57,11 +60,23 @@ namespace DataProvider.Loaders.History {
         }
 
         public IHistoryRequest Subscribe(string ric) {
-            _setup.Ric = ric;
+            if (string.IsNullOrEmpty(ric))
+                throw new ArgumentException("ric");
             _setup.Validate();
-            return _container.
-                        With("setup").EqualTo(_setup).
-                        GetInstance<IHistoryRequest>();
+            return _container
+                        .With(typeof(string), ric)
+                        .With(_setup)
+                        .GetInstance<IHistoryRequest>("single");
+        }
+
+        public IHistoryRequest Subscribe(params string[] rics) {
+            //_setup.Rics = rics;  // todo
+            if (!rics.ToSomeArray().Any()) throw new InvalidDataException("rics");
+            _setup.Validate();
+            return _container
+                        .With(rics)
+                        .With(_setup)
+                        .GetInstance<IHistoryRequest>("multi");
         }
 
         public ILogger Logger { get; private set; }

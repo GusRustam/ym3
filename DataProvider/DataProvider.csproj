@@ -98,6 +98,7 @@
     <Compile Include="Loaders\History\HistorySetup.cs" />
     <Compile Include="Loaders\History\IHistoryRequest.cs" />
     <Compile Include="Loaders\History\Data\HistoryContainer.cs" />
+    <Compile Include="Loaders\History\MultiHistoryRequest.cs" />
     <Compile Include="Loaders\History\TsiHistoryRequest.cs" />
     <Compile Include="Loaders\Realtime\AdfinFieldsTicker.cs" />
     <Compile Include="Loaders\Realtime\AdfinRealtime.cs" />

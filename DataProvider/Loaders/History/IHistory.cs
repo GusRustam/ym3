@@ -34,5 +34,6 @@ namespace DataProvider.Loaders.History {
         IHistory AppendFields(IEnumerable<IHistoryField> fields);
 
         IHistoryRequest Subscribe(string ric); // it's a nice way to parametrize constructor
+        IHistoryRequest Subscribe(params string[] rics);
     }
 }
