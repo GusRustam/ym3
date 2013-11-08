@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Linq;
 using DataProvider.Annotations;
 using DataProvider.Loaders.History.Data;
 using LoggingFacility;
@@ -9,66 +9,91 @@ using StructureMap;
 using Toolbox.Async;
 
 namespace DataProvider.Loaders.History {
-    class MultiHistoryRequest : IHistoryRequest, ISupportsLogging  {
-        private readonly MultuHistoryAlgorithm _algo;
+    public class MultiHistoryRequest : IHistoryRequest, ISupportsLogging  {
+        private readonly MultiHistoryAlgorithm _algo;
 
         [UsedImplicitly]
-        private class MultuHistoryAlgorithm : TimeoutCall, ISupportsLogging {
+        private class MultiHistoryAlgorithm : TimeoutCall, ISupportsLogging {
             private readonly IContainer _container;
             private readonly HistorySetup _setup;
-            private readonly IEnumerable<string> _rics;
-            private IHistory _loader;
-            private IHistoryContainer _res;
+            private readonly IList<string> _rics;
+            private readonly ISet<string> _ricsToLoad;
             private readonly IDictionary<string, IHistoryRequest> _subscriptions;
 
-            public MultuHistoryAlgorithm(IContainer container, ILogger logger, HistorySetup setup, IEnumerable<string> rics) {
+            private IHistory _loader;
+            private IHistoryContainer _res;
+            private Action<IHistoryContainer> _originalCallback;
+
+            public MultiHistoryAlgorithm(IContainer container, ILogger logger, HistorySetup setup, string[] rics) {
                 _container = container;
                 _setup = setup;
-                _rics = rics;
+                _rics = rics.ToList();
+                _ricsToLoad = new HashSet<string>(_rics);
                 _res = container.GetInstance<IHistoryContainer>();
                 _subscriptions = new Dictionary<string, IHistoryRequest>();
                 Logger = logger;
             }
 
             protected override void Prepare() {
-                _loader = _container.GetInstance<IHistory>()
-                    .WithFeed(_setup.Feed)
-                    .WithNumRecords(_setup.Rows) // todo check for nulls or wut?
-                    .WithSince(_setup.Since)     // todo clone?
-                    .WithTill(_setup.Till)
-                    .WithHistory(container => {
-                        this.Trace("Got data()");
-                        _res = _res.Import(container);
-                        // todo remove appropriate rics from the list of rics awaited
-                        // todo when all rics are loaded, mark test as Successfully Finished
-                    });
+                this.Trace("Prepare()");
+                _loader = _container
+                    .GetInstance<IHistory>()
+                    .AppendFields(_setup.Fields)
+                    .WithFeed(_setup.Feed);
+
+                if (_setup.Rows.HasValue)
+                    _loader = _loader.WithNumRecords(_setup.Rows.Value);
+
+                if (_setup.Since.HasValue)
+                    _loader = _loader.WithSince(_setup.Since.Value);
+
+                if (_setup.Till.HasValue)
+                    _loader = _loader.WithTill(_setup.Till.Value);
+
+                _originalCallback = _setup.Callback;
+
+                _loader = _loader.WithHistory(container => {
+                    this.Trace(string.Format("Callback on History, rics = [{0}]", string.Join(",",container.Slice1()[0])));
+
+                    // importing data
+                    _res = _res.Import(container);
+                    
+                    // removing rics from list of rics to be loaded
+                    foreach (var ric in container.Slice1())  _ricsToLoad.Remove(ric);
+
+                    // if all rics are loaded, notify that we've finished successfully
+                    if (!_ricsToLoad.Any()) TryChangeState(State.Succeded);
+                });
                 
-                foreach (var ric in _rics) 
+                this.Trace(string.Format("Rics are {0}", string.Join(", ", _rics)));
+                foreach (var ric in _rics)
+                    // this call creates new object, and hence 
+                    // Request call can be performed in parallel
                     _subscriptions[ric] = _loader.Subscribe(ric);
             }
 
-
             protected override void Perform() {
-                Parallel.ForEach(_rics, ric => {
-                    _subscriptions[ric].Request();
-                });
+                this.Trace("Perform()");
+                // or use Parallel.For?
+                foreach (var ric in _rics) _subscriptions[ric].Request();
             }
 
             protected override void Success() {
                 this.Trace("Success()");
-                if (_setup.Callback != null)
-                    _setup.Callback(_res);
+                if (_originalCallback != null)
+                    _originalCallback(_res);
             }
 
             public ILogger Logger { get; private set; }
         }
 
-        public MultiHistoryRequest(IContainer container, ILogger logger, HistorySetup setup, IEnumerable<string> rics) {
+        public MultiHistoryRequest(IContainer container, ILogger logger, HistorySetup setup, string[] rics) {
+            Logger = logger;
+            this.Trace(string.Format("Rics are {0}", string.Join(", ", rics)));
             _algo = container
                 .With(setup)
-                .With(rics)
-                .GetInstance<MultuHistoryAlgorithm>();
-            Logger = logger;
+                .With(typeof(string[]), rics)
+                .GetInstance<MultiHistoryAlgorithm>();
         }
 
         public ITimeoutCall WithCancelCallback(Action callback) {

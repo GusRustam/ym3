@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace DataProvider.Loaders.History.Data {
@@ -18,6 +19,11 @@ namespace DataProvider.Loaders.History.Data {
                 return false;
             }
             return true;
+        }
+
+        public abstract IEnumerator<KeyValuePair<Tuple<T1, T2>, TValue>> GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() {
+            return GetEnumerator();
         }
     }
 
@@ -39,6 +45,11 @@ namespace DataProvider.Loaders.History.Data {
                 return false;
             }
             return true;
+        }
+
+        public abstract IEnumerator<KeyValuePair<Tuple<T1, T2, T3>, TValue>> GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() {
+            return GetEnumerator();
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 //using System.Globalization;
 
@@ -14,7 +15,7 @@ namespace DataProvider.Loaders.History.Data {
     //    }
     //}
 
-    public interface IStorage<T1, T2, TValue> {
+    public interface IStorage<T1, T2, TValue> : IEnumerable<KeyValuePair<Tuple<T1, T2>, TValue>> {
         TValue Get(T1 i1, T2 i2);
         bool TryGet(T1 i1, T2 i2, out TValue value);
         void Set(T1 i1, T2 i2, TValue value);
@@ -26,7 +27,7 @@ namespace DataProvider.Loaders.History.Data {
         T2[] Slice2();
     }
 
-    public interface IStorage<T1, T2, T3, TValue> {
+    public interface IStorage<T1, T2, T3, TValue> : IEnumerable<KeyValuePair<Tuple<T1, T2, T3>, TValue>> {
         TValue Get(T1 i1, T2 i2, T3 i3);
         bool TryGet(T1 i1, T2 i2, T3 i3, out TValue value);
         void Set(T1 i1, T2 i2, T3 i3, TValue value);

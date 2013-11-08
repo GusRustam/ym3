@@ -44,6 +44,10 @@ namespace DataProvider.Loaders.History.Data {
                 res.Add(value.Item2);
             return res.ToArray();
         }
+
+        public override IEnumerator<KeyValuePair<Tuple<T1, T2>, TValue>> GetEnumerator() {
+            return _data.GetEnumerator();
+        }
     }
 
     public class SparseStorage<T1, T2, T3, TValue> : StorageBase<T1, T2, T3, TValue> {
@@ -102,6 +106,10 @@ namespace DataProvider.Loaders.History.Data {
             foreach (var value in _data.Keys)
                 res.Add(value.Item3);
             return res.ToArray();
+        }
+
+        public override IEnumerator<KeyValuePair<Tuple<T1, T2, T3>, TValue>> GetEnumerator() {
+            return _data.GetEnumerator();
         }
     }
 }

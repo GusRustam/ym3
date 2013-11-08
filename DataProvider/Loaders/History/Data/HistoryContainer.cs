@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace DataProvider.Loaders.History.Data {
     // todo implement dense container, check for productivity
@@ -41,8 +43,22 @@ namespace DataProvider.Loaders.History.Data {
             return _data.Slice3();
         }
 
+        public IHistoryContainer Import(IHistoryContainer container) {
+            foreach (var item in container) 
+                _data.Set(item.Key.Item1, item.Key.Item2, item.Key.Item3, item.Value);
+            return this;
+        }
+
         public IStorage<string, DateTime, string> this[IHistoryField i3] {
             get { return _data[i3]; }
+        }
+
+        public IEnumerator<KeyValuePair<Tuple<string, DateTime, IHistoryField>, string>> GetEnumerator() {
+            return _data.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() {
+            return GetEnumerator();
         }
     }
 }

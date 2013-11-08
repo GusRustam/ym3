@@ -53,7 +53,7 @@ namespace LoggingFacility.LoggingSupport {
         [Conditional("DEBUG")]
         private static void Log(ISupportsLogging logger, Level level, string msg, Exception ex = null) {
             var l = logger.Logger;
-            if (level >= l.Threshold)
+            if (l != null && level >= l.Threshold)
                 l.Log(level, msg, ex);
         }
     }

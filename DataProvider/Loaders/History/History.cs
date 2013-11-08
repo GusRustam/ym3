@@ -62,6 +62,7 @@ namespace DataProvider.Loaders.History {
         public IHistoryRequest Subscribe(string ric) {
             if (string.IsNullOrEmpty(ric))
                 throw new ArgumentException("ric");
+            
             _setup.Validate();
             return _container
                         .With(typeof(string), ric)
@@ -70,11 +71,12 @@ namespace DataProvider.Loaders.History {
         }
 
         public IHistoryRequest Subscribe(params string[] rics) {
-            //_setup.Rics = rics;  // todo
-            if (!rics.ToSomeArray().Any()) throw new InvalidDataException("rics");
+            if (!rics.ToSomeArray().Any()) 
+                throw new InvalidDataException("rics");
+            
             _setup.Validate();
             return _container
-                        .With(rics)
+                        .With(typeof(string[]), rics)
                         .With(_setup)
                         .GetInstance<IHistoryRequest>("multi");
         }
