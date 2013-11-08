@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using DataProvider.Annotations;
 using DataProvider.Loaders.History.Data;
 using LoggingFacility;
@@ -52,18 +53,19 @@ namespace DataProvider.Loaders.History {
 
                 _originalCallback = _setup.Callback;
 
-                _loader = _loader.WithHistory(container => {
-                    this.Trace(string.Format("Callback on History, rics = [{0}]", string.Join(",",container.Slice1()[0])));
+                _loader = _loader
+                    .WithHistory(container => {
+                        this.Trace(string.Format("Callback on History, rics = [{0}]", string.Join(",",container.Slice1()[0])));
 
-                    // importing data
-                    _res = _res.Import(container);
+                        // importing data
+                        _res = _res.Import(container);
                     
-                    // removing rics from list of rics to be loaded
-                    foreach (var ric in container.Slice1())  _ricsToLoad.Remove(ric);
+                        // removing rics from list of rics to be loaded
+                        foreach (var ric in container.Slice1())  _ricsToLoad.Remove(ric);
 
-                    // if all rics are loaded, notify that we've finished successfully
-                    if (!_ricsToLoad.Any()) TryChangeState(State.Succeded);
-                });
+                        // if all rics are loaded, notify that we've finished successfully
+                        if (!_ricsToLoad.Any()) TryChangeState(State.Succeded);
+                    });
                 
                 this.Trace(string.Format("Rics are {0}", string.Join(", ", _rics)));
                 foreach (var ric in _rics)
@@ -75,7 +77,13 @@ namespace DataProvider.Loaders.History {
             protected override void Perform() {
                 this.Trace("Perform()");
                 // or use Parallel.For?
-                foreach (var ric in _rics) _subscriptions[ric].Request();
+                //foreach (var ric in _rics) _subscriptions[ric].Request();
+                Parallel.ForEach(_rics, ric => _subscriptions[ric]
+                    .WithErrorCallback(exception => {
+                        _ricsToLoad.Remove(ric);
+                        if (!_ricsToLoad.Any()) TryChangeState(State.Succeded);
+                    })
+                    .Request());
             }
 
             protected override void Success() {
@@ -96,6 +104,7 @@ namespace DataProvider.Loaders.History {
                 .GetInstance<MultiHistoryAlgorithm>();
         }
 
+        // todo down here - wut?
         public ITimeoutCall WithCancelCallback(Action callback) {
             _algo.WithCancelCallback(callback);
             return this;

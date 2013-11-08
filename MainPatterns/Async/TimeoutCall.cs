@@ -8,16 +8,14 @@ namespace Toolbox.Async {
         protected CancellationTokenSource CancelSrc;
 
         private TimeSpan? _timeout;
-        private Action _callback;
         private Exception _report;
-
-        protected Exception Report {
-            set { _report = value; }
-        }
 
         // Internal state
         protected State InternalState;
+
+        // callbacks
         private Action<Exception> _error;
+        private Action _callback;
         private Action _cancel;
 
         protected enum State {
@@ -26,6 +24,10 @@ namespace Toolbox.Async {
             Succeded,
             Invalid,
             Cancelled
+        }
+
+        protected Exception Report {
+            set { _report = value; }
         }
 
         public ITimeoutCall WithCancelCallback(Action callback) {
