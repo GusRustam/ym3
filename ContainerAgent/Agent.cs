@@ -1,4 +1,5 @@
 ﻿using Connect;
+using DataProvider.Loaders.Chain;
 using DataProvider.Loaders.History;
 using DataProvider.Loaders.History.Data;
 using DataProvider.Loaders.Realtime;
@@ -54,14 +55,21 @@ namespace ContainerAgent {
 
             //---------------- Historical data
             c.For<IHistory>().Use<History>();
-            //c.For<IHistoryRequest>().Use<TsiHistoryRequest>().Named("tsi6");
-            c.For<IHistoryRequest>().Use<AdxHistoryRequest>().Named("single");
             c.For<IHistoryRequest>().Use<MultiHistoryRequest>().Named("multi");
+            c.For<IHistoryRequest>().Use<AdxHistoryRequest>().Named("single");
 
             //---------------- History container
             c.For<IHistoryContainer>().Use<HistoryContainer>();
             c.For(typeof(IStorage<,,,>)).Use(typeof(SparseStorage<,,,>));
             c.For(typeof(IStorage<,,>)).Use(typeof(SparseStorage<,,>));
+
+            //----------------- Chain data
+            c.For<IChainData>().Use<ChainData>();
+
+            //----------------- Chain loader
+            c.For<IChain>().Use<Chain>();
+            c.For<IChainRequest>().Use<MultiChainRequest>().Named("multi");
+            c.For<IChainRequest>().Use<SingleChainRequest>().Named("single");
 
             //----------------- Eikon Objects
             c.For<IEikonObjects>().Use<EikonObjectsSdk>();

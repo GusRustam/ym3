@@ -33,7 +33,17 @@ namespace DataProvider.Loaders.History {
 
         IHistory AppendFields(IEnumerable<IHistoryField> fields);
 
-        IHistoryRequest Subscribe(string ric); // it's a nice way to parametrize constructor
+        /// <summary>Request history on a single ric</summary>
+        /// <param name="ric">Instrument ric</param>
+        IHistoryRequest Subscribe(string ric);
+
+        /// <summary>Request history on multiple rics</summary>
+        /// <param name="rics">List of rics</param>
+        /// <remarks>
+        /// In case there's more than one ric in the list
+        /// it creates a serie of coordinated single-ric requests 
+        /// behind the scenes
+        /// </remarks> 
         IHistoryRequest Subscribe(params string[] rics);
     }
 }

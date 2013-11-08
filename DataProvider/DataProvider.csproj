@@ -87,6 +87,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Loaders\Chain\Chain.cs" />
+    <Compile Include="Loaders\Chain\ChainSetup.cs" />
+    <Compile Include="Loaders\Chain\IChain.cs" />
+    <Compile Include="Loaders\Chain\IChainData.cs" />
+    <Compile Include="Loaders\Chain\IChainRequest.cs" />
+    <Compile Include="Loaders\Chain\MultiChainRequest.cs" />
+    <Compile Include="Loaders\Chain\SingleChainRequest.cs" />
     <Compile Include="Loaders\History\Data\IHistoryContainer.cs" />
     <Compile Include="Loaders\History\Data\IStorage.cs" />
     <Compile Include="Loaders\History\Data\SparseStorage.cs" />
@@ -199,6 +206,10 @@
     <Content Include="PLVbaApis.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Loaders\Metadata\" />
+    <Folder Include="Loaders\Source\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

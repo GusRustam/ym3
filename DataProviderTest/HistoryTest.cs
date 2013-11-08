@@ -18,7 +18,6 @@ namespace DataProviderTest {
             public int Timeouts;
             public int Cancels;
         }
-
         private struct Params {
             public double TestTimeout;
             public double RequestTimeout;
@@ -46,115 +45,6 @@ namespace DataProviderTest {
             Assert.AreEqual(l.Fields, fields);
 
         }
-
-        private static Counts LoadHist(Params prms) {
-            var container = Agent.Factory();
-            var hst = container.GetInstance<IHistory>();
-            var cnn = container.GetInstance<IConnection>();
-
-            if (!cnn.ConnectAndWait(10))
-                Assert.Inconclusive();
-            
-            var l = new Counts();
-
-            var babushka = hst
-                .AppendFields(prms.Fields)
-                .WithFeed(prms.Feed)
-                .WithNumRecords(30)
-                .WithHistory(historyContainer => {
-                    Console.WriteLine("History!");
-                    l.Rics = historyContainer.Slice1().Count();
-                    l.Fields = historyContainer.Slice3().Count();
-                    l.Dates = historyContainer.Slice2().Count();
-                    Console.WriteLine("Rics: {0}; Dates: {1}; Fields: {2}", l.Rics, l.Dates, l.Fields);
-                });
-
-
-            var req = prms.Rics.Count() == 1 ? 
-                babushka.Subscribe(prms.Rics[0]) : 
-                babushka.Subscribe(prms.Rics);
-
-            req.WithErrorCallback(exception => {
-                l.Errors++;
-                Console.WriteLine("Error!\n {0}", exception);
-                })
-                .WithTimeoutCallback(() => {
-                    l.Timeouts++;
-                    Console.WriteLine("Timeout!");
-                })
-                .WithCancelCallback(() => {
-                    l.Cancels++;
-                    Console.WriteLine("Cancelled!");
-                })
-                .WithTimeout(TimeSpan.FromSeconds(prms.RequestTimeout))
-                .Request();
-
-            Thread.Sleep(TimeSpan.FromSeconds(prms.TestTimeout));
-            if (prms.DoCancel) req.Cancel();
-
-            Console.WriteLine("== END ==");
-            return l;
-        }
-
-        //[TestCase]
-        //public void TestCancel() {
-        //    var l = LoadHist(new Params {
-        //        Feed = "IDN",
-        //        Rics = new[] { "GAZP.MM" },
-        //        Fields = new[] { HistoryField.Bid, HistoryField.Ask },
-        //        TestTimeout = 0.5,
-        //        RequestTimeout = 2,
-        //        DoCancel = true
-        //    });
-
-            //var container = Agent.Factory();
-            //var hst = container.GetInstance<IHistory>();
-            //var cnn = container.GetInstance<IConnection>();
-
-            //if (!cnn.ConnectAndWait(10))
-            //    Assert.Inconclusive();
-            //var errorCount = 0;
-
-            //var ricCount = 0;
-            //var fieldCount = 0;
-            //var cancels = 0;
-            //var handle = hst
-            //    .AppendField(HistoryField.Bid)
-            //    .AppendField(HistoryField.Ask)
-            //    .WithFeed("IDN")
-            //    .WithNumRecords(30)
-            //    .WithHistory(historyContainer => {
-            //        Console.WriteLine("Got it");
-            //        ricCount = historyContainer.Slice1().Count();
-            //        fieldCount = historyContainer.Slice3().Count();
-            //        var dateCount = historyContainer.Slice2().Count();
-            //        Console.WriteLine("Rics: {0}; Dates: {1}; Fields: {2}", ricCount, dateCount, fieldCount);
-            //    })
-            //    .Subscribe("GAZP.MM")
-            //    .WithErrorCallback(exception => {
-            //        errorCount++;
-            //        Console.WriteLine(exception);
-            //    })
-            //    .WithTimeoutCallback(() => Console.WriteLine("Timeout!"))
-            //    .WithTimeout(TimeSpan.FromSeconds(5))
-            //    .WithCancelCallback(() => {
-            //        cancels++;
-            //        Console.WriteLine("Cancelled!!!"); 
-            //    });
-            //handle.Request();
-
-            //Thread.Sleep(TimeSpan.FromSeconds(0.5));
-            //handle.Cancel();
-
-        //    Assert.AreEqual(l.Errors, 0);
-        //    Assert.AreEqual(l.Rics, 0);
-        //    Assert.AreEqual(l.Fields, 0);
-        //    Assert.AreEqual(l.Cancels, 1);
-
-
-        //    Console.WriteLine("== END ==");
-            
-        //}
 
         [TestCase(new[] { "GAZP.MM", "LKOH.MM" }, 1)]
         [TestCase(new[] { "GAZP.MM" }, 0)]
@@ -193,54 +83,6 @@ namespace DataProviderTest {
             Assert.AreEqual(l.Rics, 0);
             Assert.AreEqual(l.Fields, 0);
             Assert.AreEqual(l.Cancels, 1);
-
-            //var container = Agent.Factory();
-            //var hst = container.GetInstance<IHistory>();
-            //var cnn = container.GetInstance<IConnection>();
-
-            //if (!cnn.ConnectAndWait(10))
-            //    Assert.Inconclusive();
-            //var errorCount = 0;
-
-            //var ricCount = 0;
-            //var fieldCount = 0;
-            //var cancels = 0;
-            //var handle = hst
-            //    .AppendField(HistoryField.Bid)
-            //    .AppendField(HistoryField.Ask)
-            //    .WithFeed("IDN")
-            //    .WithNumRecords(30)
-            //    .WithHistory(historyContainer => {
-            //        Console.WriteLine("Got it");
-            //        ricCount = historyContainer.Slice1().Count();
-            //        fieldCount = historyContainer.Slice3().Count();
-            //        var dateCount = historyContainer.Slice2().Count();
-            //        Console.WriteLine("Rics: {0}; Dates: {1}; Fields: {2}", ricCount, dateCount, fieldCount);
-            //    })
-            //    .Subscribe("GAZP.MM", "LKOH.MM")
-            //    .WithErrorCallback(exception => {
-            //        errorCount++;
-            //        Console.WriteLine(exception);
-            //    })
-            //    .WithTimeoutCallback(() => Console.WriteLine("Timeout!"))
-            //    .WithTimeout(TimeSpan.FromSeconds(5))
-            //    .WithCancelCallback(() => {
-            //        cancels++;
-            //        Console.WriteLine("Cancelled!!!");
-            //    });
-            //handle.Request();
-
-            //Thread.Sleep(TimeSpan.FromSeconds(0.5));
-            //handle.Cancel();
-
-            //Assert.AreEqual(errorCount, 0);
-            //Assert.AreEqual(ricCount, 0);
-            //Assert.AreEqual(fieldCount, 0);
-            //Assert.AreEqual(cancels, 1);
-
-
-            //Console.WriteLine("== END ==");
-
         }
 
 
@@ -263,47 +105,57 @@ namespace DataProviderTest {
             Assert.AreEqual(l.Errors, errors);
             Assert.AreEqual(l.Rics, rics);
             Assert.AreEqual(l.Fields, fields);
-
-            //var container = Agent.Factory();
-            //var hst = container.GetInstance<IHistory>();
-            //var cnn = container.GetInstance<IConnection>();
-
-            //if (!cnn.ConnectAndWait(10))
-            //    Assert.Inconclusive();
-            //var errorCount = 0;
-
-            //var ricCount = 0;
-            //var fieldCount = 0;
-            //hst.AppendField(HistoryField.Bid)
-            //   .AppendField(HistoryField.Ask)
-            //   .WithFeed(feed)
-            //   .WithNumRecords(30)
-            //   .WithHistory(historyContainer => {
-            //       Console.WriteLine("Got it");
-            //       ricCount = historyContainer.Slice1().Count();
-            //       fieldCount = historyContainer.Slice3().Count();
-            //       var dateCount = historyContainer.Slice2().Count();
-            //       Console.WriteLine("Rics: {0}; Dates: {1}; Fields: {2}", ricCount, dateCount, fieldCount);
-            //   })
-            //   .Subscribe(what)
-            //   .WithErrorCallback(exception => {
-            //       errorCount++;
-            //       Console.WriteLine(exception);
-            //   })
-            //   .WithTimeoutCallback(() => Console.WriteLine("Timeout!"))
-            //   .WithTimeout(TimeSpan.FromSeconds(5))
-            //   .Request();
-
-            //Thread.Sleep(TimeSpan.FromSeconds(5));
-
-            //Assert.AreEqual(errorCount, errors);
-            //Assert.AreEqual(ricCount, rics);
-            //Assert.AreEqual(fieldCount, fields);
-
-
-            //Console.WriteLine("== END ==");
         }
 
+        private static Counts LoadHist(Params prms) {
+            var container = Agent.Factory();
+            var hst = container.GetInstance<IHistory>();
+            var cnn = container.GetInstance<IConnection>();
+
+            if (!cnn.ConnectAndWait(10))
+                Assert.Inconclusive();
+
+            var l = new Counts();
+
+            var babushka = hst
+                .AppendFields(prms.Fields)
+                .WithFeed(prms.Feed)
+                .WithNumRecords(30)
+                .WithHistory(historyContainer => {
+                    Console.WriteLine("History!");
+                    l.Rics = historyContainer.Slice1().Count();
+                    l.Fields = historyContainer.Slice3().Count();
+                    l.Dates = historyContainer.Slice2().Count();
+                    Console.WriteLine("Rics: {0}; Dates: {1}; Fields: {2}", l.Rics, l.Dates, l.Fields);
+                });
+
+
+            var req = prms.Rics.Count() == 1 ?
+                babushka.Subscribe(prms.Rics[0]) :
+                babushka.Subscribe(prms.Rics);
+
+            req.WithErrorCallback(exception => {
+                l.Errors++;
+                Console.WriteLine("Error!\n {0}", exception);
+            })
+                .WithTimeoutCallback(() => {
+                    l.Timeouts++;
+                    Console.WriteLine("Timeout!");
+                })
+                .WithCancelCallback(() => {
+                    l.Cancels++;
+                    Console.WriteLine("Cancelled!");
+                })
+                .WithTimeout(TimeSpan.FromSeconds(prms.RequestTimeout))
+                .Request();
+
+            Thread.Sleep(TimeSpan.FromSeconds(prms.TestTimeout));
+            if (prms.DoCancel)
+                req.Cancel();
+
+            Console.WriteLine("== END ==");
+            return l;
+        }
 
         //[TestCase]
         //public void TestCreateTsi() {

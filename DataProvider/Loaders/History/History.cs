@@ -73,7 +73,10 @@ namespace DataProvider.Loaders.History {
         public IHistoryRequest Subscribe(params string[] rics) {
             if (!rics.ToSomeArray().Any()) 
                 throw new InvalidDataException("rics");
-            
+
+            if (rics.Count() == 1)
+                return Subscribe(rics[0]);
+
             _setup.Validate();
             return _container
                         .With(typeof(string[]), rics)
