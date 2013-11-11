@@ -23,7 +23,7 @@ namespace DataProvider.Loaders.Chain {
                 .GetInstance<IChain>();
         }
 
-        public IChain WIthChain(Action<IChainData> callback) {
+        public IChain WithChain(Action<IChainData> callback) {
             var prms = _setup.Clone();
             prms.Callback = callback;
             return _container

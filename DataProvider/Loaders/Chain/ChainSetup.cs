@@ -17,7 +17,7 @@ namespace DataProvider.Loaders.Chain {
             Rics = new List<string>(
                 (from ric in Rics 
                 where !string.IsNullOrEmpty(ric) 
-                select ric).Distinct()); // todo a bit ugly
+                select ric).Distinct()); 
 
             if (!Rics.Any())
                 throw new ArgumentException("rics");

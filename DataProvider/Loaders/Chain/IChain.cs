@@ -8,7 +8,7 @@ namespace DataProvider.Loaders.Chain {
 
         /// <summary> Set data callback </summary>
         /// <param name="callback">Function to call when data received</param>
-        IChain WIthChain(Action<IChainData> callback);
+        IChain WithChain(Action<IChainData> callback);
 
         /// <summary>
         /// Set chain rics to load
