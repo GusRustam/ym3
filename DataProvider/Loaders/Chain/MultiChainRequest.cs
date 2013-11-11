@@ -66,8 +66,18 @@ namespace DataProvider.Loaders.Chain {
                 Parallel.ForEach(_requests, request => 
                     request
                         .WithErrorCallback(exception => {
+                            this.Trace("On Error()");
                             lock (LockObj) {
                                 foreach (var ric in request.Rics) 
+                                    _chainRics.Remove(ric);
+                                if (!_chainRics.Any())
+                                    TryChangeState(State.Succeded);
+                            }
+                        })
+                        .WithTimeoutCallback(() => {
+                            this.Trace("On Timeout()");
+                            lock (LockObj) {
+                                foreach (var ric in request.Rics)
                                     _chainRics.Remove(ric);
                                 if (!_chainRics.Any())
                                     TryChangeState(State.Succeded);

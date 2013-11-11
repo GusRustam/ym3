@@ -36,18 +36,20 @@ namespace DataProvider.Loaders.Chain {
                     _adxRtChain.ItemName = _ric;
                     _adxRtChain.Mode = _setup.Mode;
                 } catch (Exception e) {
+                    this.Trace("Error in Prepare", e);
                     Report = e;
                     TryChangeState(State.Invalid);
                 }
             }
 
             protected override void Perform() {
-                _adxRtChain.OnStatusChange += OnStatusUpdate;
-                _adxRtChain.OnUpdate += OnUpdate;
-
                 try {
+                    _adxRtChain.OnStatusChange += OnStatusUpdate;
+                    _adxRtChain.OnUpdate += OnUpdate;
+
                     _adxRtChain.RequestChain();
                 } catch (Exception e) {
+                    this.Trace("Error in Perform", e);
                     Report = e;
                     TryChangeState(State.Invalid);
                 }

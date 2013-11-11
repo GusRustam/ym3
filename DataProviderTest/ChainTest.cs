@@ -16,14 +16,14 @@ namespace DataProviderTest {
             public int Errors;
             public int Timeouts;
             public int Cancels;
-            public int Rics; // no less than
+            public int RicsAtLeast; // no less than
 
             public override string ToString() {
-                return string.Format("Chains: {0} / Errors: {1} / Timeouts: {2} / Cancels: {3} / Rics: {4}", ChainRics, Errors, Timeouts, Cancels, Rics);
+                return string.Format("Chains: {0} / Errors: {1} / Timeouts: {2} / Cancels: {3} / Rics: {4}", ChainRics, Errors, Timeouts, Cancels, RicsAtLeast);
             }
 
             public bool Equals(Counts other) {
-                return ChainRics == other.ChainRics && Errors == other.Errors && Timeouts == other.Timeouts && Cancels == other.Cancels && Rics <= other.Rics;
+                return ChainRics == other.ChainRics && Errors == other.Errors && Timeouts == other.Timeouts && Cancels == other.Cancels && RicsAtLeast <= other.RicsAtLeast;
             }
 
             public override bool Equals(object obj) {
@@ -41,7 +41,6 @@ namespace DataProviderTest {
             public string Description;
 
             public override string ToString() {
-                //return string.Format("{0} / {1} / {2} / {3} / {4}", string.Join(",", ChainRics), Feed, DoCancel, TestTimeout, RequestTimeout);
                 return Description;
             }
         }
@@ -49,7 +48,6 @@ namespace DataProviderTest {
         public class MyTestCases {
             public static IEnumerable TestCases {
                 get {
-                    // Valid Feed, valid Ric
                     yield return new TestCaseData(new Params {
                         Description = "Valid Feed, valid Ric",
                         ChainRics = new []{ "0#RUCORP=MM" },
@@ -61,11 +59,10 @@ namespace DataProviderTest {
                         Cancels = 0,
                         ChainRics = 1,
                         Errors = 0,
-                        Rics = 100,
+                        RicsAtLeast = 100,
                         Timeouts = 0
                     });
 
-                    // Valid Feed, invalid Ric
                     yield return new TestCaseData(new Params {
                         Description = "Valid Feed, invalid Ric",
                         ChainRics = new[] { "0#RUCORP--XX=MM" },
@@ -77,11 +74,10 @@ namespace DataProviderTest {
                         Cancels = 0,
                         ChainRics = 0,
                         Errors = 1,
-                        Rics = 0,
+                        RicsAtLeast = 0,
                         Timeouts = 0
                     });
 
-                    // Inalid Feed
                     yield return new TestCaseData(new Params {
                         Description = "Inalid Feed",
                         ChainRics = new[] { "0#RUCORP--XX=MM" },
@@ -93,11 +89,10 @@ namespace DataProviderTest {
                         Cancels = 0,
                         ChainRics = 0,
                         Errors = 0,
-                        Rics = 0,
+                        RicsAtLeast = 0,
                         Timeouts = 1
                     });
 
-                    // Inalid Feed, cancellation
                     yield return new TestCaseData(new Params {
                         Description = "Inalid Feed, cancellation",
                         ChainRics = new[] { "0#RUCORP--XX=MM" },
@@ -109,11 +104,10 @@ namespace DataProviderTest {
                         Cancels = 1,
                         ChainRics = 0,
                         Errors = 0,
-                        Rics = 0,
+                        RicsAtLeast = 0,
                         Timeouts = 0
                     });
 
-                    // Valid Feed, cancellation
                     yield return new TestCaseData(new Params {
                         Description = "Valid Feed, cancellation",
                         ChainRics = new[] { "0#RUCORP--XX=MM" },
@@ -125,11 +119,10 @@ namespace DataProviderTest {
                         Cancels = 1,
                         ChainRics = 0,
                         Errors = 0,
-                        Rics = 0,
+                        RicsAtLeast = 0,
                         Timeouts = 0
                     });
 
-                    // Valid Feed, valid Ric
                     yield return new TestCaseData(new Params {
                         Description = "Many Rics, Valid Feed, valid Ric",
                         ChainRics = new[] { "0#RUCORP=MM", "0#RUTSY=MM" },
@@ -141,10 +134,55 @@ namespace DataProviderTest {
                         Cancels = 0,
                         ChainRics = 2,
                         Errors = 0,
-                        Rics = 100,
+                        RicsAtLeast = 100,
                         Timeouts = 0
                     });
-                    // todo multiple chain rics, and cancellation too
+
+                    yield return new TestCaseData(new Params {
+                        Description = "Many Rics, Invalid Feed",
+                        ChainRics = new[] { "0#RUCORP=MM", "0#RUTSY=MM" },
+                        DoCancel = false,
+                        Feed = "QQQQQQQQ",
+                        RequestTimeout = 5,
+                        TestTimeout = 6
+                    }).Returns(new Counts {
+                        Cancels = 0,
+                        ChainRics = 0,
+                        Errors = 0,
+                        RicsAtLeast = 0,
+                        Timeouts = 1 // todo I don't really like that I have different outcomes on erroneous data... Here I will have no errors at all, but a timeout message.
+                    });
+
+                    yield return new TestCaseData(new Params {
+                        Description = "Many Rics, Valid Feed, Invalid Rics",
+                        ChainRics = new[] { "0#RUCORP=MM11111", "0#RUTSY=MM11111" },
+                        DoCancel = false,
+                        Feed = "IDN",
+                        RequestTimeout = 5,
+                        TestTimeout = 5
+                    }).Returns(new Counts {
+                        Cancels = 0,
+                        ChainRics = 0,
+                        Errors = 0, // todo I don't really like that I have different outcomes on erroneous data... Here I will have no errors at all, but empty response.
+                        RicsAtLeast = 0,
+                        Timeouts = 0
+                    });
+
+                    yield return new TestCaseData(new Params {
+                        Description = "Many Rics, Valid Feed, Valid and Invalid Rics",
+                        ChainRics = new[] { "0#RUCORP=MM11111", "0#RUTSY=MM" },
+                        DoCancel = false,
+                        Feed = "IDN",
+                        RequestTimeout = 5,
+                        TestTimeout = 6
+                    }).Returns(new Counts {
+                        Cancels = 0,
+                        ChainRics = 1,
+                        Errors = 0, // todo I don't really like that I have different outcomes on erroneous data... Here I will have no errors at all, but partially empty response.
+                        RicsAtLeast = 1,
+                        Timeouts = 0
+                    });
+
                 }
             }
         }
@@ -166,7 +204,7 @@ namespace DataProviderTest {
                         chainss.Add(k);
                         var count = data.Data[k].Count();
                         Console.WriteLine("Got data on chain {0}, {1} items", k, count);
-                        l.Rics += count;
+                        l.RicsAtLeast += count;
                         l.ChainRics += 1;
                         
                     }
