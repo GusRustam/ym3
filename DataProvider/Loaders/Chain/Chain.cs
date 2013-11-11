@@ -64,5 +64,13 @@ namespace DataProvider.Loaders.Chain {
                 .With(_setup)
                 .GetInstance<IChainRequest>(_setup.Rics.Count == 1 ? "single" : "multi");
         }
+
+        public IChain WithMode(string mode) {
+            var prms = _setup.Clone();
+            prms.Mode = mode;
+            return _container
+                .With(prms)
+                .GetInstance<IChain>();
+        }
     }
 }

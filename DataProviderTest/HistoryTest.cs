@@ -107,6 +107,8 @@ namespace DataProviderTest {
             Assert.AreEqual(l.Fields, fields);
         }
 
+        // todo test multiple cancellation
+
         private static Counts LoadHist(Params prms) {
             var container = Agent.Factory();
             var hst = container.GetInstance<IHistory>();

@@ -73,6 +73,65 @@ namespace Toolbox.Async {
             return this;
         }
 
+        //public void Request() {
+        //    try {
+        //        Prepare();
+        //    } catch (Exception e) {
+        //        Report = e;
+        //        TryChangeState(State.Invalid);
+        //        Return();
+        //        return;
+        //    }
+
+        //    _cancelSrc = new CancellationTokenSource();
+        //    Task.Factory.StartNew(() => {
+        //        try {
+        //            Perform();
+        //        } catch (Exception e) {
+        //            Report = e;
+        //            TryChangeState(State.Invalid);
+        //            Return();
+        //            return;
+        //        }
+
+        //        // and waits for cancellation or receipt of all data
+        //        _cancelSrc.Token.WaitHandle.WaitOne(
+        //            _timeout.HasValue
+        //                ? _timeout.Value
+        //                : TimeSpan.FromMilliseconds(-1));
+
+        //        Return();
+
+        //    }, _cancelSrc.Token);
+
+        //}
+
+        //private void Return() {
+        //    lock (LockObj) {
+        //        TryChangeState(State.Timeout);
+        //        switch (_internalState) {
+        //            case State.Timeout:
+        //                if (_callback != null)
+        //                    _callback();
+        //                break;
+
+        //            case State.Invalid:
+        //                if (_error != null)
+        //                    _error(_report);
+        //                break;
+
+        //            case State.Cancelled:
+        //                if (_cancel != null)
+        //                    _cancel();
+        //                break;
+
+        //            case State.Succeded:
+        //                Success();
+        //                break;
+        //        }
+        //    }
+        //}
+
         public void Request() {
             Prepare();
             _cancelSrc = new CancellationTokenSource();

@@ -25,12 +25,12 @@ namespace DataProvider.Loaders.History {
             private IHistoryContainer _res;
             private Action<IHistoryContainer> _originalCallback;
 
-            public MultiHistoryAlgorithm(IContainer container, ILogger logger, HistorySetup setup, string[] rics) {
+            public MultiHistoryAlgorithm(IContainer container, IHistoryContainer res, ILogger logger, HistorySetup setup, string[] rics) {
                 _container = container;
                 _setup = setup;
                 _rics = rics.ToList();
                 _ricsToLoad = new HashSet<string>(_rics);
-                _res = container.GetInstance<IHistoryContainer>();
+                _res = res;
                 _subscriptions = new Dictionary<string, IHistoryRequest>();
                 Logger = logger;
             }
@@ -76,7 +76,6 @@ namespace DataProvider.Loaders.History {
 
             protected override void Perform() {
                 this.Trace("Perform()");
-                // or use Parallel.For?
                 //foreach (var ric in _rics) _subscriptions[ric].Request();
                 Parallel.ForEach(_rics, ric => _subscriptions[ric]
                     .WithErrorCallback(exception => {

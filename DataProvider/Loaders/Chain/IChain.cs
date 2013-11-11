@@ -23,5 +23,13 @@ namespace DataProvider.Loaders.Chain {
 
         /// <summary> Load chains </summary>
         IChainRequest Subscribe();
+
+        /// <summary> Set mode string </summary>
+        /// <param name="mode">Mode string</param>
+        /// <remarks>
+        /// Purges all previous updates to the mode string
+        /// including all Skip* mehod calls
+        /// </remarks>
+        IChain WithMode(string mode);
     }
 }

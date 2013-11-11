@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DataProvider.Loaders.History.Data {
+namespace DataProvider.Storage {
     public class SparseStorage<T1, T2, TValue> : StorageBase<T1, T2, TValue> {
         private readonly IDictionary<Tuple<T1, T2>, TValue> _data = new Dictionary<Tuple<T1, T2>, TValue>();
         public override TValue Get(T1 i1, T2 i2) {

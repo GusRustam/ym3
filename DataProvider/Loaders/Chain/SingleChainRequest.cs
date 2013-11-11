@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using DataProvider.Loaders.Status;
 using DataProvider.Objects;
@@ -20,8 +21,8 @@ namespace DataProvider.Loaders.Chain {
             private readonly string _ric;
             private readonly IChainData _res;
 
-            public SingleChainAlgo(IContainer container, IEikonObjects objects, ChainSetup setup, string ric) {
-                Logger = container.GetInstance<ILogger>();
+            public SingleChainAlgo(IContainer container, IEikonObjects objects, ILogger logger, ChainSetup setup, string ric) {
+                Logger = logger;
                 _adxRtChain = objects.CreateAdxRtChain();
                 _res = container.GetInstance<IChainData>();
                 _setup = setup;
@@ -67,8 +68,8 @@ namespace DataProvider.Loaders.Chain {
                                 .Where(item => !string.IsNullOrEmpty(item))
                                 .ToList();
                             
-                            _res.ChainRic = _ric;
-                            _res.Rics = response;
+                            _res.Data.Add(_ric, response);
+                            this.Trace(string.Format("Imported data ot ric {0} successfully", _ric));
                             TryChangeState(State.Succeded);
                         } catch (Exception e) {
                             Report = e;
@@ -95,13 +96,16 @@ namespace DataProvider.Loaders.Chain {
             }
 
             protected override void Success() {
-                this.Trace("Success()");
-                if (_setup.Callback != null)
-                    _setup.Callback(_res);
+                lock (LockObj) {
+                    this.Trace(string.Format("Success(rics: {0})", _res.Data.Keys.Count));
+                    if (_setup.Callback != null)
+                        _setup.Callback(_res);
+                }
             }
         }
 
         public SingleChainRequest(IContainer container, ChainSetup setup) {
+            Rics = new List<string>(setup.Rics);
             _algo = container
                 .With(setup)
                 .With(typeof(string), setup.Rics[0]) // todo a bit ugly
@@ -136,5 +140,6 @@ namespace DataProvider.Loaders.Chain {
             _algo.Cancel();
         }
 
+        public IList<string> Rics { get; private set; }
     }
 }

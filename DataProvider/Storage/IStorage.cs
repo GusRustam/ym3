@@ -1,8 +1,8 @@
+//using System.Globalization;
 using System;
 using System.Collections.Generic;
-//using System.Globalization;
 
-namespace DataProvider.Loaders.History.Data {
+namespace DataProvider.Storage {
     //public interface IConvertibleFromString<out T> {
     //    T FromString(string value);
     //}

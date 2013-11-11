@@ -88,6 +88,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Loaders\Chain\Chain.cs" />
+    <Compile Include="Loaders\Chain\ChainData.cs" />
     <Compile Include="Loaders\Chain\ChainSetup.cs" />
     <Compile Include="Loaders\Chain\IChain.cs" />
     <Compile Include="Loaders\Chain\IChainData.cs" />
@@ -95,9 +96,6 @@
     <Compile Include="Loaders\Chain\MultiChainRequest.cs" />
     <Compile Include="Loaders\Chain\SingleChainRequest.cs" />
     <Compile Include="Loaders\History\Data\IHistoryContainer.cs" />
-    <Compile Include="Loaders\History\Data\IStorage.cs" />
-    <Compile Include="Loaders\History\Data\SparseStorage.cs" />
-    <Compile Include="Loaders\History\Data\StorageBase.cs" />
     <Compile Include="Loaders\History\History.cs" />
     <Compile Include="Loaders\History\AdxHistoryRequest.cs" />
     <Compile Include="Loaders\History\Data\HistoryField.cs" />
@@ -149,6 +147,9 @@
     <Compile Include="Objects\EikonObjectsPlVba.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Storage\IStorage.cs" />
+    <Compile Include="Storage\SparseStorage.cs" />
+    <Compile Include="Storage\StorageBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">

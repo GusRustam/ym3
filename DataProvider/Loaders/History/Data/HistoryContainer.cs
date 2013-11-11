@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DataProvider.Storage;
 
 namespace DataProvider.Loaders.History.Data {
     // todo implement dense container, check for productivity

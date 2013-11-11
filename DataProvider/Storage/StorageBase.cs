@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace DataProvider.Loaders.History.Data {
+namespace DataProvider.Storage {
     public abstract class StorageBase<T1, T2, TValue> : IStorage<T1, T2, TValue> {
         public abstract TValue Get(T1 i1, T2 i2);
         public abstract void Set(T1 i1, T2 i2, TValue value);
