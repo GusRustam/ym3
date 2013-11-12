@@ -8,6 +8,7 @@ using LoggingFacility;
 using LoggingFacility.LoggingSupport;
 using StructureMap;
 using ThomsonReuters.Interop.RTX;
+using Toolbox.Async;
 
 namespace DataProvider.Loaders.Realtime {
     public abstract class AdfinTimeoutRequest : ISupportsLogging, ITimeout {

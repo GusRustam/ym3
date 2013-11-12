@@ -107,6 +107,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChainTest.cs" />
+    <Compile Include="MetadataTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FieldsTest.cs" />
     <Compile Include="HistoryTest.cs" />

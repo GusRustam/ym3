@@ -107,6 +107,8 @@
     <Compile Include="Loaders\History\Data\HistoryContainer.cs" />
     <Compile Include="Loaders\History\MultiHistoryRequest.cs" />
     <Compile Include="Loaders\History\TsiHistoryRequest.cs" />
+    <Compile Include="Loaders\ITimeout.cs" />
+    <Compile Include="Loaders\Metadata\IMetadata.cs" />
     <Compile Include="Loaders\Realtime\AdfinFieldsTicker.cs" />
     <Compile Include="Loaders\Realtime\AdfinRealtime.cs" />
     <Compile Include="Loaders\Realtime\AdfinSnapshotTicker.cs" />
@@ -126,7 +128,6 @@
     <Compile Include="Loaders\Realtime\Data\SnapshotItem.cs" />
     <Compile Include="Loaders\Realtime\IFieldsTicker.cs" />
     <Compile Include="Loaders\History\IHistory.cs" />
-    <Compile Include="Loaders\ITimeout.cs" />
     <Compile Include="Loaders\Status\DataStatus.cs" />
     <Compile Include="Loaders\Status\FieldStatus.cs" />
     <Compile Include="Loaders\Status\IDataStatus.cs" />
@@ -210,10 +211,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Loaders\Metadata\" />
-    <Folder Include="Loaders\Source\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
