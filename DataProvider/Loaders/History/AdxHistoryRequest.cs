@@ -17,19 +17,19 @@ namespace DataProvider.Loaders.History {
         private readonly AdxHistoryAlgorithm _algo;
 
         [UsedImplicitly]
-        private class AdxHistoryAlgorithm : TimeoutCall, ISupportsLogging {
+        private class AdxHistoryAlgorithm : TimeoutCall {
             private readonly HistorySetup _setup;
             private readonly string _ric;
             private readonly AdxRtHistory _adxRtHistory;
             private readonly IContainer _container;
             private IHistoryContainer _res;
 
-            public AdxHistoryAlgorithm(IContainer container, IEikonObjects objects, ILogger logger, HistorySetup setup, string ric) {
+            public AdxHistoryAlgorithm(IContainer container, IEikonObjects objects, ILogger logger, HistorySetup setup, string ric) 
+                : base(logger) {
                 _setup = setup;
                 _ric = ric;
                 _container = container;
                 _adxRtHistory = objects.CreateAdxRtHistory();
-                Logger = logger;
                 this.Trace(string.Format("OnAlgorithm({0})", objects.GetType().Name));
             }
 
@@ -116,8 +116,6 @@ namespace DataProvider.Loaders.History {
                                 this.Info("Got partial data!!!");
                                 if (!ImportTable()) {
                                     ReportError(new InvalidOperationException("Failed to import"));
-                                    //Report = new InvalidOperationException("Failed to import");
-                                    //TryChangeState(State.Invalid);
                                 }
                                 break;
 
@@ -125,7 +123,6 @@ namespace DataProvider.Loaders.History {
                                 try {
                                     if (!ImportTable()) {
                                         ReportError(new InvalidOperationException("Failed to import"));
-                                        //TryChangeState(State.Invalid);
                                     } else
                                         _res.RicStatuses[_ric] = TimeoutStatus.Ok;
                                         TryChangeState(State.Succeded);
@@ -135,7 +132,6 @@ namespace DataProvider.Loaders.History {
                                 break;
                             default:
                                 ReportError(new Exception(_adxRtHistory.ErrorString));
-                                //TryChangeState(State.Invalid);
                                 break;
                         }
                     } catch (Exception e) {
@@ -187,8 +183,6 @@ namespace DataProvider.Loaders.History {
                     return false;
                 }
             }
-
-            public ILogger Logger { get; private set; }
         }
 
         public AdxHistoryRequest(IContainer container, ILogger logger, HistorySetup setup, string ric) {
@@ -198,21 +192,6 @@ namespace DataProvider.Loaders.History {
                 .GetInstance<AdxHistoryAlgorithm>();
             Logger = logger;
         }
-
-        //public ITimeoutCall WithCancelCallback(Action callback) {
-        //    _algo.WithCancelCallback(callback);
-        //    return this;
-        //}
-
-        //public ITimeoutCall WithTimeoutCallback(Action callback) {
-        //    _algo.WithTimeoutCallback(callback);
-        //    return this;
-        //}
-
-        //public ITimeoutCall WithErrorCallback(Action<Exception> callback) {
-        //    _algo.WithErrorCallback(callback);
-        //    return this;
-        //}
 
         public ITimeoutCall WithTimeout(TimeSpan? timeout) {
             _algo.WithTimeout(timeout);

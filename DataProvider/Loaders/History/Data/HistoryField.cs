@@ -12,12 +12,6 @@ namespace DataProvider.Loaders.History.Data {
         public static IHistoryField VWAP = new HistoryField("VWAP", "VWAP", "VWAP");
         public static IHistoryField Value = new HistoryField("Value", "VALUE", "VALUE");
         public static IHistoryField Volume = new HistoryField("Volume", "VOLUMNE", "VOLUME");
-        //public static IHistoryField Bid = new HistoryField("Bid", "BID", TsiFactNames.tsiTsFactBID);
-        //public static IHistoryField Ask = new HistoryField("Ask", "ASK", TsiFactNames.tsiTsFactASK);
-        //public static IHistoryField Close = new HistoryField("Close", "CLOSE", TsiFactNames.tsiTsFactCLOSE);
-        //public static IHistoryField VWAP = new HistoryField("VWAP", "VWAP", TsiFactNames.tsiTsFactVWAP);
-        //public static IHistoryField Value = new HistoryField("Value", "VALUE", TsiFactNames.tsiTsFactVALUE);
-        //public static IHistoryField Volume = new HistoryField("Volume", "VOLUMNE", TsiFactNames.tsiTsFactVOLUME);
         private static readonly IHistoryField[] Fields = { Date, Bid, Ask, Close, VWAP, Value, Volume };
 
         private HistoryField(string name, string adxName, string tsiName) {

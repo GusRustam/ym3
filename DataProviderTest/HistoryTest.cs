@@ -151,20 +151,7 @@ namespace DataProviderTest {
                 babushka.Subscribe(prms.Rics[0]) :
                 babushka.Subscribe(prms.Rics);
 
-            req
-                //.WithErrorCallback(exception => {
-                //    l.Errors++;
-                //    Console.WriteLine("Error!\n {0}", exception);
-                //})
-                //.WithTimeoutCallback(() => {
-                //    l.Timeouts++;
-                //    Console.WriteLine("Timeout!");
-                //})
-                //.WithCancelCallback(() => {
-                //    l.Cancels++;
-                //    Console.WriteLine("Cancelled!");
-                //})
-                .WithTimeout(TimeSpan.FromSeconds(prms.RequestTimeout))
+            req .WithTimeout(TimeSpan.FromSeconds(prms.RequestTimeout))
                 .Request();
 
             Thread.Sleep(TimeSpan.FromSeconds(prms.TestTimeout));

@@ -14,7 +14,7 @@ namespace DataProvider.Loaders.History {
         private readonly MultiHistoryAlgorithm _algo;
 
         [UsedImplicitly]
-        private class MultiHistoryAlgorithm : TimeoutCall, ISupportsLogging {
+        private class MultiHistoryAlgorithm : TimeoutCall {
             private readonly IContainer _container;
             private readonly HistorySetup _setup;
             private readonly IList<string> _rics;
@@ -25,14 +25,14 @@ namespace DataProvider.Loaders.History {
             private IHistoryContainer _res;
             private Action<IHistoryContainer> _originalCallback;
 
-            public MultiHistoryAlgorithm(IContainer container, IHistoryContainer res, ILogger logger, HistorySetup setup, string[] rics) {
+            public MultiHistoryAlgorithm(IContainer container, IHistoryContainer res, ILogger logger, HistorySetup setup, string[] rics)
+                : base(logger) {
                 _container = container;
                 _setup = setup;
                 _rics = rics.ToList();
                 _ricsToLoad = new HashSet<string>(_rics);
                 _res = res;
                 _subscriptions = new Dictionary<string, IHistoryRequest>();
-                Logger = logger;
             }
 
             protected override void Prepare() {
@@ -76,13 +76,7 @@ namespace DataProvider.Loaders.History {
 
             protected override void Perform() {
                 this.Trace("Perform()");
-                //foreach (var ric in _rics) _subscriptions[ric].Request();
-                Parallel.ForEach(_rics, ric => _subscriptions[ric]
-                    //.WithErrorCallback(exception => {
-                    //    _ricsToLoad.Remove(ric);
-                    //    if (!_ricsToLoad.Any()) TryChangeState(State.Succeded);
-                    //})
-                    .Request());
+                Parallel.ForEach(_rics, ric => _subscriptions[ric].Request());
             }
 
             protected override void Finish() {
@@ -121,9 +115,6 @@ namespace DataProvider.Loaders.History {
                     _ricsToLoad.Clear();
                 }
             }
-
-
-            public ILogger Logger { get; private set; }
         }
 
         public MultiHistoryRequest(IContainer container, ILogger logger, HistorySetup setup, string[] rics) {
@@ -134,22 +125,6 @@ namespace DataProvider.Loaders.History {
                 .With(typeof(string[]), rics)
                 .GetInstance<MultiHistoryAlgorithm>();
         }
-
-        ////  down here - wut?
-        //public ITimeoutCall WithCancelCallback(Action callback) {
-        //    _algo.WithCancelCallback(callback);
-        //    return this;
-        //}
-
-        //public ITimeoutCall WithTimeoutCallback(Action callback) {
-        //    _algo.WithTimeoutCallback(callback);
-        //    return this;
-        //}
-
-        //public ITimeoutCall WithErrorCallback(Action<Exception> callback) {
-        //    _algo.WithErrorCallback(callback);
-        //    return this;
-        //}
 
         public ITimeoutCall WithTimeout(TimeSpan? timeout) {
             _algo.WithTimeout(timeout);

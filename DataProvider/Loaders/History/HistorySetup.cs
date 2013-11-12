@@ -6,7 +6,6 @@ using Toolbox;
 
 namespace DataProvider.Loaders.History {
     public struct HistorySetup {
-        //public string Ric;
         public string Feed;
         public DateTime? Since;
         public DateTime? Till;

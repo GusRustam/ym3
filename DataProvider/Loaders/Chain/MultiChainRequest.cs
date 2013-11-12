@@ -12,7 +12,7 @@ namespace DataProvider.Loaders.Chain {
     public class MultiChainRequest : IChainRequest, ISupportsLogging {
         private readonly MultiChainAlgo _algo;
 
-        public class MultiChainAlgo : TimeoutCall, ISupportsLogging {
+        public class MultiChainAlgo : TimeoutCall {
             private readonly IContainer _container;
             private readonly ChainSetup _setup;
             private readonly IChainResponse _res;
@@ -45,8 +45,8 @@ namespace DataProvider.Loaders.Chain {
                 }
             }
 
-            public MultiChainAlgo(IContainer container, IChainResponse res, ILogger logger,ChainSetup setup) {
-                Logger = logger;
+            public MultiChainAlgo(IContainer container, IChainResponse res, ILogger logger,ChainSetup setup)
+                : base(logger) {
                 _container = container;
                 _res = res;
                 _setup = setup;
@@ -90,27 +90,7 @@ namespace DataProvider.Loaders.Chain {
 
             protected override void Perform() {
                 this.Trace("Perform()");
-                Parallel.ForEach(_requests, request => 
-                    request
-                        //.WithErrorCallback(exception => {
-                        //    this.Trace("On Error()");
-                        //    lock (LockObj) {
-                        //        foreach (var ric in request.Rics) 
-                        //            _chainRics.Remove(ric);
-                        //        if (!_chainRics.Any())
-                        //            TryChangeState(State.Succeded);
-                        //    }
-                        //})
-                        //.WithTimeoutCallback(() => {
-                        //    this.Trace("On Timeout()");
-                        //    lock (LockObj) {
-                        //        foreach (var ric in request.Rics)
-                        //            _chainRics.Remove(ric);
-                        //        if (!_chainRics.Any())
-                        //            TryChangeState(State.Succeded);
-                        //    }
-                        //})
-                        .Request());
+                Parallel.ForEach(_requests, request => request.Request());
             }
 
             protected override void Finish() {
@@ -118,8 +98,6 @@ namespace DataProvider.Loaders.Chain {
                 if (_setup.Callback != null)
                     _setup.Callback(_res);
             }
-
-            public ILogger Logger { get; private set; }
         }
 
         public MultiChainRequest(IContainer container, ILogger logger, ChainSetup setup) {
@@ -129,21 +107,6 @@ namespace DataProvider.Loaders.Chain {
                 .With(setup)
                 .GetInstance<MultiChainAlgo>();
         }
-
-        //public ITimeoutCall WithCancelCallback(Action callback) {
-        //    _algo.WithCancelCallback(callback);
-        //    return this;
-        //}
-
-        //public ITimeoutCall WithTimeoutCallback(Action callback) {
-        //    _algo.WithTimeoutCallback(callback);
-        //    return this;
-        //}
-
-        //public ITimeoutCall WithErrorCallback(Action<Exception> callback) {
-        //    _algo.WithErrorCallback(callback);
-        //    return this;
-        //}
 
         public ITimeoutCall WithTimeout(TimeSpan? timeout) {
             _algo.WithTimeout(timeout);

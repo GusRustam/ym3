@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using LoggingFacility;
+using LoggingFacility.LoggingSupport;
 
 namespace Toolbox.Async {
-    public abstract class TimeoutCall : ITimeoutCall {
+    public abstract class TimeoutCall : ITimeoutCall, ISupportsLogging {
         /// <summary>
         /// Use it to synchronize event handing
         /// </summary>
@@ -40,6 +42,10 @@ namespace Toolbox.Async {
         /// Specific actions to inform user that everything's fine 
         /// </summary>
         protected abstract void Finish();
+        protected abstract void HandleTimout();
+        protected abstract void HandleError(Exception ex);
+        protected abstract void HandleCancel();
+
 
         // Object state
         private CancellationTokenSource _cancelSrc;
@@ -47,28 +53,15 @@ namespace Toolbox.Async {
         private Exception _report;
         private State _internalState;
 
-        //// Callbacks
-        //private Action<Exception> _error;
-        //private Action _callback;
-        //private Action _cancel;
+        protected TimeoutCall(ILogger logger) {
+            Logger = logger;
+        }
+
+        protected State InternalState {
+            get { return _internalState; }
+        }
 
         #region ITimeoutCall implementation
-
-        //public ITimeoutCall WithCancelCallback(Action callback) {
-        //    _cancel = callback;
-        //    return this;
-        //}
-
-        //public ITimeoutCall WithTimeoutCallback(Action callback) {
-        //    _callback = callback;
-        //    return this;
-        //}
-
-        //public ITimeoutCall WithErrorCallback(Action<Exception> callback) {
-        //    _error = callback;
-        //    return this;
-        //}
-
         public ITimeoutCall WithTimeout(TimeSpan? timeout) {
             _timeout = timeout;
             return this;
@@ -134,48 +127,39 @@ namespace Toolbox.Async {
         //}
 
         public void Request() {
+            this.Trace("Request()");
             Prepare();
             _cancelSrc = new CancellationTokenSource();
             Task.Factory.StartNew(() => {
+                this.Trace("In task, to perform");
                 Perform();
+                this.Trace("Performed, to wait");
                 // and waits for cancellation or receipt of all data
-                _cancelSrc.Token.WaitHandle.WaitOne(
+                    _cancelSrc.Token.WaitHandle.WaitOne(
                     _timeout.HasValue
                         ? _timeout.Value
                         : TimeSpan.FromMilliseconds(-1));
+                
                 lock (LockObj) {
+                    this.Trace("Waiting finished");
                     TryChangeState(State.Timeout);
-                    //HandleState(_internalState);
                     switch (_internalState) {
                         case State.Timeout:
-                            //if (_callback != null) _callback();
                             HandleTimout();
                             break;
 
                         case State.Invalid:
-                            //if (_error != null)
-                            //    _error(_report);
                             HandleError(_report);
                             break;
 
                         case State.Cancelled:
                             HandleCancel();
-                            //if (_cancel != null)
-                            //    _cancel();
                             break;
-
-                        //case State.Succeded:
-                        //    Success();
-                        //    break;
                     }
                     Finish();
                 }
             }, _cancelSrc.Token);
         }
-
-        protected abstract void HandleTimout();
-        protected abstract void HandleError(Exception ex);
-        protected abstract void HandleCancel();
 
         public void Cancel() {
             TryChangeState(State.Cancelled);
@@ -188,12 +172,22 @@ namespace Toolbox.Async {
         /// </summary>
         /// <param name="newState">new state</param>
         protected void TryChangeState(State newState) {
-            if (_internalState != State.Init)
-                return;
-            _internalState = newState;
-            if (!_cancelSrc.IsCancellationRequested)
-                _cancelSrc.Cancel();
+            lock (LockObj) {
+                this.Trace(string.Format("Trying state {0} -> {1}", _internalState, newState));
+                if (_internalState != State.Init)
+                    return;
+                _internalState = newState;
+                this.Trace(string.Format("State now {0}", _internalState));
+                this.Trace("To request cancellation");
+                if (!_cancelSrc.IsCancellationRequested) {
+                    _cancelSrc.Cancel();
+                    this.Trace("Cancellation requested");
+                } else {
+                    this.Trace("Cancellation already requested");
+                }
+            }
         }
 
+        public ILogger Logger { get; private set; }
     }
 }

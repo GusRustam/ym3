@@ -12,18 +12,17 @@ namespace DataProvider.Loaders.History {
     public class TsiHistoryRequest : IHistoryRequest, ISupportsLogging {
         
         [UsedImplicitly]
-        private class TsiAlgorithm : TimeoutCall, ISupportsLogging {
+        private class TsiAlgorithm : TimeoutCall {
             private readonly IContainer _container;
             private readonly HistorySetup _setup;
             private readonly string _ric;
             private TsiSession _session;
             private IHistoryContainer _res;
 
-            public TsiAlgorithm(IContainer container, ILogger logger, HistorySetup setup, string ric) {
+            public TsiAlgorithm(IContainer container, ILogger logger, HistorySetup setup, string ric) : base(logger) {
                 _container = container;
                 _setup = setup;
                 _ric = ric;
-                Logger = logger;
             }
 
             protected override void Prepare() {
@@ -133,14 +132,10 @@ namespace DataProvider.Loaders.History {
             protected override void HandleCancel() {
                 _res.Status = TimeoutStatus.Cancelled;
             }
-
-            public ILogger Logger { get; private set; }
         }
 
         private readonly TsiAlgorithm _algo;
 
-        // todo in all other similar classes add ILogger logger as a param - let container resolve it itself
-        // todo in some cases I'll be able to get rid of IContainer container itself I guess
         public TsiHistoryRequest(IContainer container,  HistorySetup setup, string ric)  {
             _algo = container
                 .With(typeof(string), ric)
@@ -148,22 +143,6 @@ namespace DataProvider.Loaders.History {
                 .GetInstance<TsiAlgorithm>();
             Logger = container.GetInstance<ILogger>();
         }
-
-        //public ITimeoutCall WithCancelCallback(Action callback) {
-        //    _algo.WithCancelCallback(callback);
-        //    return this;
-        //}
-
-        //public ITimeoutCall WithTimeoutCallback(Action callback) {
-        //    _algo.WithTimeoutCallback(callback);
-        //    return this;
-        //}
-
-        //public ITimeoutCall WithErrorCallback(Action<Exception> callback) {
-        //    _algo.WithErrorCallback(callback);
-        //    return this;
-        //}
-
         public ITimeoutCall WithTimeout(TimeSpan? timeout) {
             _algo.WithTimeout(timeout);
             return this;

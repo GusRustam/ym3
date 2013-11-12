@@ -1,21 +1,7 @@
-//using System.Globalization;
 using System;
 using System.Collections.Generic;
-using Toolbox.Async;
 
 namespace DataProvider.Storage {
-    //public interface IConvertibleFromString<out T> {
-    //    T FromString(string value);
-    //}
-
-    //public class RDouble : IConvertibleFromString<double?> {
-    //    public double? FromString(string value) {
-    //        double res;
-    //        if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out res)) return res;
-    //        return null;
-    //    }
-    //}
-
     public interface IStorage<T1, T2, TValue> : IEnumerable<KeyValuePair<Tuple<T1, T2>, TValue>> {
         TValue Get(T1 i1, T2 i2);
         bool TryGet(T1 i1, T2 i2, out TValue value);

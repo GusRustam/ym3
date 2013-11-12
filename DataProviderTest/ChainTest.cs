@@ -66,7 +66,7 @@ namespace DataProviderTest {
             public static IEnumerable TestCases {
                 get {
                     yield return new TestCaseData(new Params {
-                        Description = "Valid Feed, valid Ric",
+                        Description = "One Chain, Valid Feed, valid Ric",
                         ChainRics = new []{ "0#RUCORP=MM" },
                         DoCancel = false,
                         Feed = "IDN",
@@ -81,7 +81,7 @@ namespace DataProviderTest {
                     });
 
                     yield return new TestCaseData(new Params {
-                        Description = "Valid Feed, invalid Ric",
+                        Description = "One Chain, Valid Feed, invalid Ric",
                         ChainRics = new[] { "0#RUCORP--XX=MM" },
                         DoCancel = false,
                         Feed = "IDN",
@@ -96,7 +96,7 @@ namespace DataProviderTest {
                     });
 
                     yield return new TestCaseData(new Params {
-                        Description = "Inalid Feed",
+                        Description = "One Chain, Invalid Feed",
                         ChainRics = new[] { "0#RUCORP--XX=MM" },
                         DoCancel = false,
                         Feed = "Q",
@@ -111,7 +111,7 @@ namespace DataProviderTest {
                     });
 
                     yield return new TestCaseData(new Params {
-                        Description = "Inalid Feed, cancellation",
+                        Description = "One Chain, Invalid Feed, cancellation",
                         ChainRics = new[] { "0#RUCORP--XX=MM" },
                         DoCancel = true,
                         Feed = "Q",
@@ -126,7 +126,7 @@ namespace DataProviderTest {
                     });
 
                     yield return new TestCaseData(new Params {
-                        Description = "Valid Feed, cancellation",
+                        Description = "One Chain, Valid Feed, cancellation",
                         ChainRics = new[] { "0#RUCORP--XX=MM" },
                         DoCancel = true,
                         Feed = "Q",
@@ -141,7 +141,7 @@ namespace DataProviderTest {
                     });
 
                     yield return new TestCaseData(new Params {
-                        Description = "Many Rics, Valid Feed, valid Ric",
+                        Description = "Many Chains, Valid Feed, valid Ric",
                         ChainRics = new[] { "0#RUCORP=MM", "0#RUTSY=MM" },
                         DoCancel = false,
                         Feed = "IDN",
@@ -156,7 +156,7 @@ namespace DataProviderTest {
                     });
 
                     yield return new TestCaseData(new Params {
-                        Description = "Many Rics, Invalid Feed",
+                        Description = "Many Chains, Invalid Feed",
                         ChainRics = new[] { "0#RUCORP=MM", "0#RUTSY=MM" },
                         DoCancel = false,
                         Feed = "QQQQQQQQ",
@@ -171,7 +171,7 @@ namespace DataProviderTest {
                     });
 
                     yield return new TestCaseData(new Params {
-                        Description = "Many Rics, Valid Feed, Invalid Rics",
+                        Description = "Many Chains, Valid Feed, Invalid Rics",
                         ChainRics = new[] { "0#RUCORP=MM11111", "0#RUTSY=MM11111" },
                         DoCancel = false,
                         Feed = "IDN",
@@ -186,7 +186,7 @@ namespace DataProviderTest {
                     });
 
                     yield return new TestCaseData(new Params {
-                        Description = "Many Rics, Valid Feed, Valid and Invalid Rics",
+                        Description = "Many Chains, Valid Feed, Valid and Invalid Rics",
                         ChainRics = new[] { "0#RUCORP=MM11111", "0#RUTSY=MM" },
                         DoCancel = false,
                         Feed = "IDN",
@@ -198,6 +198,51 @@ namespace DataProviderTest {
                         Errors = 1, 
                         RicsAtLeast = 1,
                         RicsAtMost = 100,
+                        Timeouts = 0
+                    });
+
+                    yield return new TestCaseData(new Params {
+                        Description = "Many Chains, Valid Feed, Valid and Invalid Rics, cancellation",
+                        ChainRics = new[] { "0#RUCORP=MM11111", "0#RUTSY=MM" },
+                        DoCancel = true,
+                        Feed = "IDN",
+                        RequestTimeout = 5,
+                        TestTimeout = 0.5
+                    }).Returns(new Counts {
+                        Cancels = 3, 
+                        ChainRics = 2,
+                        Errors = 0, 
+                        RicsExactly = 0,
+                        Timeouts = 0
+                    });
+
+                    yield return new TestCaseData(new Params {
+                        Description = "Many Chains, Valid Feed, Valid and Invalid Rics, late cancellation",
+                        ChainRics = new[] { "0#RUCORP=MM11111", "0#RUTSY=MM" },
+                        DoCancel = true,
+                        Feed = "IDN",
+                        RequestTimeout = 5,
+                        TestTimeout = 2
+                    }).Returns(new Counts {
+                        Cancels = 0,
+                        ChainRics = 2,
+                        Errors = 1,
+                        RicsAtLeast = 10,
+                        Timeouts = 0
+                    });
+
+                    yield return new TestCaseData(new Params {
+                        Description = "Many Chains (2), Valid Feed, Valid and Invalid Rics",
+                        ChainRics = new[] { "0#RUCORP=MM11111", "0#RUTSY=MM" },
+                        DoCancel = true,
+                        Feed = "IDN",
+                        RequestTimeout = 5,
+                        TestTimeout = 6
+                    }).Returns(new Counts {
+                        Cancels = 0,
+                        ChainRics = 2,
+                        Errors = 1,
+                        RicsAtLeast = 10,
                         Timeouts = 0
                     });
 
@@ -251,24 +296,14 @@ namespace DataProviderTest {
             var req = babushka.Subscribe();
            
             req
-                //.WithErrorCallback(exception => {
-                //    l.Errors++;
-                //    Console.WriteLine("Error!\n {0}", exception);
-                //})
-                //.WithTimeoutCallback(() => {
-                //    l.Timeouts++;
-                //    Console.WriteLine("Timeout!");
-                //})
-                //.WithCancelCallback(() => {
-                //    l.Cancels++;
-                //    Console.WriteLine("Cancelled!");
-                //})
                 .WithTimeout(TimeSpan.FromSeconds(prms.RequestTimeout))
                 .Request();
 
             Thread.Sleep(TimeSpan.FromSeconds(prms.TestTimeout));
             if (prms.DoCancel)
                 req.Cancel();
+
+            Thread.Sleep(TimeSpan.FromSeconds(1));
 
             Console.WriteLine("== END ==");
             return l;
@@ -287,9 +322,6 @@ namespace DataProviderTest {
                 .WithRics("0#RUCORP=MM")
                 .WithChain(data => Console.WriteLine("Got data, {0} items", data.Records[0].Rics.Count()))
                 .Subscribe()
-                //.WithCancelCallback(() => Console.WriteLine("Cancel"))
-                //.WithErrorCallback(exception => Console.WriteLine(string.Format("Error {0}", exception)))
-                //.WithTimeoutCallback(() => Console.WriteLine("Timeout :("))
                 .WithTimeout(TimeSpan.FromSeconds(5))
                 .Request();
 

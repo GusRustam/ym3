@@ -14,9 +14,7 @@ namespace DataProvider.Loaders.Chain {
     public class SingleChainRequest : IChainRequest {
         private readonly SingleChainAlgo _algo;
 
-        public class SingleChainAlgo : TimeoutCall, ISupportsLogging {
-            public ILogger Logger { get; private set; }
-
+        public class SingleChainAlgo : TimeoutCall {
             private readonly AdxRtChain _adxRtChain;
             private readonly ChainSetup _setup;
             private readonly string _ric;
@@ -38,8 +36,8 @@ namespace DataProvider.Loaders.Chain {
                 }
             }
 
-            public SingleChainAlgo(IEikonObjects objects, IChainResponse res, ILogger logger, ChainSetup setup, string ric) {
-                Logger = logger;
+            public SingleChainAlgo(IEikonObjects objects, IChainResponse res, ILogger logger, ChainSetup setup, string ric) :
+                base(logger) {
                 _adxRtChain = objects.CreateAdxRtChain();
                 _res = res; 
                 _setup = setup;
@@ -54,8 +52,6 @@ namespace DataProvider.Loaders.Chain {
                     _adxRtChain.Mode = _setup.Mode;
                 } catch (Exception e) {
                     this.Trace("Error in Prepare", e);
-                    //Report = e;
-                    //TryChangeState(State.Invalid);
                     ReportError(e);
                 }
             }
@@ -69,8 +65,6 @@ namespace DataProvider.Loaders.Chain {
                 } catch (Exception e) {
                     this.Trace("Error in Perform", e);
                     ReportError(e);
-                    //Report = e;
-                    //TryChangeState(State.Invalid);
                 }
             }
 
@@ -90,22 +84,15 @@ namespace DataProvider.Loaders.Chain {
                                 .ToList();
 
                             _res.Records.Add(new ChainRecord(_ric, TimeoutStatus.Ok, response));
-                            //_res.Insert(Tuple.Create(_ric, DataStorage.DataStorage.DataState.Okay, response));
-                            //_res.Data.Add(_ric, response);
                             this.Trace(string.Format("Imported data ot ric {0} successfully", _ric));
                             TryChangeState(State.Succeded);
                         } catch (Exception e) {
                             ReportError(e);
-                            //Report = e;
-                            //TryChangeState(State.Invalid);
                         }
                     } else if (status == DataStatus.Partial) {
                         this.Info(string.Format("Got partial data on ric {0}", _ric));
                     } else {
                         ReportError(new Exception("Invalid ric"));
-
-                        //Report = new Exception("Invalid ric");
-                        //TryChangeState(State.Invalid);
                     }
                 }   
             }
@@ -115,9 +102,6 @@ namespace DataProvider.Loaders.Chain {
                 lock (LockObj) {
                     var status = SourceStatus.FromAdxStatus(sourceStatus);
                     if (status == SourceStatus.Up) return;
-
-                    //Report = new Exception("Invalid source");
-                    //TryChangeState(State.Invalid);
 
                     ReportError(new Exception("Invalid source"));
                 }
@@ -145,21 +129,6 @@ namespace DataProvider.Loaders.Chain {
                 .With(typeof(string), setup.Rics[0]) // todo a bit ugly
                 .GetInstance<SingleChainAlgo>();
         }
-
-        //public ITimeoutCall WithCancelCallback(Action callback) {
-        //    _algo.WithCancelCallback(callback);
-        //    return this;
-        //}
-
-        //public ITimeoutCall WithTimeoutCallback(Action callback) {
-        //    _algo.WithTimeoutCallback(callback);
-        //    return this;
-        //}
-
-        //public ITimeoutCall WithErrorCallback(Action<Exception> callback) {
-        //    _algo.WithErrorCallback(callback);
-        //    return this;
-        //}
 
         public ITimeoutCall WithTimeout(TimeSpan? timeout) {
             _algo.WithTimeout(timeout);
