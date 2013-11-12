@@ -39,7 +39,7 @@ namespace Toolbox.Async {
         /// <summary> 
         /// Specific actions to inform user that everything's fine 
         /// </summary>
-        protected abstract void Success();
+        protected abstract void Finish();
 
         // Object state
         private CancellationTokenSource _cancelSrc;
@@ -47,26 +47,27 @@ namespace Toolbox.Async {
         private Exception _report;
         private State _internalState;
 
-        // Callbacks
-        private Action<Exception> _error;
-        private Action _callback;
-        private Action _cancel;
+        //// Callbacks
+        //private Action<Exception> _error;
+        //private Action _callback;
+        //private Action _cancel;
 
         #region ITimeoutCall implementation
-        public ITimeoutCall WithCancelCallback(Action callback) {
-            _cancel = callback;
-            return this;
-        }
 
-        public ITimeoutCall WithTimeoutCallback(Action callback) {
-            _callback = callback;
-            return this;
-        }
+        //public ITimeoutCall WithCancelCallback(Action callback) {
+        //    _cancel = callback;
+        //    return this;
+        //}
 
-        public ITimeoutCall WithErrorCallback(Action<Exception> callback) {
-            _error = callback;
-            return this;
-        }
+        //public ITimeoutCall WithTimeoutCallback(Action callback) {
+        //    _callback = callback;
+        //    return this;
+        //}
+
+        //public ITimeoutCall WithErrorCallback(Action<Exception> callback) {
+        //    _error = callback;
+        //    return this;
+        //}
 
         public ITimeoutCall WithTimeout(TimeSpan? timeout) {
             _timeout = timeout;
@@ -139,35 +140,47 @@ namespace Toolbox.Async {
                 Perform();
                 // and waits for cancellation or receipt of all data
                 _cancelSrc.Token.WaitHandle.WaitOne(
-                    _timeout.HasValue ?
-                        _timeout.Value :
-                        TimeSpan.FromMilliseconds(-1));
+                    _timeout.HasValue
+                        ? _timeout.Value
+                        : TimeSpan.FromMilliseconds(-1));
                 lock (LockObj) {
                     TryChangeState(State.Timeout);
+                    //HandleState(_internalState);
                     switch (_internalState) {
                         case State.Timeout:
-                            if (_callback != null) _callback();
+                            //if (_callback != null) _callback();
+                            HandleTimout();
                             break;
 
                         case State.Invalid:
-                            if (_error != null) _error(_report);
+                            //if (_error != null)
+                            //    _error(_report);
+                            HandleError(_report);
                             break;
 
                         case State.Cancelled:
-                            if (_cancel != null) _cancel();
+                            HandleCancel();
+                            //if (_cancel != null)
+                            //    _cancel();
                             break;
 
-                        case State.Succeded:
-                            Success();
-                            break;
+                        //case State.Succeded:
+                        //    Success();
+                        //    break;
                     }
+                    Finish();
                 }
             }, _cancelSrc.Token);
         }
 
+        protected abstract void HandleTimout();
+        protected abstract void HandleError(Exception ex);
+        protected abstract void HandleCancel();
+
         public void Cancel() {
             TryChangeState(State.Cancelled);
         }
+
         #endregion
 
         /// <summary>
@@ -181,5 +194,6 @@ namespace Toolbox.Async {
             if (!_cancelSrc.IsCancellationRequested)
                 _cancelSrc.Cancel();
         }
+
     }
 }

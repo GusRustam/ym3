@@ -117,9 +117,21 @@ namespace DataProvider.Loaders.History {
                 }
             }
 
-            protected override void Success() {
+            protected override void Finish() {
                 if (_setup.Callback != null) 
                     _setup.Callback(_res);
+            }
+
+            protected override void HandleTimout() {
+                _res.Status = TimeoutStatus.Timeout;
+            }
+
+            protected override void HandleError(Exception ex) {
+                _res.Status = TimeoutStatus.CreateError(ex);
+            }
+
+            protected override void HandleCancel() {
+                _res.Status = TimeoutStatus.Cancelled;
             }
 
             public ILogger Logger { get; private set; }
@@ -137,20 +149,20 @@ namespace DataProvider.Loaders.History {
             Logger = container.GetInstance<ILogger>();
         }
 
-        public ITimeoutCall WithCancelCallback(Action callback) {
-            _algo.WithCancelCallback(callback);
-            return this;
-        }
+        //public ITimeoutCall WithCancelCallback(Action callback) {
+        //    _algo.WithCancelCallback(callback);
+        //    return this;
+        //}
 
-        public ITimeoutCall WithTimeoutCallback(Action callback) {
-            _algo.WithTimeoutCallback(callback);
-            return this;
-        }
+        //public ITimeoutCall WithTimeoutCallback(Action callback) {
+        //    _algo.WithTimeoutCallback(callback);
+        //    return this;
+        //}
 
-        public ITimeoutCall WithErrorCallback(Action<Exception> callback) {
-            _algo.WithErrorCallback(callback);
-            return this;
-        }
+        //public ITimeoutCall WithErrorCallback(Action<Exception> callback) {
+        //    _algo.WithErrorCallback(callback);
+        //    return this;
+        //}
 
         public ITimeoutCall WithTimeout(TimeSpan? timeout) {
             _algo.WithTimeout(timeout);

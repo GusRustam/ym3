@@ -52,10 +52,32 @@ namespace DataProvider.Loaders.History {
                 }
             }
 
-            protected override void Success() {
+            protected override void Finish() {
                 this.Trace("Success()");
                 if (_setup.Callback != null)
                     _setup.Callback(_res);
+            }
+
+            protected override void HandleTimout() {
+                lock (LockObj) {
+                    _res.Status = TimeoutStatus.Timeout;
+                    _res.RicStatuses[_ric] = TimeoutStatus.Timeout;
+                }
+            }
+
+            protected override void HandleError(Exception ex) {
+                lock (LockObj) {
+                    var err = TimeoutStatus.CreateError(ex);
+                    _res.Status = err;
+                    _res.RicStatuses[_ric] = err;
+                }
+            }
+
+            protected override void HandleCancel() {
+                lock (LockObj) {
+                    _res.Status = TimeoutStatus.Cancelled;
+                    _res.RicStatuses[_ric] = TimeoutStatus.Cancelled;
+                }
             }
 
             private string GetFields() {
@@ -93,31 +115,39 @@ namespace DataProvider.Loaders.History {
                             case RT_DataStatus.RT_DS_PARTIAL:
                                 this.Info("Got partial data!!!");
                                 if (!ImportTable()) {
-                                    Report = new InvalidOperationException("Failed to import");
-                                    TryChangeState(State.Invalid);
+                                    ReportError(new InvalidOperationException("Failed to import"));
+                                    //Report = new InvalidOperationException("Failed to import");
+                                    //TryChangeState(State.Invalid);
                                 }
                                 break;
 
                             case RT_DataStatus.RT_DS_FULL:
                                 try {
                                     if (!ImportTable()) {
-                                        Report = new InvalidOperationException("Failed to import");
-                                        TryChangeState(State.Invalid);
+                                        ReportError(new InvalidOperationException("Failed to import"));
+                                        //TryChangeState(State.Invalid);
                                     } else
+                                        _res.RicStatuses[_ric] = TimeoutStatus.Ok;
                                         TryChangeState(State.Succeded);
                                 } finally {
                                     _adxRtHistory.FlushData();
                                 }
                                 break;
                             default:
-                                Report = new Exception(_adxRtHistory.ErrorString);
-                                TryChangeState(State.Invalid);
+                                ReportError(new Exception(_adxRtHistory.ErrorString));
+                                //TryChangeState(State.Invalid);
                                 break;
                         }
                     } catch (Exception e) {
                         this.Error("Failed to update", e);
                     }
                 }
+            }
+
+            private void ReportError(Exception exception) {
+                Report = exception;
+                _res.RicStatuses[_ric] = TimeoutStatus.Error;
+                TryChangeState(State.Invalid);
             }
 
             private int _startCol;
@@ -169,20 +199,20 @@ namespace DataProvider.Loaders.History {
             Logger = logger;
         }
 
-        public ITimeoutCall WithCancelCallback(Action callback) {
-            _algo.WithCancelCallback(callback);
-            return this;
-        }
+        //public ITimeoutCall WithCancelCallback(Action callback) {
+        //    _algo.WithCancelCallback(callback);
+        //    return this;
+        //}
 
-        public ITimeoutCall WithTimeoutCallback(Action callback) {
-            _algo.WithTimeoutCallback(callback);
-            return this;
-        }
+        //public ITimeoutCall WithTimeoutCallback(Action callback) {
+        //    _algo.WithTimeoutCallback(callback);
+        //    return this;
+        //}
 
-        public ITimeoutCall WithErrorCallback(Action<Exception> callback) {
-            _algo.WithErrorCallback(callback);
-            return this;
-        }
+        //public ITimeoutCall WithErrorCallback(Action<Exception> callback) {
+        //    _algo.WithErrorCallback(callback);
+        //    return this;
+        //}
 
         public ITimeoutCall WithTimeout(TimeSpan? timeout) {
             _algo.WithTimeout(timeout);

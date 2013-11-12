@@ -1,29 +1,46 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using Connect;
 using ContainerAgent;
 using DataProvider.Loaders.Chain;
 using NUnit.Framework;
+using Toolbox.Async;
 
 namespace DataProviderTest {
     [TestFixture]
     public class ChainTest {
-        public struct Counts {
+        public class Counts {
             public int ChainRics;
             public int Errors;
             public int Timeouts;
             public int Cancels;
-            public int RicsAtLeast; // no less than
+            public int RicsAtLeast = -1; // no less than
+            public int RicsAtMost = -1; // no more than
+            public int RicsExactly = -1; // exactly
 
             public override string ToString() {
-                return string.Format("Chains: {0} / Errors: {1} / Timeouts: {2} / Cancels: {3} / Rics: {4}", ChainRics, Errors, Timeouts, Cancels, RicsAtLeast);
+                return string.Format("Chains: {0} / Errors: {1} / Timeouts: {2} / Cancels: {3} / Rics: from {4} to {5}, exactly {6}", 
+                    ChainRics, Errors, Timeouts, Cancels, 
+                    RicsAtLeast == -1 ? "??" : RicsAtLeast.ToString(CultureInfo.InvariantCulture),
+                    RicsAtMost == -1 ? "??" : RicsAtMost.ToString(CultureInfo.InvariantCulture),
+                    RicsExactly == -1 ? "??" : RicsExactly.ToString(CultureInfo.InvariantCulture));
             }
 
             public bool Equals(Counts other) {
-                return ChainRics == other.ChainRics && Errors == other.Errors && Timeouts == other.Timeouts && Cancels == other.Cancels && RicsAtLeast <= other.RicsAtLeast;
+                Console.WriteLine("Comparing:\n{0}\n{1}", this, other);
+                return 
+                    ChainRics == other.ChainRics && 
+                    Errors == other.Errors && 
+                    Timeouts == other.Timeouts && 
+                    Cancels == other.Cancels &&
+                    (RicsAtLeast < 0 || other.RicsExactly >= RicsAtLeast) &&
+                    (RicsAtMost < 0 || other.RicsExactly <= RicsAtMost) &&
+                    (RicsExactly < 0 || other.RicsExactly == RicsExactly);
             }
 
             public override bool Equals(object obj) {
@@ -72,9 +89,9 @@ namespace DataProviderTest {
                         TestTimeout = 6
                     }).Returns(new Counts {
                         Cancels = 0,
-                        ChainRics = 0,
-                        Errors = 1,
-                        RicsAtLeast = 0,
+                        ChainRics = 1,
+                        Errors = 2, // 2 errors - one on ric, one on request
+                        RicsExactly = 0,
                         Timeouts = 0
                     });
 
@@ -89,7 +106,7 @@ namespace DataProviderTest {
                         Cancels = 0,
                         ChainRics = 0,
                         Errors = 0,
-                        RicsAtLeast = 0,
+                        RicsExactly = 0,
                         Timeouts = 1
                     });
 
@@ -101,10 +118,10 @@ namespace DataProviderTest {
                         RequestTimeout = 5,
                         TestTimeout = 1
                     }).Returns(new Counts {
-                        Cancels = 1,
-                        ChainRics = 0,
+                        Cancels = 2, // one for chain ric, one for all request
+                        ChainRics = 1,
                         Errors = 0,
-                        RicsAtLeast = 0,
+                        RicsExactly = 0,
                         Timeouts = 0
                     });
 
@@ -116,10 +133,10 @@ namespace DataProviderTest {
                         RequestTimeout = 5,
                         TestTimeout = 1
                     }).Returns(new Counts {
-                        Cancels = 1,
-                        ChainRics = 0,
+                        Cancels = 2, // Cancel of the ric and cancel of all request
+                        ChainRics = 1,
                         Errors = 0,
-                        RicsAtLeast = 0,
+                        RicsExactly = 0,
                         Timeouts = 0
                     });
 
@@ -147,10 +164,10 @@ namespace DataProviderTest {
                         TestTimeout = 6
                     }).Returns(new Counts {
                         Cancels = 0,
-                        ChainRics = 0,
+                        ChainRics = 2,
                         Errors = 0,
-                        RicsAtLeast = 0,
-                        Timeouts = 1 // todo I don't really like that I have different outcomes on erroneous data... Here I will have no errors at all, but a timeout message.
+                        RicsExactly = 0,
+                        Timeouts = 3 // one for request, two for each chain
                     });
 
                     yield return new TestCaseData(new Params {
@@ -162,9 +179,9 @@ namespace DataProviderTest {
                         TestTimeout = 5
                     }).Returns(new Counts {
                         Cancels = 0,
-                        ChainRics = 0,
-                        Errors = 0, // todo I don't really like that I have different outcomes on erroneous data... Here I will have no errors at all, but empty response.
-                        RicsAtLeast = 0,
+                        ChainRics = 2,
+                        Errors = 2,  // by the number of invalid rics. But not 3 - outer request is ok
+                        RicsExactly = 0,
                         Timeouts = 0
                     });
 
@@ -177,9 +194,10 @@ namespace DataProviderTest {
                         TestTimeout = 6
                     }).Returns(new Counts {
                         Cancels = 0,
-                        ChainRics = 1,
-                        Errors = 0, // todo I don't really like that I have different outcomes on erroneous data... Here I will have no errors at all, but partially empty response.
+                        ChainRics = 2,
+                        Errors = 1, 
                         RicsAtLeast = 1,
+                        RicsAtMost = 100,
                         Timeouts = 0
                     });
 
@@ -195,36 +213,56 @@ namespace DataProviderTest {
             if (!cnn.ConnectAndWait(10))
                 Assert.Inconclusive();
 
-            var l = new Counts();
+            var l = new Counts { RicsExactly = 0 };
             var chainss = new HashSet<string>();
             var babushka = chn
                 .WithFeed(prms.Feed)
                 .WithChain(data => {
-                    foreach (var k in data.Data.Keys) {
-                        chainss.Add(k);
-                        var count = data.Data[k].Count();
-                        Console.WriteLine("Got data on chain {0}, {1} items", k, count);
-                        l.RicsAtLeast += count;
+                    if (data.Status == TimeoutStatus.Cancelled)
+                        l.Cancels++;
+
+                    if (data.Status == TimeoutStatus.Error)
+                        l.Errors++;
+
+                    if (data.Status == TimeoutStatus.Timeout)
+                        l.Timeouts++;
+
+                    foreach (var k in data.Records) {
+                        chainss.Add(k.ChainRic);
+                        var count = k.Rics.Count();
+                        Console.WriteLine("Got data on chain {0}, {1} items", k.ChainRic, count);
+                        l.RicsExactly += count;
                         l.ChainRics += 1;
+
+                        if (k.Status == null) throw new InvalidDataException("Status");
                         
+                        if (k.Status == TimeoutStatus.Cancelled)
+                            l.Cancels++;
+                        
+                        if (k.Status == TimeoutStatus.Error)
+                            l.Errors++;
+
+                        if (k.Status == TimeoutStatus.Timeout)
+                            l.Timeouts++;
                     }
                 })
                 .WithRics(prms.ChainRics);
 
             var req = babushka.Subscribe();
            
-            req.WithErrorCallback(exception => {
-                    l.Errors++;
-                    Console.WriteLine("Error!\n {0}", exception);
-                })
-                .WithTimeoutCallback(() => {
-                    l.Timeouts++;
-                    Console.WriteLine("Timeout!");
-                })
-                .WithCancelCallback(() => {
-                    l.Cancels++;
-                    Console.WriteLine("Cancelled!");
-                })
+            req
+                //.WithErrorCallback(exception => {
+                //    l.Errors++;
+                //    Console.WriteLine("Error!\n {0}", exception);
+                //})
+                //.WithTimeoutCallback(() => {
+                //    l.Timeouts++;
+                //    Console.WriteLine("Timeout!");
+                //})
+                //.WithCancelCallback(() => {
+                //    l.Cancels++;
+                //    Console.WriteLine("Cancelled!");
+                //})
                 .WithTimeout(TimeSpan.FromSeconds(prms.RequestTimeout))
                 .Request();
 
@@ -247,11 +285,11 @@ namespace DataProviderTest {
             
             chn.WithFeed("IDN")
                 .WithRics("0#RUCORP=MM")
-                .WithChain(data => Console.WriteLine("Got data, {0} items", data.Data.Keys.First().Count()))
+                .WithChain(data => Console.WriteLine("Got data, {0} items", data.Records[0].Rics.Count()))
                 .Subscribe()
-                .WithCancelCallback(() => Console.WriteLine("Cancel"))
-                .WithErrorCallback(exception => Console.WriteLine(string.Format("Error {0}", exception)))
-                .WithTimeoutCallback(() => Console.WriteLine("Timeout :("))
+                //.WithCancelCallback(() => Console.WriteLine("Cancel"))
+                //.WithErrorCallback(exception => Console.WriteLine(string.Format("Error {0}", exception)))
+                //.WithTimeoutCallback(() => Console.WriteLine("Timeout :("))
                 .WithTimeout(TimeSpan.FromSeconds(5))
                 .Request();
 

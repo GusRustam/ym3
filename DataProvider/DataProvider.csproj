@@ -88,10 +88,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Loaders\Chain\Chain.cs" />
-    <Compile Include="Loaders\Chain\ChainData.cs" />
     <Compile Include="Loaders\Chain\ChainSetup.cs" />
+    <Compile Include="Loaders\Chain\Data\ChainRecord.cs" />
+    <Compile Include="Loaders\Chain\Data\ChainResponse.cs" />
+    <Compile Include="Loaders\Chain\Data\IChainRecord.cs" />
+    <Compile Include="Loaders\Chain\Data\IChainResponse.cs" />
     <Compile Include="Loaders\Chain\IChain.cs" />
-    <Compile Include="Loaders\Chain\IChainData.cs" />
     <Compile Include="Loaders\Chain\IChainRequest.cs" />
     <Compile Include="Loaders\Chain\MultiChainRequest.cs" />
     <Compile Include="Loaders\Chain\SingleChainRequest.cs" />

@@ -6,6 +6,7 @@ using ContainerAgent;
 using DataProvider.Loaders.History;
 using DataProvider.Loaders.History.Data;
 using NUnit.Framework;
+using Toolbox.Async;
 
 namespace DataProviderTest {
     [TestFixture]
@@ -28,8 +29,8 @@ namespace DataProviderTest {
         }
 
         [TestCase("IDN", "GAZP.MM", 1, 3, 0)]
-        [TestCase("QQQ", "GAZP.MM", 0, 0, 1)]
-        [TestCase("IDN", "XSSD.WE", 0, 0, 1)]
+        [TestCase("QQQ", "GAZP.MM", 0, 0, 2)]
+        [TestCase("IDN", "XSSD.WE", 0, 0, 2)]
         public void TestLoadHistory(string feed, string ric, int rics, int fields, int errors) {
             var l = LoadHist(new Params {
                 Feed = feed,
@@ -46,9 +47,9 @@ namespace DataProviderTest {
 
         }
 
-        [TestCase(new[] { "GAZP.MM", "LKOH.MM" }, 1)]
-        [TestCase(new[] { "GAZP.MM" }, 0)]
-        public void TestTimeout(string[] rics, int dummy) {
+        [TestCase(new[] { "GAZP.MM", "LKOH.MM" }, 3)]
+        [TestCase(new[] { "GAZP.MM" }, 2)]
+        public void TestTimeout(string[] rics, int timeouts) {
 
             var l = LoadHist(new Params {
                 Feed = "IDN",
@@ -63,13 +64,12 @@ namespace DataProviderTest {
             Assert.AreEqual(l.Rics, 0);
             Assert.AreEqual(l.Fields, 0);
             Assert.AreEqual(l.Cancels, 0);
-            Assert.AreEqual(l.Timeouts, 1);
+            Assert.AreEqual(l.Timeouts, timeouts);
         }
 
-        [TestCase(new[] { "GAZP.MM", "LKOH.MM" }, 1)]
-        [TestCase(new[] { "GAZP.MM" }, 0)]
-        public void TestCancel(string[] rics, int dummy) {
-
+        [TestCase(new[] { "GAZP.MM", "LKOH.MM" }, 3)]
+        [TestCase(new[] { "GAZP.MM" }, 2)]
+        public void TestCancel(string[] rics, int cancels) {
             var l = LoadHist(new Params {
                 Feed = "IDN",
                 Rics = rics,
@@ -79,13 +79,11 @@ namespace DataProviderTest {
                 DoCancel = true
             });
 
-            Assert.AreEqual(l.Errors, 0);
-            Assert.AreEqual(l.Rics, 0);
-            Assert.AreEqual(l.Fields, 0);
-            Assert.AreEqual(l.Cancels, 1);
+            Assert.AreEqual(0, l.Errors);
+            Assert.AreEqual(0, l.Rics);
+            Assert.AreEqual(0, l.Fields);
+            Assert.AreEqual(cancels, l.Cancels); // Once cancel for request, one for each ric
         }
-
-
 
         [TestCase("IDN", new[] { "GAZP.MM", "LKOH.MM" }, 2, 3, 0)]
         [TestCase("IDN", new[] { "XXDFDF", "LKOH.MM" }, 1, 3, 0)]
@@ -100,7 +98,6 @@ namespace DataProviderTest {
                 RequestTimeout = 5,
                 DoCancel = false
             });
-
 
             Assert.AreEqual(l.Errors, errors);
             Assert.AreEqual(l.Rics, rics);
@@ -129,6 +126,24 @@ namespace DataProviderTest {
                     l.Fields = historyContainer.Slice3().Count();
                     l.Dates = historyContainer.Slice2().Count();
                     Console.WriteLine("Rics: {0}; Dates: {1}; Fields: {2}", l.Rics, l.Dates, l.Fields);
+
+
+                    if (historyContainer.Status == TimeoutStatus.Error)
+                        l.Errors++;
+                    if (historyContainer.Status == TimeoutStatus.Cancelled)
+                        l.Cancels++;
+                    if (historyContainer.Status == TimeoutStatus.Timeout)
+                        l.Timeouts++;
+
+                    foreach (var statuse in historyContainer.RicStatuses) {
+                        if (statuse.Value == TimeoutStatus.Error)
+                            l.Errors++;
+                        if (statuse.Value == TimeoutStatus.Cancelled)
+                            l.Cancels++;
+                        if (statuse.Value == TimeoutStatus.Timeout)
+                            l.Timeouts++;
+
+                    }
                 });
 
 
@@ -136,18 +151,19 @@ namespace DataProviderTest {
                 babushka.Subscribe(prms.Rics[0]) :
                 babushka.Subscribe(prms.Rics);
 
-            req.WithErrorCallback(exception => {
-                l.Errors++;
-                Console.WriteLine("Error!\n {0}", exception);
-            })
-                .WithTimeoutCallback(() => {
-                    l.Timeouts++;
-                    Console.WriteLine("Timeout!");
-                })
-                .WithCancelCallback(() => {
-                    l.Cancels++;
-                    Console.WriteLine("Cancelled!");
-                })
+            req
+                //.WithErrorCallback(exception => {
+                //    l.Errors++;
+                //    Console.WriteLine("Error!\n {0}", exception);
+                //})
+                //.WithTimeoutCallback(() => {
+                //    l.Timeouts++;
+                //    Console.WriteLine("Timeout!");
+                //})
+                //.WithCancelCallback(() => {
+                //    l.Cancels++;
+                //    Console.WriteLine("Cancelled!");
+                //})
                 .WithTimeout(TimeSpan.FromSeconds(prms.RequestTimeout))
                 .Request();
 
@@ -155,6 +171,8 @@ namespace DataProviderTest {
             if (prms.DoCancel)
                 req.Cancel();
 
+
+            Thread.Sleep(TimeSpan.FromSeconds(1));
             Console.WriteLine("== END ==");
             return l;
         }

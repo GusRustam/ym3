@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using DataProvider.Loaders.Chain.Data;
 
 namespace DataProvider.Loaders.Chain {
     public class ChainSetup  {
         public IList<string> Rics = new List<string>();
         public string Feed;
         public string Mode;
-        public Action<IChainData> Callback;
+        public Action<IChainResponse> Callback;
 
         public void Validate() {
             if (string.IsNullOrEmpty(Feed)) 

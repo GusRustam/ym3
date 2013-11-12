@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using DataProvider.Storage;
+using Toolbox.Async;
 
 namespace DataProvider.Loaders.History.Data {
     // todo implement dense container, check for productivity
@@ -10,6 +12,7 @@ namespace DataProvider.Loaders.History.Data {
 
         public HistoryContainer(IStorage<string, DateTime, IHistoryField, string> data) {
             _data = data;
+            RicStatuses = new Dictionary<string, TimeoutStatus>();
         }
 
         public string Get(string i1, DateTime i2, IHistoryField i3) {
@@ -44,9 +47,18 @@ namespace DataProvider.Loaders.History.Data {
             return _data.Slice3();
         }
 
+        public TimeoutStatus Status { get; set; }
+
+        public IDictionary<string, TimeoutStatus> RicStatuses { get; private set; }
+
         public IHistoryContainer Import(IHistoryContainer container) {
             foreach (var item in container) 
                 _data.Set(item.Key.Item1, item.Key.Item2, item.Key.Item3, item.Value);
+
+            foreach (var ricStatus in container.RicStatuses) {
+                if (RicStatuses.ContainsKey(ricStatus.Key)) throw new InvalidDataException();
+                RicStatuses[ricStatus.Key] = ricStatus.Value;
+            }
             return this;
         }
 

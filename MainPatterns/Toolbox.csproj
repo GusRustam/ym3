@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Async\TimeoutStatus.cs" />
     <Compile Include="CollectionHelper.cs" />
     <Compile Include="Async\ITimeoutCall.cs" />
     <Compile Include="Memento\IMemento.cs" />

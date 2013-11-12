@@ -1,4 +1,5 @@
 ﻿using System;
+using DataProvider.Loaders.Chain.Data;
 
 namespace DataProvider.Loaders.Chain {
     public interface IChain {
@@ -8,7 +9,7 @@ namespace DataProvider.Loaders.Chain {
 
         /// <summary> Set data callback </summary>
         /// <param name="callback">Function to call when data received</param>
-        IChain WithChain(Action<IChainData> callback);
+        IChain WithChain(Action<IChainResponse> callback);
 
         /// <summary>
         /// Set chain rics to load

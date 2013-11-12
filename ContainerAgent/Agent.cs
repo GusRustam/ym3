@@ -1,5 +1,6 @@
 ﻿using Connect;
 using DataProvider.Loaders.Chain;
+using DataProvider.Loaders.Chain.Data;
 using DataProvider.Loaders.History;
 using DataProvider.Loaders.History.Data;
 using DataProvider.Loaders.Realtime;
@@ -65,7 +66,7 @@ namespace ContainerAgent {
             c.For(typeof(IStorage<,,>)).Use(typeof(SparseStorage<,,>));
 
             //----------------- Chain data
-            c.For<IChainData>().Use<ChainData>();
+            c.For<IChainResponse>().Use<ChainResponse>();
 
             //----------------- Chain loader
             c.For<IChain>().Use<Chain>();

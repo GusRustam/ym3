@@ -78,18 +78,50 @@ namespace DataProvider.Loaders.History {
                 this.Trace("Perform()");
                 //foreach (var ric in _rics) _subscriptions[ric].Request();
                 Parallel.ForEach(_rics, ric => _subscriptions[ric]
-                    .WithErrorCallback(exception => {
-                        _ricsToLoad.Remove(ric);
-                        if (!_ricsToLoad.Any()) TryChangeState(State.Succeded);
-                    })
+                    //.WithErrorCallback(exception => {
+                    //    _ricsToLoad.Remove(ric);
+                    //    if (!_ricsToLoad.Any()) TryChangeState(State.Succeded);
+                    //})
                     .Request());
             }
 
-            protected override void Success() {
+            protected override void Finish() {
                 this.Trace("Success()");
                 if (_originalCallback != null)
                     _originalCallback(_res);
             }
+
+            protected override void HandleTimout() {
+                lock (LockObj) {
+                    _res.Status = TimeoutStatus.Timeout;
+                    FillStatuses();
+                }
+            }
+
+            protected override void HandleError(Exception ex) {
+                lock (LockObj) {
+                    _res.Status = TimeoutStatus.CreateError(ex);
+                    FillStatuses();
+                }
+            }
+
+            protected override void HandleCancel() {
+                lock (LockObj) {
+                    _res.Status = TimeoutStatus.Cancelled;
+                    FillStatuses();
+                }
+            }
+
+            private void FillStatuses() {
+                lock (LockObj) {
+                    foreach (var ric in _ricsToLoad) {
+                        _res.RicStatuses[ric] = _res.Status;
+                        _subscriptions[ric].Cancel();
+                    }
+                    _ricsToLoad.Clear();
+                }
+            }
+
 
             public ILogger Logger { get; private set; }
         }
@@ -103,21 +135,21 @@ namespace DataProvider.Loaders.History {
                 .GetInstance<MultiHistoryAlgorithm>();
         }
 
-        // todo down here - wut?
-        public ITimeoutCall WithCancelCallback(Action callback) {
-            _algo.WithCancelCallback(callback);
-            return this;
-        }
+        ////  down here - wut?
+        //public ITimeoutCall WithCancelCallback(Action callback) {
+        //    _algo.WithCancelCallback(callback);
+        //    return this;
+        //}
 
-        public ITimeoutCall WithTimeoutCallback(Action callback) {
-            _algo.WithTimeoutCallback(callback);
-            return this;
-        }
+        //public ITimeoutCall WithTimeoutCallback(Action callback) {
+        //    _algo.WithTimeoutCallback(callback);
+        //    return this;
+        //}
 
-        public ITimeoutCall WithErrorCallback(Action<Exception> callback) {
-            _algo.WithErrorCallback(callback);
-            return this;
-        }
+        //public ITimeoutCall WithErrorCallback(Action<Exception> callback) {
+        //    _algo.WithErrorCallback(callback);
+        //    return this;
+        //}
 
         public ITimeoutCall WithTimeout(TimeSpan? timeout) {
             _algo.WithTimeout(timeout);

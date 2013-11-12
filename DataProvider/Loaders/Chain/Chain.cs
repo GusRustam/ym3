@@ -1,4 +1,5 @@
 ﻿using System;
+using DataProvider.Loaders.Chain.Data;
 using StructureMap;
 
 namespace DataProvider.Loaders.Chain {
@@ -23,7 +24,7 @@ namespace DataProvider.Loaders.Chain {
                 .GetInstance<IChain>();
         }
 
-        public IChain WithChain(Action<IChainData> callback) {
+        public IChain WithChain(Action<IChainResponse> callback) {
             var prms = _setup.Clone();
             prms.Callback = callback;
             return _container
