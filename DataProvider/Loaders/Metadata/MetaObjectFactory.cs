@@ -1,29 +1,27 @@
 ﻿using StructureMap;
 
 namespace DataProvider.Loaders.Metadata {
-    public class MetaObjectFactory : IMetaObjectFactory {
+    public class MetaObjectFactory<T> : IMetaObjectFactory<T> where T : IMetadataItem, new() {
         private readonly IContainer _container;
 
         public MetaObjectFactory(IContainer container) {
             _container = container;
         }
 
-        public IMetadataReciever<T> CreateReciever<T>() where T : IMetadataFields, new() {
-            return _container.GetInstance<IMetadataReciever<T>>();
+        public MetadataRequest<T>.MetadataRequestAlgo CreateAlgo(IMetaRequestSetup<T> setup) {
+            return _container.With(setup).GetInstance<MetadataRequest<T>.MetadataRequestAlgo>();
         }
 
-        public IMetadataReciever CreateReciever() {
-            return _container.GetInstance<IMetadataReciever>();
+        public IMetadataRequest<T> CreateRequest(IMetaRequestSetup<T> setup) {
+            return _container.With(setup).GetInstance<IMetadataRequest<T>>();
         }
 
-        public IMetadataRequest CreateRequest(IMetadata metadata) {
-            return _container.GetInstance<IMetadataRequest>();
+        public IMetaRequestSetup<T> CreateSetup() {
+            return _container.GetInstance<IMetaRequestSetup<T>>();
         }
 
-        public MetadataRequest.MetadataRequestAlgo CreateAlgo(IMetaRequestSetup setup) {
-            return _container
-                .With(setup)
-                .GetInstance<MetadataRequest.MetadataRequestAlgo>();
+        public IMetadataContainer<T> CreateContainer() {
+            return _container.GetInstance<IMetadataContainer<T>>();
         }
     }
 }

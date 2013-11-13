@@ -49,6 +49,7 @@ namespace DataProvider.Loaders.History {
                     _adxRtHistory.RequestHistory(GetFields());
                 } catch (Exception e) {
                     this.Error("Failed", e);
+                    ReportError(e);
                 }
             }
 

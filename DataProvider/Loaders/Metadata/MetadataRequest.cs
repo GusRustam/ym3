@@ -2,23 +2,23 @@
 using DataProvider.Objects;
 using Dex2;
 using LoggingFacility;
-using LoggingFacility.LoggingSupport;
 using Toolbox.Async;
 
 namespace DataProvider.Loaders.Metadata {
-    public class MetadataRequest : IMetadataRequest {
+    public class MetadataRequest<T> : IMetadataRequest<T> where T : IMetadataItem, new() {
         private readonly MetadataRequestAlgo _algo;
-            private readonly IMetaObjectFactory _factory;
 
         public class MetadataRequestAlgo : TimeoutCall {
             private readonly IEikonObjects _objects;
-            private readonly IMetaRequestSetup _setup;
+            private readonly IMetaRequestSetup<T> _setup;
             private Dex2Mgr _dex2Manager;
             private RData _rData;
+            private readonly IMetadataContainer<T> _res;
 
-            public MetadataRequestAlgo(IEikonObjects objects, ILogger logger, IMetaRequestSetup setup) : base(logger) {
+            public MetadataRequestAlgo(IEikonObjects objects, IMetaObjectFactory<T> factory, ILogger logger, IMetaRequestSetup<T> setup) : base(logger) {
                 _objects = objects;
                 _setup = setup;
+                _res = factory.CreateContainer();
             }
 
             protected override void Prepare() {
@@ -43,7 +43,10 @@ namespace DataProvider.Loaders.Metadata {
             }
 
             protected override void Finish() {
-                throw new NotImplementedException();
+                lock (LockObj) {
+                    if (_setup.Callback != null)
+                        _setup.Callback(_res);
+                }
             }
 
             protected override void HandleTimout() {
@@ -63,11 +66,9 @@ namespace DataProvider.Loaders.Metadata {
                 // todo _res.Records.Add(new ChainRecord(_ric, TimeoutStatus.CreateError(ex), new List<string>()));
                 TryChangeState(State.Invalid);
             }
-
         }
 
-        public MetadataRequest(IMetaObjectFactory factory, IMetaRequestSetup setup) {
-            _factory = factory;
+        public MetadataRequest(IMetaObjectFactory<T> factory, IMetaRequestSetup<T> setup) {
             _algo = factory.CreateAlgo(setup);
         }
 

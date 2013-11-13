@@ -3,7 +3,7 @@
     /// <remarks>
     /// The class, which will derive from this interface, will have to implement ways to filter and sort, for example
     /// </remarks>
-    public interface IMetadataFields {
+    public interface IMetadataItem {
         // todo maybe - fuck it and make it dynamic?
         // todo the reason to keep it static is that I could attach attributes to each column
         // todo but attributes will be better used in final data ensemble

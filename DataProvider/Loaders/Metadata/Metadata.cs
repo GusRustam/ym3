@@ -1,29 +1,27 @@
 ﻿using System;
 
 namespace DataProvider.Loaders.Metadata {
-    public class Metadata : IMetadata {
-        private readonly IMetaObjectFactory _factory;
-        public string[] Rics { get; private set; }
+    public class Metadata<T> : IMetadata<T> where T : IMetadataItem, new() {
+        private readonly IMetaObjectFactory<T> _factory;
+        private readonly IMetaRequestSetup<T> _setup;
 
-        public IMetadata WithRics(params string[] rics) {
-            Rics = rics;
+        public IMetadata<T> WithRics(params string[] rics) {
+            _setup.Rics = rics;
             return this;
         }
 
-        public IMetadataReciever<TObject> Reciever<TObject>() where TObject : IMetadataFields, new() {
-            return _factory.CreateReciever<TObject>();
+        public IMetadata<T> OnFinished(Action<IMetadataContainer<T>> action) {
+            _setup.Callback = action;
+            return this;
         }
 
-        public IMetadataReciever Reciever(Type type) {
-            return _factory.CreateReciever();
+        public IMetadataRequest<T> Request() {
+            return _factory.CreateRequest(_setup);
         }
 
-        public IMetadataRequest Request() {
-            return _factory.CreateRequest(this);
-        }
-
-        public Metadata(IMetaObjectFactory factory) {
+        public Metadata(IMetaObjectFactory<T> factory) {
             _factory = factory;
+            _setup = factory.CreateSetup();
         }
     }
 }

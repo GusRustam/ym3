@@ -2,10 +2,11 @@
     /// <summary>
     ///  This interface is particularly useful for mocking
     /// </summary>
-    public interface IMetaObjectFactory {
-        IMetadataReciever<T> CreateReciever<T>() where T : IMetadataFields, new();
-        IMetadataReciever CreateReciever();
-        IMetadataRequest CreateRequest(IMetadata metadata);
-        MetadataRequest.MetadataRequestAlgo CreateAlgo(IMetaRequestSetup setup);
+    public interface IMetaObjectFactory<T> where T : IMetadataItem, new() {
+        MetadataRequest<T>.MetadataRequestAlgo CreateAlgo(IMetaRequestSetup<T> setup); // todo ugly
+
+        IMetadataRequest<T> CreateRequest(IMetaRequestSetup<T> setup);
+        IMetaRequestSetup<T> CreateSetup();
+        IMetadataContainer<T> CreateContainer();
     }
 }

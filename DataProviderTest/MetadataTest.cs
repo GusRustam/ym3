@@ -14,7 +14,7 @@ namespace DataProviderTest {
             "RU25068RMFS=MM", "RU25071RMFS=MM"
         };
 
-        public class Request<T> where T : IMetadataFields {
+        public class Request<T> where T : IMetadataItem {
             public Func<IMetadataContainer<T>, bool> Checks { get; private set; }
             public string[] Rics { get; private set; }
 
@@ -24,36 +24,26 @@ namespace DataProviderTest {
             }
         }
 
+        public class EmptyData : IMetadataItem {
+        }
+
         [TestCase]
         public void MockTest() {
             var locker = new object();
 
             var container = Agent.Factory();
 
-            // erasing any settings related to metadata
-            container.EjectAllInstancesOf<IMetadata>();
-            container.EjectAllInstancesOf<IMetadataRequest>();
-            container.EjectAllInstancesOf<IMetaObjectFactory>();
-            container.EjectAllInstancesOf<IMetadataFields>();
-            container.EjectAllInstancesOf<IMetadataReciever>();
-
             // creating mocks
-            var mockMetaRequest = new Mock<IMetadataRequest>();
-            var mockMetaFactory = new Mock<IMetaObjectFactory>();
-            var mockMetaFields = new Mock<IMetadataFields>();
-            var mockMetaReciever = new Mock<IMetadataReciever>();
+            var mockMetaRequest = new Mock<IMetadataRequest<EmptyData>>();
+            var mockMetaFactory = new Mock<IMetaObjectFactory<EmptyData>>();
+            var mockMetaSetup = new Mock<IMetaRequestSetup<EmptyData>>();
 
-            // configuring container
-            container.Configure(x => {
-                x.For<IMetadata>().Singleton().Use<Metadata>();
-                x.For<IMetadataRequest>().Use(mockMetaRequest.Object);
-                x.For<IMetaObjectFactory>().Use(mockMetaFactory.Object);
-                x.For<IMetadataFields>().Use(mockMetaFields.Object);
-                x.For<IMetadataReciever>().Use(mockMetaReciever.Object);
-            });
+            container.Inject(mockMetaSetup.Object);
+            container.Inject(mockMetaRequest.Object);
+            container.Inject(mockMetaFactory.Object);
 
             // setting up callback
-            Action<object> callback = data => {
+            Action<IMetadataContainer<EmptyData>> callback = data => {
                 Console.WriteLine("Received Callback, into lock 2");
                 lock (locker) {
                     Console.WriteLine("Pulse 2");
@@ -62,26 +52,31 @@ namespace DataProviderTest {
             };
 
             // setting up the factory
-            mockMetaFactory.Setup(f => f.CreateRequest(It.IsAny<IMetadata>())).Returns(() => mockMetaRequest.Object);
-            mockMetaFactory.Setup(f => f.CreateReciever()).Returns(() => mockMetaReciever.Object);
+            mockMetaFactory
+                .Setup(f => f.CreateSetup())
+                .Returns(container.GetInstance<IMetaRequestSetup<EmptyData>>);
 
-            // setting up receiver
-            mockMetaReciever.Setup(r => r.OnFinished(It.IsAny<Action<object>>())).Returns(container.GetInstance<Metadata>);
+            mockMetaFactory
+                .Setup(f => f.CreateRequest(It.IsAny<IMetaRequestSetup<EmptyData>>()))
+                .Returns(container.GetInstance<IMetadataRequest<EmptyData>>);
 
             // setting up request
-            mockMetaRequest.Setup(r => r.WithTimeout(It.IsAny<TimeSpan>())).Returns(mockMetaRequest.Object);
-            mockMetaRequest.Setup(r => r.Request()).Callback(() => new Thread(() => {
-                Console.WriteLine("Data requested, thinking");
-                Thread.Sleep(TimeSpan.FromSeconds(3));
-                callback(new object());
-            }).Start());
-
+            mockMetaRequest
+                .Setup(r => r.WithTimeout(It.IsAny<TimeSpan>()))
+                .Returns(mockMetaRequest.Object);
+            mockMetaRequest
+                .Setup(r => r.Request())
+                .Callback(
+                    () => new Thread(() => {
+                        Console.WriteLine("Data requested, thinking");
+                        Thread.Sleep(TimeSpan.FromSeconds(3));
+                        callback(null);
+                    }).Start());
 
             // initializing and requesting
-            var mtd = container.GetInstance<IMetadata>();
+            var mtd = container.GetInstance<IMetadata<EmptyData>>();
             mtd = mtd.WithRics("XXX");
-            var rec = mtd.Reciever(mockMetaFields.Object.GetType());
-            mtd = rec.OnFinished(callback);
+            mtd = mtd.OnFinished(callback);
             var req = mtd.Request();
             var tm = req.WithTimeout(TimeSpan.FromSeconds(5));
             tm.Request();
@@ -98,10 +93,10 @@ namespace DataProviderTest {
             Console.WriteLine("Done");
         }
 
-        public void GenericTest<T>(Request<T> setup) where T : IMetadataFields, new() {
+        public void GenericTest<T>(Request<T> setup) where T : IMetadataItem, new() {
             var container = Agent.Factory();
 
-            var mtd = container.GetInstance<IMetadata>();
+            var mtd = container.GetInstance<IMetadata<T>>();
             var cnn = container.GetInstance<IConnection>();
             var locker = new object();
 
@@ -109,7 +104,6 @@ namespace DataProviderTest {
                 Assert.Inconclusive();
              
             mtd.WithRics(setup.Rics)
-                .Reciever<T>()
                 .OnFinished(data => {
                     Console.WriteLine("Got data!");
                     Assert.IsTrue(setup.Checks(data));
@@ -182,7 +176,7 @@ namespace DataProviderTest {
     }
 
     [MetaParams("RH:In")]
-    public class BondData : IMetadataFields {
+    public class BondData : IMetadataItem {
         [MetaColumn(0)]
         public string Ric { get; set; }
 
@@ -269,7 +263,7 @@ namespace DataProviderTest {
     }
 
     [MetaParams("RH:In,D", "D:1984;2013")]
-    public class CouponData : IMetadataFields {
+    public class CouponData : IMetadataItem {
         [MetaColumn(0)]
         public string Ric { get; set; }
 
@@ -281,7 +275,7 @@ namespace DataProviderTest {
     }
 
     [MetaParams("RH:In", "RTSRC:MDY;S&P;FTC")]
-    public class IssueRatingData : IMetadataFields {
+    public class IssueRatingData : IMetadataItem {
         [MetaColumn(0)]
         public string Ric { get; set; }
 
@@ -296,7 +290,7 @@ namespace DataProviderTest {
     }
 
     [MetaParams("RH:In", "RTS:FDL;SPI;MDL RTSC:FRN")]
-    public class IssuerRatingData : IMetadataFields {
+    public class IssuerRatingData : IMetadataItem {
         [MetaColumn(0)]
         public string Ric { get; set; }
 
@@ -311,7 +305,7 @@ namespace DataProviderTest {
     }
 
     [MetaParams("RH:In")]
-    public class FrnData : IMetadataFields {
+    public class FrnData : IMetadataItem {
         [MetaColumn(0)]
         public string Ric { get; set; }
 
@@ -329,7 +323,7 @@ namespace DataProviderTest {
     }
 
     [MetaParams("RH:In;Con")]
-    public class RicData : IMetadataFields {
+    public class RicData : IMetadataItem {
         [MetaColumn(0)]
         public string Ric { get; set; }
 
