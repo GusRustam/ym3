@@ -3,6 +3,7 @@ using DataProvider.Loaders.Chain;
 using DataProvider.Loaders.Chain.Data;
 using DataProvider.Loaders.History;
 using DataProvider.Loaders.History.Data;
+using DataProvider.Loaders.Metadata;
 using DataProvider.Loaders.Realtime;
 using DataProvider.Objects;
 using DataProvider.Storage;
@@ -73,8 +74,16 @@ namespace ContainerAgent {
             c.For<IChainRequest>().Use<MultiChainRequest>().Named("multi");
             c.For<IChainRequest>().Use<SingleChainRequest>().Named("single");
 
+            //----------------- Dex2
+            c.For<IMetadata>().Use<Metadata>();
+            c.For<IMetaObjectFactory>().Use<MetaObjectFactory>();
+            c.For<IMetadataReciever>().Use<MetadataReciever>();
+            c.For(typeof(IMetadataReciever<>)).Use(typeof(MetadataReciever<>));
+            c.For<IMetadataRequest>().Use<MetadataRequest>();
+
             //----------------- Eikon Objects
             c.For<IEikonObjects>().Use<EikonObjectsSdk>();
+
 
             // Profiles
             c.Profile(AgentMode.InEikon, InEikonProfile);

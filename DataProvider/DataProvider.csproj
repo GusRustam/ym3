@@ -76,6 +76,9 @@
       <HintPath>..\..\..\..\..\AppData\Local\Thomson Reuters\TRD 6\Program\Interop.TSI6.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="StructureMap">
       <HintPath>..\packages\structuremap.2.6.4.1\lib\net40\StructureMap.dll</HintPath>
     </Reference>
@@ -109,6 +112,19 @@
     <Compile Include="Loaders\History\TsiHistoryRequest.cs" />
     <Compile Include="Loaders\ITimeout.cs" />
     <Compile Include="Loaders\Metadata\IMetadata.cs" />
+    <Compile Include="Loaders\Metadata\IMetadataContainer.cs" />
+    <Compile Include="Loaders\Metadata\IMetadataFields.cs" />
+    <Compile Include="Loaders\Metadata\IMetadataReciever.cs" />
+    <Compile Include="Loaders\Metadata\IMetadataRequest.cs" />
+    <Compile Include="Loaders\Metadata\IMetaObjectFactory.cs" />
+    <Compile Include="Loaders\Metadata\IMetaRequestSetup.cs" />
+    <Compile Include="Loaders\Metadata\MetaColumnAttribute.cs" />
+    <Compile Include="Loaders\Metadata\Metadata.cs" />
+    <Compile Include="Loaders\Metadata\MetadataReciever.cs" />
+    <Compile Include="Loaders\Metadata\MetadataRequest.cs" />
+    <Compile Include="Loaders\Metadata\MetaFieldAttribute.cs" />
+    <Compile Include="Loaders\Metadata\MetaObjectFactory.cs" />
+    <Compile Include="Loaders\Metadata\MetaParamsAttribute.cs" />
     <Compile Include="Loaders\Realtime\AdfinFieldsTicker.cs" />
     <Compile Include="Loaders\Realtime\AdfinRealtime.cs" />
     <Compile Include="Loaders\Realtime\AdfinSnapshotTicker.cs" />
