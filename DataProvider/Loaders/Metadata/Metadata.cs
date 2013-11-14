@@ -3,7 +3,7 @@
 namespace DataProvider.Loaders.Metadata {
     public class Metadata<T> : IMetadata<T> where T : IMetadataItem, new() {
         private readonly IMetaObjectFactory<T> _factory;
-        private readonly IMetaRequestSetup<T> _setup;
+        private readonly IRequestSetup<T> _setup;
 
         public IMetadata<T> WithRics(params string[] rics) {
             _setup.Rics = rics;

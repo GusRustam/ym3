@@ -78,8 +78,9 @@ namespace ContainerAgent {
             c.For(typeof(IMetadata<>)).Use(typeof(Metadata<>));
             c.For(typeof(IMetaObjectFactory<>)).Use(typeof(MetaObjectFactory<>));
             c.For(typeof(IMetadataRequest<>)).Use(typeof(MetadataRequest<>));
-            c.For(typeof(IMetaRequestSetup<>)).Use(typeof(MetaRequestSetup<>));
+            c.For(typeof(IRequestSetup<>)).Use(typeof(RequestSetup<>));
             c.For(typeof(IMetadataContainer<>)).Use(typeof(MetadataContainer<>));
+            c.For(typeof(IMetadataExporter<>)).Use(typeof(MetadataExporter<>));
 
             //----------------- Eikon Objects
             c.For<IEikonObjects>().Use<EikonObjectsSdk>();

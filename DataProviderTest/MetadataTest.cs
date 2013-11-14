@@ -36,7 +36,7 @@ namespace DataProviderTest {
             // creating mocks
             var mockMetaRequest = new Mock<IMetadataRequest<EmptyData>>();
             var mockMetaFactory = new Mock<IMetaObjectFactory<EmptyData>>();
-            var mockMetaSetup = new Mock<IMetaRequestSetup<EmptyData>>();
+            var mockMetaSetup = new Mock<IRequestSetup<EmptyData>>();
 
             container.Inject(mockMetaSetup.Object);
             container.Inject(mockMetaRequest.Object);
@@ -54,10 +54,10 @@ namespace DataProviderTest {
             // setting up the factory
             mockMetaFactory
                 .Setup(f => f.CreateSetup())
-                .Returns(container.GetInstance<IMetaRequestSetup<EmptyData>>);
+                .Returns(container.GetInstance<IRequestSetup<EmptyData>>);
 
             mockMetaFactory
-                .Setup(f => f.CreateRequest(It.IsAny<IMetaRequestSetup<EmptyData>>()))
+                .Setup(f => f.CreateRequest(It.IsAny<IRequestSetup<EmptyData>>()))
                 .Returns(container.GetInstance<IMetadataRequest<EmptyData>>);
 
             // setting up request

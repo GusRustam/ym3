@@ -11,12 +11,12 @@ namespace DataProvider.Loaders.Metadata {
 
         public class MetadataRequestAlgo : TimeoutCall {
             private readonly IEikonObjects _objects;
-            private readonly IMetaRequestSetup<T> _setup;
+            private readonly IRequestSetup<T> _setup;
             private Dex2Mgr _dex2Manager;
             private RData _rData;
             private readonly IMetadataContainer<T> _res;
 
-            public MetadataRequestAlgo(IEikonObjects objects, IMetaObjectFactory<T> factory, ILogger logger, IMetaRequestSetup<T> setup) : base(logger) {
+            public MetadataRequestAlgo(IEikonObjects objects, IMetaObjectFactory<T> factory, ILogger logger, IRequestSetup<T> setup) : base(logger) {
                 _objects = objects;
                 _setup = setup;
                 _res = factory.CreateContainer();
@@ -36,6 +36,7 @@ namespace DataProvider.Loaders.Metadata {
             protected override void Perform() {
                 this.Trace("Perform()");
                 try {
+                    _rData.OnUpdate += OnUpdate;
                     _rData.InstrumentIDList = string.Join(",", _setup.Rics);
                     _rData.FieldList = string.Join(",", _setup.Fields);
                     _rData.DisplayParam = _setup.DisplayMode;
@@ -44,6 +45,10 @@ namespace DataProvider.Loaders.Metadata {
                 } catch (Exception e) {
                     ReportError(e);
                 }
+            }
+
+            private void OnUpdate(DEX2_DataStatus dataStatus, object error) {
+                this.Trace("Got updates!!!");
             }
 
             protected override void Finish() {
@@ -74,7 +79,7 @@ namespace DataProvider.Loaders.Metadata {
             }
         }
 
-        public MetadataRequest(IMetaObjectFactory<T> factory, IMetaRequestSetup<T> setup) {
+        public MetadataRequest(IMetaObjectFactory<T> factory, IRequestSetup<T> setup) {
             _algo = factory.CreateAlgo(setup);
         }
 

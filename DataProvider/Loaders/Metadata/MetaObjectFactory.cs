@@ -8,16 +8,16 @@ namespace DataProvider.Loaders.Metadata {
             _container = container;
         }
 
-        public MetadataRequest<T>.MetadataRequestAlgo CreateAlgo(IMetaRequestSetup<T> setup) {
+        public MetadataRequest<T>.MetadataRequestAlgo CreateAlgo(IRequestSetup<T> setup) {
             return _container.With(setup).GetInstance<MetadataRequest<T>.MetadataRequestAlgo>();
         }
 
-        public IMetadataRequest<T> CreateRequest(IMetaRequestSetup<T> setup) {
+        public IMetadataRequest<T> CreateRequest(IRequestSetup<T> setup) {
             return _container.With(setup).GetInstance<IMetadataRequest<T>>();
         }
 
-        public IMetaRequestSetup<T> CreateSetup() {
-            return _container.GetInstance<IMetaRequestSetup<T>>();
+        public IRequestSetup<T> CreateSetup() {
+            return _container.GetInstance<IRequestSetup<T>>();
         }
 
         public IMetadataContainer<T> CreateContainer() {
