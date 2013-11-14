@@ -39,7 +39,7 @@ namespace Toolbox.Async {
         protected abstract void Perform();
 
         /// <summary> 
-        /// Specific actions to inform user that everything's fine 
+        /// Specific actions to inform user that everything is fine 
         /// </summary>
         protected abstract void Finish();
         protected abstract void HandleTimout();
@@ -130,35 +130,44 @@ namespace Toolbox.Async {
             this.Trace("Request()");
             Prepare();
             _cancelSrc = new CancellationTokenSource();
-            Task.Factory.StartNew(() => {
-                this.Trace("In task, to perform");
-                Perform();
-                this.Trace("Performed, to wait");
-                // and waits for cancellation or receipt of all data
-                    _cancelSrc.Token.WaitHandle.WaitOne(
-                    _timeout.HasValue
-                        ? _timeout.Value
-                        : TimeSpan.FromMilliseconds(-1));
+            Task.Factory.StartNew(
+                () => {
+                    this.Trace("In task, to perform");
+                    Perform();
+                    this.Trace("Performed, to wait");
+                    // and waits for cancellation or receipt of all data
+                        _cancelSrc.Token.WaitHandle.WaitOne(
+                        _timeout.HasValue
+                            ? _timeout.Value
+                            : TimeSpan.FromMilliseconds(-1));
                 
-                lock (LockObj) {
-                    this.Trace("Waiting finished");
-                    TryChangeState(State.Timeout);
-                    switch (_internalState) {
-                        case State.Timeout:
-                            HandleTimout();
-                            break;
+                    lock (LockObj) {
+                        this.Trace("Waiting finished");
+                        TryChangeState(State.Timeout);
+                        switch (_internalState) {
+                            case State.Timeout:
+                                HandleTimout();
+                                break;
 
-                        case State.Invalid:
-                            HandleError(_report);
-                            break;
+                            case State.Invalid:
+                                HandleError(_report);
+                                break;
 
-                        case State.Cancelled:
-                            HandleCancel();
-                            break;
+                            case State.Cancelled:
+                                HandleCancel();
+                                break;
+                        }
+                        Finish();
                     }
-                    Finish();
-                }
-            }, _cancelSrc.Token);
+                }, _cancelSrc.Token)
+            .ContinueWith(
+                task => {
+                    // there's really no way I could deliver to user unless he has separate callback
+                    // OnError. But even this callback might return error
+                    if (task.Exception == null) return;
+                    this.Trace(string.Format("Caught exception in thread\n{0}", task.Exception));
+                    _report = task.Exception;
+                }, TaskContinuationOptions.OnlyOnFaulted);
         }
 
         public void Cancel() {

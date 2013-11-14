@@ -15,10 +15,10 @@ namespace DataProviderTest {
         };
 
         public class Request<T> where T : IMetadataItem {
-            public Func<IMetadataContainer<T>, bool> Checks { get; private set; }
+            public Func<IMetadataContainer<T>, Tuple<bool, string>> Checks { get; private set; }
             public string[] Rics { get; private set; }
 
-            public Request(string[] rics, Func<IMetadataContainer<T>, bool> checks) {
+            public Request(string[] rics, Func<IMetadataContainer<T>, Tuple<bool, string>> checks) {
                 Checks = checks;
                 Rics = rics;
             }
@@ -102,12 +102,25 @@ namespace DataProviderTest {
 
             if (!cnn.ConnectAndWait(10))
                 Assert.Inconclusive();
-             
+
+            var failed = false;
+            var message = "";
             mtd.WithRics(setup.Rics)
                 .OnFinished(data => {
                     Console.WriteLine("Got data!");
-                    Assert.IsTrue(setup.Checks(data));
-                    lock (locker) Monitor.Pulse(locker);
+
+                    try {
+                        var res = setup.Checks(data);
+                        failed = !res.Item1;
+                        message = res.Item2;
+
+                    } catch (Exception e) {
+                        Console.WriteLine("Test fails, error in checking:\n{0}", e);
+                        failed = true;
+                    } finally {
+                        lock (locker) Monitor.Pulse(locker);
+                    }
+
                 })
                 .Request()
                 .WithTimeout(TimeSpan.FromSeconds(5))
@@ -116,55 +129,52 @@ namespace DataProviderTest {
             lock (locker) {
                 Monitor.Pulse(locker);
                 if (!Monitor.Wait(locker, TimeSpan.FromSeconds(6)))
-                    Assert.Fail("Timeout");
+                    Assert.Fail("Test timeout");
+                Assert.IsFalse(failed, message);
             }
         }
 
+        // todo  1) Red-Green-Refactor my test cases
+        // todo     1.1) Develop metacode to import data into *Data classes (maybe - reflection first, then metacoding)
+        // todo  2) Get the widest chain list possible, load all rics from these chains. Make sure all data loads and filters out
+        // todo  3) Think on which operations should IMetadataObject and IMetadataContainer support
+        // todo  4) ?????
+        // todo  5) PROFIT
+        // todo 
+        // todo  Another idea - think about moving asserts into callback (see ChainTests). This will eliminate Timeouts but will
+        // todo  add need for additional synchronization and timeouting (wait! general timeout cud be implemented via [Timeout] or whatever)
         [TestCase]
         public void MetadataOnBonds() {
-            // todo  1) Red-Green-Refactor my test cases
-            // todo     1.1) Develop metacode to import data into *Data classes (maybe - reflection first, then metacoding)
-            // todo  2) Get the widest chain list possible, load all rics from these chains. Make sure all data loads and filters out
-            // todo  3) Think on which operations should IMetadataObject and IMetadataContainer support
-            // todo  4) ?????
-            // todo  5) PROFIT
-            // todo 
-            // todo  Another idea - think about moving asserts into callback (see ChainTests). This will eliminate Timeouts but will
-            // todo  add need for additional synchronization and timeouting (wait! general timeout cud be implemented via [Timeout] or whatever)
-
-            GenericTest(new Request<BondData>(_rics, container => container.Rows.Count() == 2));
-            // todo Checks based on data
+            GenericTest(new Request<BondData>(_rics, 
+                container => Tuple.Create(
+                    container != null && container.Rows != null && container.Rows.Count() == 2, 
+                    "Null or not two rows")));
         }
 
         [TestCase]
         public void MetadataOnCoupons() {
             // i don't really need coupons, do I?
-            // todo Checks based on data
-            GenericTest(new Request<CouponData>(_rics, container => true));
+            GenericTest(new Request<CouponData>(_rics, container => Tuple.Create(true, "")));
         }
 
         [TestCase]
         public void MetadataOnIssueRating() {
-            // todo Checks based on data
-            GenericTest(new Request<IssueRatingData>(_rics, container => true));
+            GenericTest(new Request<IssueRatingData>(_rics, container => Tuple.Create(true, "")));
         }
 
         [TestCase]
         public void MetadataOnIssuerRating() {
-            // todo Checks based on data
-            GenericTest(new Request<IssuerRatingData>(_rics, container => true));
+            GenericTest(new Request<IssuerRatingData>(_rics, container => Tuple.Create(true, "")));
         }
 
         [TestCase]
         public void MetadataOnFrn() {
-            // todo Checks based on data
-            GenericTest(new Request<FrnData>(_rics, container => true));
+            GenericTest(new Request<FrnData>(_rics, container => Tuple.Create(true, "")));
         }
 
         [TestCase]
         public void MetadataOnRics() {
-            // todo Checks based on data
-            GenericTest(new Request<RicData>(_rics, container => true));
+            GenericTest(new Request<RicData>(_rics, container => Tuple.Create(true, "")));
         }
 
         // todo convertibles

@@ -2,6 +2,7 @@
 using DataProvider.Objects;
 using Dex2;
 using LoggingFacility;
+using LoggingFacility.LoggingSupport;
 using Toolbox.Async;
 
 namespace DataProvider.Loaders.Metadata {
@@ -22,6 +23,7 @@ namespace DataProvider.Loaders.Metadata {
             }
 
             protected override void Prepare() {
+                this.Trace("Prepare()");
                 try {
                     _dex2Manager = _objects.CreateDex2Mgr();
                     var cookie = _dex2Manager.Initialize();
@@ -32,6 +34,7 @@ namespace DataProvider.Loaders.Metadata {
             }
 
             protected override void Perform() {
+                this.Trace("Perform()");
                 try {
                     _rData.FieldList = _setup.Fields;
                     _rData.DisplayParam = _setup.DisplayMode;
@@ -43,6 +46,7 @@ namespace DataProvider.Loaders.Metadata {
             }
 
             protected override void Finish() {
+                this.Trace("Finish()");
                 lock (LockObj) {
                     if (_setup.Callback != null)
                         _setup.Callback(_res);
@@ -50,18 +54,19 @@ namespace DataProvider.Loaders.Metadata {
             }
 
             protected override void HandleTimout() {
-                throw new NotImplementedException();
+                this.Trace("HandleTimout()");
             }
 
             protected override void HandleError(Exception ex) {
-                throw new NotImplementedException();
+                this.Trace(string.Format("HandleError(), exception is\n{0}", ex));
             }
 
             protected override void HandleCancel() {
-                throw new NotImplementedException();
+                this.Trace("HandleCancel()");
             }
 
             private void ReportError(Exception ex) {
+                this.Trace(string.Format("ReportError, error is\n{0}", ex));
                 Report = ex;
                 // todo _res.Records.Add(new ChainRecord(_ric, TimeoutStatus.CreateError(ex), new List<string>()));
                 TryChangeState(State.Invalid);
