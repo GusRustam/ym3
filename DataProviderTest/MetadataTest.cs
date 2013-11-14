@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Threading;
 using Connect;
 using ContainerAgent;
@@ -184,162 +185,162 @@ namespace DataProviderTest {
         // todo bond futures
     }
 
-    [MetaParams("RH:In")]
+    [MetaParams(Display : "RH:In")]
     public class BondData : IMetadataItem {
-        [MetaColumn(0)]
+        [MetaField(0)]
         public string Ric { get; set; }
 
-        [MetaField("EJV.X.ADF_BondStructure")]
+        [MetaField(1, "EJV.X.ADF_BondStructure")]
         public string BondStructure { get; set; }
 
-        [MetaField("EJV.X.ADF_STRUCTURE")]
+        [MetaField(2, "EJV.X.ADF_STRUCTURE")]
         public string Structure { get; set; }
 
-        [MetaField("EJV.X.ADF_RateStructure")]
+        [MetaField(3, "EJV.X.ADF_RateStructure")]
         public string RateStructure { get; set; }
         
-        [MetaField("EJV.C.Description")]
+        [MetaField(4, "EJV.C.Description")]
         public string Description { get; set; }
 
-        [MetaField("EJV.C.OriginalAmountIssued")]
+        [MetaField(5, "EJV.C.OriginalAmountIssued")]
         public double? OriginalAmountIssued { get; set; }
 
-        [MetaField("EJV.C.IssuerName")]
+        [MetaField(6, "EJV.C.IssuerName")]
         public string IssuerName { get; set; }
 
-        [MetaField("EJV.C.BorrowerName")]
+        [MetaField(7, "EJV.C.BorrowerName")]
         public string BorrowerName { get; set; }
 
-        [MetaField("EJV.X.ADF_Coupon")]
+        [MetaField(8, "EJV.X.ADF_Coupon")]
         public double Coupon { get; set; }
 
-        [MetaField("EJV.C.IssueDate")]
+        [MetaField(9, "EJV.C.IssueDate")]
         public DateTime? IssueDate { get; set; }
 
-        [MetaField("EJV.C.MaturityDate")]
+        [MetaField(10, "EJV.C.MaturityDate")]
         public DateTime? MaturityDate { get; set; }
         
-        [MetaField("EJV.C.Currency")]
+        [MetaField(11, "EJV.C.Currency")]
         public string Currency { get; set; }
         
-        [MetaField("EJV.C.ShortName")]
+        [MetaField(12, "EJV.C.ShortName")]
         public string ShortName { get; set; }
       
-        [MetaField("EJV.C.IsCallable")]
+        [MetaField(13, "EJV.C.IsCallable")]
         public bool IsCallable { get; set; }
         
-        [MetaField("EJV.C.IsPutable")]
+        [MetaField(14, "EJV.C.IsPutable")]
         public bool IsPutable { get; set; }
 
-        [MetaField("EJV.C.IsFloater")]
+        [MetaField(15, "EJV.C.IsFloater")]
         public bool IsFloater { get; set; }
 
-        [MetaField("EJV.C.IsConvertible")]
+        [MetaField(16, "EJV.C.IsConvertible")]
         public bool IsConvertible { get; set; }
 
-        [MetaField("EJV.C.IsStraight")]
+        [MetaField(17, "EJV.C.IsStraight")]
         public bool IsStraight { get; set; }
 
-        [MetaField("EJV.C.Ticker")]
+        [MetaField(18, "EJV.C.Ticker")]
         public string Ticker { get; set; }
 
-        [MetaField("EJV.C.Series")]
+        [MetaField(19, "EJV.C.Series")]
         public string Series { get; set; }
 
-        [MetaField("EJV.C.BorrowerCntyCode")]
+        [MetaField(20, "EJV.C.BorrowerCntyCode")]
         public string BorrowerCountry { get; set; }
 
-        [MetaField("EJV.C.IssuerCountry")]
+        [MetaField(21, "EJV.C.IssuerCountry")]
         public string IssuerCountry { get; set; }
 
-        [MetaField("RI.ID.ISIN")]
+        [MetaField(22, "RI.ID.ISIN")]
         public string Isin { get; set; }
 
-        [MetaField("EJV.C.ParentTicker")]
+        [MetaField(23, "EJV.C.ParentTicker")]
         public string ParentTicker { get; set; }
 
-        [MetaField("EJV.C.SeniorityTypeDescription")]
+        [MetaField(24, "EJV.C.SeniorityTypeDescription")]
         public string SeniorityType { get; set; }
 
-        [MetaField("EJV.C.SPIndustryDescription")]
+        [MetaField(25, "EJV.C.SPIndustryDescription")]
         public string Industry { get; set; }
 
-        [MetaField("EJV.C.SPIndustrySubDescription")]
+        [MetaField(26, "EJV.C.SPIndustrySubDescription")]
         public string SubIndustry { get; set; }
 
-        [MetaField("EJV.C.InstrumentTypeDescription")]
+        [MetaField(27, "EJV.C.InstrumentTypeDescription")]
         public string InstrumentType { get; set; }
     }
 
-    [MetaParams("RH:In,D", "D:1984;2013")]
+    [MetaParams(Display: "RH:In,D", Request: "D:1984;2013")]
     public class CouponData : IMetadataItem {
-        [MetaColumn(0)]
+        [MetaField(0)]
         public string Ric { get; set; }
 
-        [MetaColumn(1)]
+        [MetaField(1)]
         public DateTime Date { get; set; }
 
-        [MetaField("EJV.C.CouponRate")]
+        [MetaField(2, "EJV.C.CouponRate")]
         public double Rate { get; set; }
     }
 
-    [MetaParams("RH:In", "RTSRC:MDY;S&P;FTC")]
+    [MetaParams(Display: "RH:In", Request: "RTSRC:MDY;S&P;FTC")]
     public class IssueRatingData : IMetadataItem {
-        [MetaColumn(0)]
+        [MetaField(0)]
         public string Ric { get; set; }
 
-        [MetaField("EJV.IR.Rating")]
+        [MetaField(1, "EJV.IR.Rating")]
         public string Rating { get; set; }
 
-        [MetaField("EJV.IR.RatingDate")]
+        [MetaField(2, "EJV.IR.RatingDate")]
         public string RatingDate { get; set; }
 
-        [MetaField("EJV.IR.RatingSourceCode")]
+        [MetaField(3, "EJV.IR.RatingSourceCode")]
         public string RatingSourceCode { get; set; }
     }
 
-    [MetaParams("RH:In", "RTS:FDL;SPI;MDL RTSC:FRN")]
+    [MetaParams(Display: "RH:In", Request: "RTS:FDL;SPI;MDL RTSC:FRN")]
     public class IssuerRatingData : IMetadataItem {
-        [MetaColumn(0)]
+        [MetaField(0)]
         public string Ric { get; set; }
 
-        [MetaField("EJV.GR.Rating")]
+        [MetaField(1, "EJV.GR.Rating")]
         public string Rating { get; set; }
 
-        [MetaField("EJV.GR.RatingDate")]
+        [MetaField(2, "EJV.GR.RatingDate")]
         public string RatingDate { get; set; }
 
-        [MetaField("EJV.GR.RatingSourceCode")]
+        [MetaField(3, "EJV.GR.RatingSourceCode")]
         public string RatingSourceCode { get; set; }
     }
 
-    [MetaParams("RH:In")]
+    [MetaParams(Display: "RH:In")]
     public class FrnData : IMetadataItem {
-        [MetaColumn(0)]
+        [MetaField(0)]
         public string Ric { get; set; }
 
-        [MetaField("EJV.X.FRNFLOOR")]
+        [MetaField(1, "EJV.X.FRNFLOOR")]
         public double? Floor { get; set; }
 
-        [MetaField("EJV.X.FRNCAP")]
+        [MetaField(2, "EJV.X.FRNCAP")]
         public double? Cap { get; set; }
 
-        [MetaField("EJV.X.FREQ")]
+        [MetaField(3, "EJV.X.FREQ")]
         public string Frequency { get; set; }
 
-        [MetaField("EJV.X.ADF_MARGIN")]
+        [MetaField(4, "EJV.X.ADF_MARGIN")]
         public double? Margin { get; set; }
     }
 
-    [MetaParams("RH:In;Con")]
+    [MetaParams(Display: "RH:In;Con")]
     public class RicData : IMetadataItem {
-        [MetaColumn(0)]
+        [MetaField(0)]
         public string Ric { get; set; }
 
-        [MetaColumn(1)]
+        [MetaField(1)]
         public string Contributor { get; set; }
 
-        [MetaField("EJV.C.RICS")]
+        [MetaField(2, "EJV.C.RICS")]
         public string ContributedRic { get; set; }
     }
 }

@@ -118,8 +118,8 @@
     <Compile Include="Loaders\Metadata\IMetadataRequest.cs" />
     <Compile Include="Loaders\Metadata\IMetaObjectFactory.cs" />
     <Compile Include="Loaders\Metadata\IRequestSetup.cs" />
-    <Compile Include="Loaders\Metadata\MetaColumnAttribute.cs" />
     <Compile Include="Loaders\Metadata\Metadata.cs" />
+    <Compile Include="Loaders\Metadata\MetadataContainer.cs" />
     <Compile Include="Loaders\Metadata\MetadataRequest.cs" />
     <Compile Include="Loaders\Metadata\MetaFieldAttribute.cs" />
     <Compile Include="Loaders\Metadata\MetaFieldInfo.cs" />

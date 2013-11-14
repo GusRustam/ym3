@@ -50,7 +50,8 @@ namespace DataProvider.Loaders.Metadata {
                 select new MetaFieldInfo {
                     MetaFieldName = fieldAttr.Name,
                     VariableType = property.PropertyType,
-                    VariableName = property.Name
+                    VariableName = property.Name,
+                    Order = fieldAttr.Order
                 });
 
             res.FieldInfo = fieldInfo.ToArray();

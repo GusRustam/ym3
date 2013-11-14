@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using DataProvider.Loaders.Status;
 
 namespace DataProvider.Loaders.Metadata {
     /// <summary>
@@ -10,10 +11,8 @@ namespace DataProvider.Loaders.Metadata {
     /// this field is empty, it should not be visible.
     /// </remarks>
     public interface IMetadataContainer<T> where T : IMetadataItem {
+        IDataStatus Status { get; set; }
         IEnumerable<T> Rows { get; set; }
-    }
-
-    public class MetadataContainer<T> : IMetadataContainer<T> where T : IMetadataItem {
-        public IEnumerable<T> Rows { get; set; }
+        void ImportRow(object[] row);
     }
 }

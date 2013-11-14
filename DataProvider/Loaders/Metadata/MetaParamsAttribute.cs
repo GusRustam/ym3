@@ -13,9 +13,11 @@ namespace DataProvider.Loaders.Metadata {
             get { return _display; }
         }
 
-        public MetaParamsAttribute(string request = "", string display = "") {
-            _request = request;
-            _display = display;
+// ReSharper disable InconsistentNaming
+        public MetaParamsAttribute(string Request = "", string Display = "") {
+// ReSharper restore InconsistentNaming
+            _request = Request;
+            _display = Display;
         }
     }
 }

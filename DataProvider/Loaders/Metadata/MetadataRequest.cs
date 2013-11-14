@@ -19,7 +19,7 @@ namespace DataProvider.Loaders.Metadata {
             public MetadataRequestAlgo(IEikonObjects objects, IMetaObjectFactory<T> factory, ILogger logger, IRequestSetup<T> setup) : base(logger) {
                 _objects = objects;
                 _setup = setup;
-                _res = factory.CreateContainer();
+                _res = factory.CreateContainer(setup);
             }
 
             protected override void Prepare() {
@@ -48,7 +48,54 @@ namespace DataProvider.Loaders.Metadata {
             }
 
             private void OnUpdate(DEX2_DataStatus dataStatus, object error) {
-                this.Trace("Got updates!!!");
+                lock (LockObj) {
+                    switch (dataStatus) {
+                        case DEX2_DataStatus.DE_DS_FULL:
+                            this.Trace("Full data!");
+                            var data = (object[,])_rData.Data;
+
+                            var minRow = data.GetLowerBound(0);
+                            var maxRow = data.GetUpperBound(0);
+                            var minCol = data.GetLowerBound(1);
+                            var maxCol = data.GetUpperBound(1);
+                            
+                            for (var row = minRow; row <= maxRow; row++) {
+                                var currentRow = new object[maxCol - minCol + 1];
+                                var i = 0;
+                                for (var col = minCol; col <= maxCol; col++) 
+                                    currentRow[i++] = data.GetValue(row, col);
+
+                                try {
+                                    // todo 1) Import row currently not implemented
+                                    // todo 2) I do not know (for sure) to which ric does it correspond
+                                    // todo ---> I can use first column as ID - well, why not.
+                                    // todo ---> yes, it gonna be a convention
+                                    // todo 3) so, I can collect invalid IDs (i don't write rics since it could be ISINs)
+                                    // todo and then report them
+                                    _res.ImportRow(currentRow);
+                                } catch (Exception e) {
+                                    this.Warn(string.Format("Failed to import row #{0}", row), e);
+                                    // todo currentRow[0] -> ID, report this id
+                                }
+                            }
+                            TryChangeState(State.Succeded);
+                            break;
+
+                        case DEX2_DataStatus.DE_DS_PARTIAL:
+                            this.Warn("Partial data!");
+                            break;
+
+                        case DEX2_DataStatus.DE_DS_NULL_ERROR:
+                        case DEX2_DataStatus.DE_DS_NULL_EMPTY:
+                        case DEX2_DataStatus.DE_DS_NULL_TIMEOUT:
+                            ReportError(new Exception((error ?? "No data").ToString()));
+                            break;
+
+                        default:
+                            ReportError(new ArgumentOutOfRangeException("dataStatus"));
+                            break;
+                    }
+                }
             }
 
             protected override void Finish() {

@@ -20,8 +20,8 @@ namespace DataProvider.Loaders.Metadata {
             return _container.GetInstance<IRequestSetup<T>>();
         }
 
-        public IMetadataContainer<T> CreateContainer() {
-            return _container.GetInstance<IMetadataContainer<T>>();
+        public IMetadataContainer<T> CreateContainer(IRequestSetup<T> setup) {
+            return _container.With(setup).GetInstance<IMetadataContainer<T>>();
         }
     }
 }

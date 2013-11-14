@@ -7,6 +7,6 @@
 
         IMetadataRequest<T> CreateRequest(IRequestSetup<T> setup);
         IRequestSetup<T> CreateSetup();
-        IMetadataContainer<T> CreateContainer();
+        IMetadataContainer<T> CreateContainer(IRequestSetup<T> setup);
     }
 }

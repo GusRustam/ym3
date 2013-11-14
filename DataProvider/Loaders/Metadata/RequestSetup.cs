@@ -4,11 +4,37 @@ using System.Linq;
 
 namespace DataProvider.Loaders.Metadata {
     public class RequestSetup<T> : RequestSetupBase, IRequestSetup<T> where T : IMetadataItem {
+        private string[] _fields = {};
         public string[] Fields {
             get {
-                return FieldInfo == null 
-                    ? new string[] {} 
-                    : FieldInfo.Select(x => x.MetaFieldName).Distinct().ToArray();
+                if (!_fields.Any() || FieldInfo == null)
+                    return _fields;
+                
+                _fields = FieldInfo
+                    .Where(x => !string.IsNullOrEmpty(x.MetaFieldName))
+                    .Select(x => x.MetaFieldName)
+                    .Distinct()
+                    .ToArray();
+                
+                return _fields;
+            }
+        }
+
+        private MetaVariableInfo[] _vars = {};
+        public MetaVariableInfo[] Varaibles {
+            get {
+                if (!_vars.Any() || FieldInfo == null)
+                    return _vars;
+
+                _vars = FieldInfo
+                    .Select(x => new MetaVariableInfo {
+                        VariableName = x.VariableName,
+                        VariableType = x.VariableType
+                    })
+                    .Distinct()
+                    .ToArray();
+
+                return _vars;
             }
         }
 
@@ -23,5 +49,10 @@ namespace DataProvider.Loaders.Metadata {
             RequestMode = setup.RequestMode;
             FieldInfo = setup.FieldInfo;
         }
+    }
+
+    public struct MetaVariableInfo {
+        public string VariableName;
+        public Type VariableType;
     }
 }
