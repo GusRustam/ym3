@@ -134,8 +134,7 @@ namespace DataProviderTest {
             }
         }
 
-        // todo  1) Red-Green-Refactor my test cases
-        // todo     1.1) Develop metacode to import data into *Data classes (maybe - reflection first, then metacoding)
+        // todo  1) Develop metacode to import data into *Data classes (maybe - reflection first, then metacoding)
         // todo  2) Get the widest chain list possible, load all rics from these chains. Make sure all data loads and filters out
         // todo  3) Think on which operations should IMetadataObject and IMetadataContainer support
         // todo  4) ?????

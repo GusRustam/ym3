@@ -36,7 +36,8 @@ namespace DataProvider.Loaders.Metadata {
             protected override void Perform() {
                 this.Trace("Perform()");
                 try {
-                    _rData.FieldList = _setup.Fields;
+                    _rData.InstrumentIDList = string.Join(",", _setup.Rics);
+                    _rData.FieldList = string.Join(",", _setup.Fields);
                     _rData.DisplayParam = _setup.DisplayMode;
                     _rData.RequestParam = _setup.RequestMode;
                     _rData.Subscribe(false);
