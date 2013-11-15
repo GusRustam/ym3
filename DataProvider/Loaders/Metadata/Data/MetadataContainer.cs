@@ -1,12 +1,9 @@
 ﻿using System.Collections.Generic;
 using DataProvider.Loaders.Status;
 
-namespace DataProvider.Loaders.Metadata {
+namespace DataProvider.Loaders.Metadata.Data {
     public class MetadataContainer<T> : IMetadataContainer<T> where T : IMetadataItem, new() {
-        //private readonly List<MetaFieldInfo> _fieldsInfo;
-
-        public MetadataContainer(/*List<MetaFieldInfo> fieldsInfo*/) {
-            //_fieldsInfo = fieldsInfo;
+        public MetadataContainer() {
             Rows = new List<T>();
         }
 

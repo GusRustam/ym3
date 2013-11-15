@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DataProvider.Loaders.Metadata {
+namespace DataProvider.Loaders.Metadata.Data {
     public struct MetaFieldInfo {
         public int Order;
         public string MetaFieldName;

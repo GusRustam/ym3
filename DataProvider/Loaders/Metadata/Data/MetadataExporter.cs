@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace DataProvider.Loaders.Metadata {
+namespace DataProvider.Loaders.Metadata.Data {
     public class MetadataExporter<T> : IMetadataExporter<T> where T : IMetadataItem {
         // ReSharper disable StaticFieldInGenericType - that's ok, it stores non-generic data from generic source
         private static readonly Dictionary<Type, RequestSetupBase> FieldCache;

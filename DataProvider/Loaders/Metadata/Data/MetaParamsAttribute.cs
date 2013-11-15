@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DataProvider.Loaders.Metadata {
+namespace DataProvider.Loaders.Metadata.Data {
     public class MetaParamsAttribute : Attribute {
         private readonly string _request;
         private readonly string _display;

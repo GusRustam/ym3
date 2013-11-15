@@ -1,4 +1,5 @@
 ﻿using System;
+using DataProvider.Loaders.Metadata.Data;
 
 namespace DataProvider.Loaders.Metadata {
     /// <summary>

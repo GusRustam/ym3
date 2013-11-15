@@ -4,6 +4,7 @@ using DataProvider.Loaders.Chain.Data;
 using DataProvider.Loaders.History;
 using DataProvider.Loaders.History.Data;
 using DataProvider.Loaders.Metadata;
+using DataProvider.Loaders.Metadata.Data;
 using DataProvider.Loaders.Realtime;
 using DataProvider.Objects;
 using DataProvider.Storage;

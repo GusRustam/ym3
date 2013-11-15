@@ -1,4 +1,5 @@
-﻿using StructureMap;
+﻿using DataProvider.Loaders.Metadata.Data;
+using StructureMap;
 
 namespace DataProvider.Loaders.Metadata {
     public class MetaObjectFactory<T> : IMetaObjectFactory<T> where T : IMetadataItem, new() {
@@ -8,8 +9,8 @@ namespace DataProvider.Loaders.Metadata {
             _container = container;
         }
 
-        public MetadataRequest<T>.MetadataRequestAlgo CreateAlgo(IRequestSetup<T> setup) {
-            return _container.With(setup).GetInstance<MetadataRequest<T>.MetadataRequestAlgo>();
+        public MetadataRequestAlgo<T> CreateAlgo(IRequestSetup<T> setup) {
+            return _container.With(setup).GetInstance<MetadataRequestAlgo<T>>();
         }
 
         public IMetadataRequest<T> CreateRequest(IRequestSetup<T> setup) {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using LoggingFacility;
 using LoggingFacility.LoggingSupport;
 
-namespace DataProvider.Loaders.Metadata {
+namespace DataProvider.Loaders.Metadata.Data {
     public class ReflectionMetadataImporter<T> : ISupportsLogging, IMetadataImporter<T> where T : IMetadataItem, new() {
         private readonly MetaFieldInfo[] _fields;
         // ReSharper disable StaticFieldInGenericType

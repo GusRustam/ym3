@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DataProvider.Loaders.Metadata {
+namespace DataProvider.Loaders.Metadata.Data {
     public class MetaFieldAttribute : Attribute {
         private readonly int _order;
         private readonly string _name;

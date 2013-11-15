@@ -1,4 +1,5 @@
-﻿using Toolbox.Async;
+﻿using DataProvider.Loaders.Metadata.Data;
+using Toolbox.Async;
 
 namespace DataProvider.Loaders.Metadata {
     /// <summary> Stub to create type-specific timeout call </summary>

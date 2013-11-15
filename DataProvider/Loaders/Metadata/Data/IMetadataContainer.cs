@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using DataProvider.Loaders.Status;
 
-namespace DataProvider.Loaders.Metadata {
+namespace DataProvider.Loaders.Metadata.Data {
     /// <summary>
     /// This class represents a container of metadata objects, retrieved from DB
     /// </summary>

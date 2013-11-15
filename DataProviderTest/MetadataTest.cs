@@ -4,9 +4,12 @@ using System.Threading;
 using Connect;
 using ContainerAgent;
 using DataProvider.Loaders.Metadata;
+using DataProvider.Loaders.Metadata.Data;
 using Moq;
 using NUnit.Framework;
 
+// todo Convertibles, index-linked, MBS (am I crazy?), repo, bond futures
+// todo Get the widest chain list possible, load all rics from these chains. Make sure all data loads and filters out
 namespace DataProviderTest {
     [TestFixture]
     public class MetadataTest {
@@ -15,10 +18,10 @@ namespace DataProviderTest {
         };
 
         public class Request<T> where T : IMetadataItem, new() {
-            public Func<IMetadataContainer<T>, Tuple<bool, string>> Checks { get; private set; }
+            public Func<IMetadataContainer<T>, string> Checks { get; private set; }
             public string[] Rics { get; private set; }
 
-            public Request(string[] rics, Func<IMetadataContainer<T>, Tuple<bool, string>> checks) {
+            public Request(string[] rics, Func<IMetadataContainer<T>, string> checks) {
                 Checks = checks;
                 Rics = rics;
             }
@@ -103,20 +106,14 @@ namespace DataProviderTest {
             if (!cnn.ConnectAndWait(10))
                 Assert.Inconclusive();
 
-            var failed = false;
             var message = "";
             mtd.WithRics(setup.Rics)
                 .OnFinished(data => {
                     Console.WriteLine("Got data!");
-
                     try {
-                        var res = setup.Checks(data);
-                        failed = !res.Item1;
-                        message = res.Item2;
-
+                        message = setup.Checks(data);
                     } catch (Exception e) {
-                        Console.WriteLine("Test fails, error in checking:\n{0}", e);
-                        failed = true;
+                        message = e.ToString();
                     } finally {
                         lock (locker) Monitor.Pulse(locker);
                     }
@@ -130,51 +127,45 @@ namespace DataProviderTest {
                 Monitor.Pulse(locker);
                 if (!Monitor.Wait(locker, TimeSpan.FromSeconds(6)))
                     Assert.Fail("Test timeout");
-                Assert.IsFalse(failed, message);
+                Assert.IsTrue(message == null , message);
             }
         }
 
-        // todo  Get the widest chain list possible, load all rics from these chains. Make sure all data loads and filters out
         [TestCase]
         public void MetadataOnBonds() {
             GenericTest(new Request<BondData>(_rics, 
-                container => Tuple.Create(
-                    container != null && container.Rows != null && container.Rows.Count() == 2, 
-                    "Null or not two rows")));
+                container => {
+                    if (container == null || container.Rows == null || container.Rows.Count() != 2)
+                        return "Null or not two rows";
+                    return null;
+                }));
         }
 
         [TestCase]
         public void MetadataOnCoupons() {
             // i don't really need coupons, do I?
-            GenericTest(new Request<CouponData>(_rics, container => Tuple.Create(true, "")));
+            GenericTest(new Request<CouponData>(_rics, container => null));
         }
 
         [TestCase]
         public void MetadataOnIssueRating() {
-            GenericTest(new Request<IssueRatingData>(_rics, container => Tuple.Create(true, "")));
+            GenericTest(new Request<IssueRatingData>(_rics, container => null));
         }
 
         [TestCase]
         public void MetadataOnIssuerRating() {
-            GenericTest(new Request<IssuerRatingData>(_rics, container => Tuple.Create(true, "")));
+            GenericTest(new Request<IssuerRatingData>(_rics, container => null));
         }
 
         [TestCase]
         public void MetadataOnFrn() {
-            GenericTest(new Request<FrnData>(_rics, container => Tuple.Create(true, "")));
+            GenericTest(new Request<FrnData>(_rics, container => null));
         }
 
         [TestCase]
         public void MetadataOnRics() {
-            GenericTest(new Request<RicData>(_rics, container => Tuple.Create(true, "")));
+            GenericTest(new Request<RicData>(_rics, container => null));
         }
-
-        // todo convertibles
-        // todo index-linked
-        // todo MBS (am I crazy?)
-
-        // todo repo
-        // todo bond futures
     }
 
     [MetaParams(Display : "RH:In")]
@@ -228,7 +219,7 @@ namespace DataProviderTest {
         public bool IsFloater { get; set; }
 
         [MetaField(16,  "EJV.C.IsConvertible", typeof(ReutersBooleanConverter))]
-        public bool IsConvertible { get; set; }
+        public bool IsConvertible {  get; set; }
 
         [MetaField(17,  "EJV.C.IsStraight", typeof(ReutersBooleanConverter))]
         public bool IsStraight { get; set; }

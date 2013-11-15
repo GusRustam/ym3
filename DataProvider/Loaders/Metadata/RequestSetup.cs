@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using DataProvider.Loaders.Metadata.Data;
 
 namespace DataProvider.Loaders.Metadata {
     public class RequestSetup<T> : RequestSetupBase, IRequestSetup<T> where T : IMetadataItem, new() {
