@@ -3,11 +3,11 @@ using System.IO;
 using System.Linq;
 
 namespace DataProvider.Loaders.Metadata {
-    public class RequestSetup<T> : RequestSetupBase, IRequestSetup<T> where T : IMetadataItem {
+    public class RequestSetup<T> : RequestSetupBase, IRequestSetup<T> where T : IMetadataItem, new() {
         private string[] _fields = {};
         public string[] Fields {
             get {
-                if (!_fields.Any() || FieldInfo == null)
+                if (_fields.Any() || FieldInfo == null)
                     return _fields;
                 
                 _fields = FieldInfo
@@ -49,10 +49,5 @@ namespace DataProvider.Loaders.Metadata {
             RequestMode = setup.RequestMode;
             FieldInfo = setup.FieldInfo;
         }
-    }
-
-    public struct MetaVariableInfo {
-        public string VariableName;
-        public Type VariableType;
     }
 }

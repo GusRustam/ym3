@@ -23,5 +23,9 @@ namespace DataProvider.Loaders.Metadata {
         public IMetadataContainer<T> CreateContainer(IRequestSetup<T> setup) {
             return _container.With(setup).GetInstance<IMetadataContainer<T>>();
         }
+
+        public IMetadataImporter<T> CreateImporter(IRequestSetup<T> setup) {
+            return _container.With(setup).GetInstance<IMetadataImporter<T>>();
+        }
     }
 }

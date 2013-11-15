@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using DataProvider.Objects;
 using Dex2;
 using LoggingFacility;
@@ -12,14 +13,17 @@ namespace DataProvider.Loaders.Metadata {
         public class MetadataRequestAlgo : TimeoutCall {
             private readonly IEikonObjects _objects;
             private readonly IRequestSetup<T> _setup;
+            private readonly IMetadataContainer<T> _res;
+            private readonly IMetadataImporter<T> _importer;
+
             private Dex2Mgr _dex2Manager;
             private RData _rData;
-            private readonly IMetadataContainer<T> _res;
 
             public MetadataRequestAlgo(IEikonObjects objects, IMetaObjectFactory<T> factory, ILogger logger, IRequestSetup<T> setup) : base(logger) {
                 _objects = objects;
                 _setup = setup;
                 _res = factory.CreateContainer(setup);
+                _importer = factory.CreateImporter(setup);
             }
 
             protected override void Prepare() {
@@ -41,9 +45,36 @@ namespace DataProvider.Loaders.Metadata {
                     _rData.FieldList = string.Join(",", _setup.Fields);
                     _rData.DisplayParam = _setup.DisplayMode;
                     _rData.RequestParam = _setup.RequestMode;
-                    _rData.Subscribe(false);
+                    _rData.Subscribe();
+                    if (_rData.Data != null) LoadData(_rData.Data);
                 } catch (Exception e) {
                     ReportError(e);
+                }
+            }
+
+            private void LoadData(object dt) {
+                this.Trace("LoadData()");
+                lock (LockObj) {
+                    var data = (object[,])dt;
+
+                    var minRow = data.GetLowerBound(0);
+                    var maxRow = data.GetUpperBound(0);
+                    var minCol = data.GetLowerBound(1);
+                    var maxCol = data.GetUpperBound(1);
+
+                    for (var row = minRow; row <= maxRow; row++) {
+                        var currentRow = new object[maxCol - minCol + 1];
+                        var i = 0;
+                        for (var col = minCol; col <= maxCol; col++)
+                            currentRow[i++] = data.GetValue(row, col);
+
+                        try {
+                            _res.Rows.Add(_importer.Import(currentRow));
+                        } catch (Exception e) {
+                            this.Warn(string.Format("Failed to import row #{0}, id field {1}", row, currentRow.Any() ? currentRow[0] : "N/A"), e);
+                        }
+                    }
+                    TryChangeState(State.Succeded);
                 }
             }
 
@@ -51,34 +82,7 @@ namespace DataProvider.Loaders.Metadata {
                 lock (LockObj) {
                     switch (dataStatus) {
                         case DEX2_DataStatus.DE_DS_FULL:
-                            this.Trace("Full data!");
-                            var data = (object[,])_rData.Data;
-
-                            var minRow = data.GetLowerBound(0);
-                            var maxRow = data.GetUpperBound(0);
-                            var minCol = data.GetLowerBound(1);
-                            var maxCol = data.GetUpperBound(1);
-                            
-                            for (var row = minRow; row <= maxRow; row++) {
-                                var currentRow = new object[maxCol - minCol + 1];
-                                var i = 0;
-                                for (var col = minCol; col <= maxCol; col++) 
-                                    currentRow[i++] = data.GetValue(row, col);
-
-                                try {
-                                    // todo 1) Import row currently not implemented
-                                    // todo 2) I do not know (for sure) to which ric does it correspond
-                                    // todo ---> I can use first column as ID - well, why not.
-                                    // todo ---> yes, it gonna be a convention
-                                    // todo 3) so, I can collect invalid IDs (i don't write rics since it could be ISINs)
-                                    // todo and then report them
-                                    _res.ImportRow(currentRow);
-                                } catch (Exception e) {
-                                    this.Warn(string.Format("Failed to import row #{0}", row), e);
-                                    // todo currentRow[0] -> ID, report this id
-                                }
-                            }
-                            TryChangeState(State.Succeded);
+                            LoadData(_rData.Data);
                             break;
 
                         case DEX2_DataStatus.DE_DS_PARTIAL:

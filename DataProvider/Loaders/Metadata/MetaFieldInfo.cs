@@ -6,5 +6,6 @@ namespace DataProvider.Loaders.Metadata {
         public string MetaFieldName;
         public Type VariableType;
         public string VariableName;
+        public Type Converter;
     }
 }

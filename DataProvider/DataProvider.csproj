@@ -111,9 +111,12 @@
     <Compile Include="Loaders\History\MultiHistoryRequest.cs" />
     <Compile Include="Loaders\History\TsiHistoryRequest.cs" />
     <Compile Include="Loaders\ITimeout.cs" />
+    <Compile Include="Loaders\Metadata\ExpressionMetadataImporter.cs" />
     <Compile Include="Loaders\Metadata\IMetadata.cs" />
     <Compile Include="Loaders\Metadata\IMetadataContainer.cs" />
+    <Compile Include="Loaders\Metadata\IMetadataConverter.cs" />
     <Compile Include="Loaders\Metadata\IMetadataExporter.cs" />
+    <Compile Include="Loaders\Metadata\IMetadataImporter.cs" />
     <Compile Include="Loaders\Metadata\IMetadataItem.cs" />
     <Compile Include="Loaders\Metadata\IMetadataRequest.cs" />
     <Compile Include="Loaders\Metadata\IMetaObjectFactory.cs" />
@@ -126,8 +129,11 @@
     <Compile Include="Loaders\Metadata\MetaObjectFactory.cs" />
     <Compile Include="Loaders\Metadata\MetaParamsAttribute.cs" />
     <Compile Include="Loaders\Metadata\MetadataExporter.cs" />
+    <Compile Include="Loaders\Metadata\MetaVariableInfo.cs" />
+    <Compile Include="Loaders\Metadata\ReflectionMetadataImporter.cs" />
     <Compile Include="Loaders\Metadata\RequestSetup.cs" />
     <Compile Include="Loaders\Metadata\RequestSetupBase.cs" />
+    <Compile Include="Loaders\Metadata\ReutersBooleanConverter.cs" />
     <Compile Include="Loaders\Realtime\AdfinFieldsTicker.cs" />
     <Compile Include="Loaders\Realtime\AdfinRealtime.cs" />
     <Compile Include="Loaders\Realtime\AdfinSnapshotTicker.cs" />

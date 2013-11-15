@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Security.AccessControl;
 using System.Threading;
 using Connect;
 using ContainerAgent;
@@ -15,7 +14,7 @@ namespace DataProviderTest {
             "RU25068RMFS=MM", "RU25071RMFS=MM"
         };
 
-        public class Request<T> where T : IMetadataItem {
+        public class Request<T> where T : IMetadataItem, new() {
             public Func<IMetadataContainer<T>, Tuple<bool, string>> Checks { get; private set; }
             public string[] Rics { get; private set; }
 
@@ -135,14 +134,7 @@ namespace DataProviderTest {
             }
         }
 
-        // todo  1) Develop metacode to import data into *Data classes (maybe - reflection first, then metacoding)
-        // todo  2) Get the widest chain list possible, load all rics from these chains. Make sure all data loads and filters out
-        // todo  3) Think on which operations should IMetadataObject and IMetadataContainer support
-        // todo  4) ?????
-        // todo  5) PROFIT
-        // todo 
-        // todo  Another idea - think about moving asserts into callback (see ChainTests). This will eliminate Timeouts but will
-        // todo  add need for additional synchronization and timeouting (wait! general timeout cud be implemented via [Timeout] or whatever)
+        // todo  Get the widest chain list possible, load all rics from these chains. Make sure all data loads and filters out
         [TestCase]
         public void MetadataOnBonds() {
             GenericTest(new Request<BondData>(_rics, 
@@ -190,85 +182,85 @@ namespace DataProviderTest {
         [MetaField(0)]
         public string Ric { get; set; }
 
-        [MetaField(1, "EJV.X.ADF_BondStructure")]
+        [MetaField(1, name: "EJV.X.ADF_BondStructure")]
         public string BondStructure { get; set; }
 
-        [MetaField(2, "EJV.X.ADF_STRUCTURE")]
+        [MetaField(2, name: "EJV.X.ADF_STRUCTURE")]
         public string Structure { get; set; }
 
-        [MetaField(3, "EJV.X.ADF_RateStructure")]
+        [MetaField(3, name: "EJV.X.ADF_RateStructure")]
         public string RateStructure { get; set; }
         
-        [MetaField(4, "EJV.C.Description")]
+        [MetaField(4, name: "EJV.C.Description")]
         public string Description { get; set; }
 
-        [MetaField(5, "EJV.C.OriginalAmountIssued")]
+        [MetaField(5, name: "EJV.C.OriginalAmountIssued")]
         public double? OriginalAmountIssued { get; set; }
 
-        [MetaField(6, "EJV.C.IssuerName")]
+        [MetaField(6, name: "EJV.C.IssuerName")]
         public string IssuerName { get; set; }
 
-        [MetaField(7, "EJV.C.BorrowerName")]
+        [MetaField(7, name: "EJV.C.BorrowerName")]
         public string BorrowerName { get; set; }
 
-        [MetaField(8, "EJV.X.ADF_Coupon")]
+        [MetaField(8, name: "EJV.X.ADF_Coupon")]
         public double Coupon { get; set; }
 
-        [MetaField(9, "EJV.C.IssueDate")]
+        [MetaField(9, name: "EJV.C.IssueDate")]
         public DateTime? IssueDate { get; set; }
 
-        [MetaField(10, "EJV.C.MaturityDate")]
+        [MetaField(10, name: "EJV.C.MaturityDate")]
         public DateTime? MaturityDate { get; set; }
         
-        [MetaField(11, "EJV.C.Currency")]
+        [MetaField(11, name: "EJV.C.Currency")]
         public string Currency { get; set; }
         
-        [MetaField(12, "EJV.C.ShortName")]
+        [MetaField(12, name: "EJV.C.ShortName")]
         public string ShortName { get; set; }
       
-        [MetaField(13, "EJV.C.IsCallable")]
+        [MetaField(13, "EJV.C.IsCallable", typeof(ReutersBooleanConverter))]
         public bool IsCallable { get; set; }
-        
-        [MetaField(14, "EJV.C.IsPutable")]
+
+        [MetaField(14, "EJV.C.IsPutable", typeof(ReutersBooleanConverter))]
         public bool IsPutable { get; set; }
 
-        [MetaField(15, "EJV.C.IsFloater")]
+        [MetaField(15, "EJV.C.IsFloater", typeof(ReutersBooleanConverter))]
         public bool IsFloater { get; set; }
 
-        [MetaField(16, "EJV.C.IsConvertible")]
+        [MetaField(16,  "EJV.C.IsConvertible", typeof(ReutersBooleanConverter))]
         public bool IsConvertible { get; set; }
 
-        [MetaField(17, "EJV.C.IsStraight")]
+        [MetaField(17,  "EJV.C.IsStraight", typeof(ReutersBooleanConverter))]
         public bool IsStraight { get; set; }
 
-        [MetaField(18, "EJV.C.Ticker")]
+        [MetaField(18, name: "EJV.C.Ticker")]
         public string Ticker { get; set; }
 
-        [MetaField(19, "EJV.C.Series")]
+        [MetaField(19, name: "EJV.C.Series")]
         public string Series { get; set; }
 
-        [MetaField(20, "EJV.C.BorrowerCntyCode")]
+        [MetaField(20, name: "EJV.C.BorrowerCntyCode")]
         public string BorrowerCountry { get; set; }
 
-        [MetaField(21, "EJV.C.IssuerCountry")]
+        [MetaField(21, name: "EJV.C.IssuerCountry")]
         public string IssuerCountry { get; set; }
 
-        [MetaField(22, "RI.ID.ISIN")]
+        [MetaField(22, name: "RI.ID.ISIN")]
         public string Isin { get; set; }
 
-        [MetaField(23, "EJV.C.ParentTicker")]
+        [MetaField(23, name: "EJV.C.ParentTicker")]
         public string ParentTicker { get; set; }
 
-        [MetaField(24, "EJV.C.SeniorityTypeDescription")]
+        [MetaField(24, name: "EJV.C.SeniorityTypeDescription")]
         public string SeniorityType { get; set; }
 
-        [MetaField(25, "EJV.C.SPIndustryDescription")]
+        [MetaField(25, name: "EJV.C.SPIndustryDescription")]
         public string Industry { get; set; }
 
-        [MetaField(26, "EJV.C.SPIndustrySubDescription")]
+        [MetaField(26, name: "EJV.C.SPIndustrySubDescription")]
         public string SubIndustry { get; set; }
 
-        [MetaField(27, "EJV.C.InstrumentTypeDescription")]
+        [MetaField(27, name: "EJV.C.InstrumentTypeDescription")]
         public string InstrumentType { get; set; }
     }
 
@@ -280,7 +272,7 @@ namespace DataProviderTest {
         [MetaField(1)]
         public DateTime Date { get; set; }
 
-        [MetaField(2, "EJV.C.CouponRate")]
+        [MetaField(2, name: "EJV.C.CouponRate")]
         public double Rate { get; set; }
     }
 
@@ -289,13 +281,13 @@ namespace DataProviderTest {
         [MetaField(0)]
         public string Ric { get; set; }
 
-        [MetaField(1, "EJV.IR.Rating")]
+        [MetaField(1, name: "EJV.IR.Rating")]
         public string Rating { get; set; }
 
-        [MetaField(2, "EJV.IR.RatingDate")]
+        [MetaField(2, name: "EJV.IR.RatingDate")]
         public string RatingDate { get; set; }
 
-        [MetaField(3, "EJV.IR.RatingSourceCode")]
+        [MetaField(3, name: "EJV.IR.RatingSourceCode")]
         public string RatingSourceCode { get; set; }
     }
 
@@ -304,13 +296,13 @@ namespace DataProviderTest {
         [MetaField(0)]
         public string Ric { get; set; }
 
-        [MetaField(1, "EJV.GR.Rating")]
+        [MetaField(1, name: "EJV.GR.Rating")]
         public string Rating { get; set; }
 
-        [MetaField(2, "EJV.GR.RatingDate")]
+        [MetaField(2, name: "EJV.GR.RatingDate")]
         public string RatingDate { get; set; }
 
-        [MetaField(3, "EJV.GR.RatingSourceCode")]
+        [MetaField(3, name: "EJV.GR.RatingSourceCode")]
         public string RatingSourceCode { get; set; }
     }
 
@@ -319,16 +311,16 @@ namespace DataProviderTest {
         [MetaField(0)]
         public string Ric { get; set; }
 
-        [MetaField(1, "EJV.X.FRNFLOOR")]
+        [MetaField(1, name: "EJV.X.FRNFLOOR")]
         public double? Floor { get; set; }
 
-        [MetaField(2, "EJV.X.FRNCAP")]
+        [MetaField(2, name: "EJV.X.FRNCAP")]
         public double? Cap { get; set; }
 
-        [MetaField(3, "EJV.X.FREQ")]
+        [MetaField(3, name: "EJV.X.FREQ")]
         public string Frequency { get; set; }
 
-        [MetaField(4, "EJV.X.ADF_MARGIN")]
+        [MetaField(4, name: "EJV.X.ADF_MARGIN")]
         public double? Margin { get; set; }
     }
 
@@ -340,7 +332,7 @@ namespace DataProviderTest {
         [MetaField(1)]
         public string Contributor { get; set; }
 
-        [MetaField(2, "EJV.C.RICS")]
+        [MetaField(2, name: "EJV.C.RICS")]
         public string ContributedRic { get; set; }
     }
 }

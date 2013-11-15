@@ -10,9 +10,9 @@ namespace DataProvider.Loaders.Metadata {
     /// invalid entries. For example, bond must have BondStructure, and in case 
     /// this field is empty, it should not be visible.
     /// </remarks>
-    public interface IMetadataContainer<T> where T : IMetadataItem {
+    public interface IMetadataContainer<T> where T : IMetadataItem, new() {
         IDataStatus Status { get; set; }
-        IEnumerable<T> Rows { get; set; }
-        void ImportRow(object[] row);
+        IList<T> Rows { get; }
+        //void ImportRow(object[] row);
     }
 }

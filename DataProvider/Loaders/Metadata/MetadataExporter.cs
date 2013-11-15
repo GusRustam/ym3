@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -13,10 +15,29 @@ namespace DataProvider.Loaders.Metadata {
             FieldCache = new Dictionary<Type, RequestSetupBase>();
         }
 
+        [Conditional("DEBUG")]
+        private static void ValidateFields(IEnumerable<MetaFieldInfo> fieldInfo) {
+            var metaFieldInfos = fieldInfo as MetaFieldInfo[] ?? fieldInfo.ToArray();
+            var orders = metaFieldInfos.Select(f => f.Order).ToList();
+            
+            var min = orders.Min();
+            if (min < 0)
+                throw new InvalidDataException("min order < 0");
+            
+            var max = orders.Max();
+            if (max >= metaFieldInfos.Count())
+                throw new InvalidDataException("max order > total count");
+
+            if (metaFieldInfos.Count() != metaFieldInfos.Distinct().Count())
+                throw new InvalidDataException("order duplicates");
+        }
+
+
         public RequestSetupBase GetMetaParams() {
             var type = typeof (T);
             if (FieldCache.ContainsKey(type)) return FieldCache[type];
             var result = Parse(type);
+            ValidateFields(result.FieldInfo);
             FieldCache[type] = result;
             return result;
         }
@@ -51,7 +72,8 @@ namespace DataProvider.Loaders.Metadata {
                     MetaFieldName = fieldAttr.Name,
                     VariableType = property.PropertyType,
                     VariableName = property.Name,
-                    Order = fieldAttr.Order
+                    Order = fieldAttr.Order,
+                    Converter = fieldAttr.Converter
                 });
 
             res.FieldInfo = fieldInfo.ToArray();
