@@ -2,11 +2,19 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ym="clr-namespace:YieldMapUI;assembly=YieldMapUI"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="350" Width="525" WindowStyle="None">
     <Window.Background>
         <SolidColorBrush Color="#1D1D1D"/>
     </Window.Background>
-    <Grid>
-        <ym:MainControl HorizontalAlignment="Left"  VerticalAlignment="Top" Height="311" Width="503" />
-    </Grid>
+    <StackPanel>
+        <DockPanel Background="#FF2D2D30">
+            <Button MaxWidth="60" DockPanel.Dock="Left">Menu</Button>
+            <Button MaxWidth="60" DockPanel.Dock="Right">Close</Button>
+            <Button MaxWidth="60" DockPanel.Dock="Right">Max</Button>
+            <Button MaxWidth="60" DockPanel.Dock="Right">Min</Button>
+            <Label DockPanel.Dock="Top" Foreground="#FF879999">Thomson Reuters Yield Map</Label>
+        </DockPanel>
+        <Rectangle Fill="#FFCC7700" HorizontalAlignment="Stretch" Height="3" Margin="0,2"/>
+        <ym:MainControl/>
+    </StackPanel>
 </Window>

@@ -5,7 +5,6 @@ using DataProvider.Loaders.Status;
 using DataProvider.Objects;
 using LoggingFacility;
 using LoggingFacility.LoggingSupport;
-using StructureMap;
 using ThomsonReuters.Interop.RTX;
 using Toolbox;
 
@@ -37,10 +36,9 @@ namespace DataProvider.Loaders.Realtime {
         }
 
         // constructor
-        public AdfinSubscription(string feed, string mode, IEnumerable<string> rics, IEnumerable<string> fields, IContainer container) {
-            Logger = container.GetInstance<ILogger>();
-            _adxRtList = container.GetInstance<IEikonObjects>().CreateAdxRtList();
-            //_adxRtList = container.GetInstance<AdxRtList>();
+        public AdfinSubscription(string feed, string mode, IEnumerable<string> rics, IEnumerable<string> fields, ILogger logger, IEikonObjects objects) {
+            Logger = logger;
+            _adxRtList = objects.CreateAdxRtList();
             _feed = feed;
             _mode = mode;
             _rics = rics;
