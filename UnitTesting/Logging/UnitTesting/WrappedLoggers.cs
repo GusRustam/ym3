@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using LoggingFacility;
 using LoggingFacility.Loggers;
 
-namespace LoggingFacilityTest.UnitTesting {
+namespace UnitTesting.Logging.UnitTesting {
     public class WrappedLoggers : IEnumerable<object[]> {
         private readonly List<object[]> _data = new List<object[]> {
             new object[] { new LoggerWrapper(new ConsoleLogger(Level.Info, "Vova")) },

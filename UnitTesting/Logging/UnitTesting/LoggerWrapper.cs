@@ -2,7 +2,7 @@
 using LoggingFacility;
 using LoggingFacility.Loggers;
 
-namespace LoggingFacilityTest.UnitTesting {
+namespace UnitTesting.Logging.UnitTesting {
     public class LoggerWrapper : LoggerBase {
         private readonly ILogger _logger;
         public event Action<Level, string, Exception> Logged;

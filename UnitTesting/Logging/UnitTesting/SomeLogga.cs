@@ -1,10 +1,9 @@
 ﻿using LoggingFacility;
 using LoggingFacility.LoggingSupport;
 
-namespace LoggingFacilityTest.UnitTesting {
-    //[LoggerName(typeof(SomeAnnotatedLogga))]
-    class SomeAnnotatedLogga : ISupportsLogging {
-        public SomeAnnotatedLogga(ILogger logger) {
+namespace UnitTesting.Logging.UnitTesting {
+    class SomeLogga : ISupportsLogging {
+        public SomeLogga(ILogger logger) {
             Logger = logger;
         }
 

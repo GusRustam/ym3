@@ -3,7 +3,7 @@ using Connect;
 using ContainerAgent;
 using NUnit.Framework;
 
-namespace ConnectionTest {
+namespace IntegrationTesting.Connection {
     [TestFixture]
     public class EikonConnectionTest {
 

@@ -9,7 +9,7 @@ using DataProvider.Loaders.Status;
 using NUnit.Framework;
 using Toolbox;
 
-namespace DataProviderTest {
+namespace IntegrationTesting.Data {
     [TestFixture]
     public class FieldsTest {
         private int _onImages;
@@ -173,7 +173,7 @@ namespace DataProviderTest {
                 Console.WriteLine("Update with source status {0} and list status {1}", upd.SourceStatus, upd.ListStatus);
 
                 if (data.Any())
-                    Console.WriteLine("Got update on ric {0}", data.First().Ric);
+                    Console.WriteLine((string) "Got update on ric {0}", (object) data.First().Ric);
                 else
                     Console.WriteLine("No rics :(");
             });

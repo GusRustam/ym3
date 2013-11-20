@@ -2,12 +2,12 @@
 using LoggingFacility;
 using LoggingFacility.Loggers;
 using LoggingFacility.LoggingSupport;
-using LoggingFacilityTest.UnitTesting;
 using Moq;
+using UnitTesting.Logging.UnitTesting;
 using Xunit;
 using Xunit.Extensions;
 
-namespace LoggingFacilityTest {
+namespace UnitTesting.Logging {
     public class LoggerUnitTest {
         [Fact]
         public void MessageFiltersOut() {

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using Connect;
 using ContainerAgent;
@@ -8,7 +7,7 @@ using DataProvider.Loaders.History.Data;
 using NUnit.Framework;
 using Toolbox.Async;
 
-namespace DataProviderTest {
+namespace IntegrationTesting.Data {
     [TestFixture]
     public class HistoryTest {
         private struct Counts {
@@ -122,9 +121,9 @@ namespace DataProviderTest {
                 .WithNumRecords(30)
                 .WithHistory(historyContainer => {
                     Console.WriteLine("History!");
-                    l.Rics = historyContainer.Slice1().Count();
-                    l.Fields = historyContainer.Slice3().Count();
-                    l.Dates = historyContainer.Slice2().Count();
+                    l.Rics = historyContainer.Slice1().Length;
+                    l.Fields = historyContainer.Slice3().Length;
+                    l.Dates = historyContainer.Slice2().Length;
                     Console.WriteLine("Rics: {0}; Dates: {1}; Fields: {2}", l.Rics, l.Dates, l.Fields);
 
 
@@ -147,7 +146,7 @@ namespace DataProviderTest {
                 });
 
 
-            var req = prms.Rics.Count() == 1 ?
+            var req = prms.Rics.Length == 1 ?
                 babushka.Subscribe(prms.Rics[0]) :
                 babushka.Subscribe(prms.Rics);
 

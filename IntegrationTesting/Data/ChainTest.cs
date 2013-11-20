@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using Connect;
 using ContainerAgent;
@@ -11,7 +10,7 @@ using DataProvider.Loaders.Chain;
 using NUnit.Framework;
 using Toolbox.Async;
 
-namespace DataProviderTest {
+namespace IntegrationTesting.Data {
     [TestFixture]
     public class ChainTest {
         public class Counts {
@@ -274,7 +273,7 @@ namespace DataProviderTest {
 
                     foreach (var k in data.Records) {
                         chainss.Add(k.ChainRic);
-                        var count = k.Rics.Count();
+                        var count = k.Rics.Count;
                         Console.WriteLine("Got data on chain {0}, {1} items", k.ChainRic, count);
                         l.RicsExactly += count;
                         l.ChainRics += 1;
@@ -320,7 +319,7 @@ namespace DataProviderTest {
             
             chn.WithFeed("IDN")
                 .WithRics("0#RUCORP=MM")
-                .WithChain(data => Console.WriteLine("Got data, {0} items", data.Records[0].Rics.Count()))
+                .WithChain(data => Console.WriteLine((string) "Got data, {0} items", (object) data.Records[0].Rics.Count))
                 .Subscribe()
                 .WithTimeout(TimeSpan.FromSeconds(5))
                 .Request();

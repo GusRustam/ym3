@@ -3,7 +3,7 @@ using ContainerAgent;
 using DataProvider.Objects;
 using NUnit.Framework;
 
-namespace ConnectionTest {
+namespace IntegrationTesting.Connection {
     [TestFixture]
     public class CreationTest {
         

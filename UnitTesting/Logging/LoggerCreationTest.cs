@@ -1,10 +1,10 @@
 ﻿using ContainerAgent;
 using LoggingFacility;
 using LoggingFacility.Loggers;
-using LoggingFacilityTest.UnitTesting;
+using UnitTesting.Logging.UnitTesting;
 using Xunit;
 
-namespace LoggingFacilityTest {
+namespace UnitTesting.Logging {
     public class LoggerCreationTest {
         [Fact]
         public void CreateLogger() {
