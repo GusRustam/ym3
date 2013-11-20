@@ -319,7 +319,7 @@ namespace IntegrationTesting.Data {
             
             chn.WithFeed("IDN")
                 .WithRics("0#RUCORP=MM")
-                .WithChain(data => Console.WriteLine((string) "Got data, {0} items", (object) data.Records[0].Rics.Count))
+                .WithChain(data => Console.WriteLine("Got data, {0} items", data.Records[0].Rics.Count))
                 .Subscribe()
                 .WithTimeout(TimeSpan.FromSeconds(5))
                 .Request();
