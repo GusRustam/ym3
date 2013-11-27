@@ -95,6 +95,7 @@ namespace DataProvider.Loaders.Chain {
 
             protected override void Finish() {
                 this.Trace("Success()");
+                _res.Status = TimeoutStatus.Ok;
                 if (_setup.Callback != null)
                     _setup.Callback(_res);
             }

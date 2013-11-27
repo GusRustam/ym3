@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<main xmlns="http://www.thomsonreuters.com/yield-map/general"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.thomsonreuters.com/yield-map/general configuration.xsd">
+ <tags>
+  <tag id="1" name="ru" description="Russian Federation"/>
+  <tag id="2" name="micex" description="Bonds traded on MICEX"/>
+  <tag id="3" name="rub" description="Currency of Russian Federation"/>
+  <tag id="4" name="cis" description="Commonwealth of Independent States"/>  
+ </tags>
+
+ <fields>
+  <field id="1" name="micex" priority="1" rule="=MM$" bid="BID" ask="ASK" last="LAST" hist="CF_CLOSW" vwap="VWAP" volume="CF_VOLUME" hist-date="CF_DATE"/>
+  <field id="2" name="euro" priority="2" bid="393" ask="275"/>
+ </fields>
+
+ <sources>
+  <bonds>
+   <source id="1" name="OFZ" tags="ru cis rub micex govt">
+    <chain ric="0#RUTSY=MM" filter=""/>       
+   </source>
+   <source id="2" name="Corporates" tags="ru cis rub micex corp">
+    <chain ric="0#RUCORP=MM"/>
+   </source>
+   <source id="6" name="Russian banks and financials" tags="ru cis rub micex banks">
+    <chain ric="0#RUBNK=MM"/>
+   </source>
+   <source id="3" name="VEB" tags="ru cis rub bank corp issuer">
+    <ref ref="6" filter="$ShortName LIKE &quot;^Vneshekonom&quot; AND $Currency = &quot;RUB&quot;"/>
+   </source>
+   <source id="4" name="VTB" tags="ru cis rub bank crop issuer">
+    <chain ric="0#RUBNK=MM" filter="$IssuerName Like &quot;VTB&quot; AND $Currency = &quot;RUB&quot;"/>
+   </source>
+   <source id="5" name="City of Moscow" tags="ru rub micex muni issuer">
+    <chain ric="0#RUMOSB=MM"/>
+   </source>
+   <source id="7" name="All municipal bonds" tags="ru cis rub micex muni">
+    <chain ric="0#RUSOVB=MM"/>
+   </source>
+   <source id="8" name="Uk curve" tags="emea uk govt gbp">
+    <chain ric="0#GBBMK="/>
+   </source>
+   <source id="9" name="Euro curve" tags="emea europe eur govt">
+    <chain ric="0#GBBMK="/>
+   </source>
+   <source id="10" name="China curve" tags="asia china cny govt">
+    <chain ric="0#CNBMK="/>
+   </source>
+   <source id="11" name="Japan curve" tags="asia japan jpy govt">
+    <chain ric="0#JPBMK="/>
+   </source>
+   <source id="12" name="Brazil global curve" tags="latam brazil usd govt">
+    <chain ric="0#BRGLBBMK="/>
+   </source>
+   <source id="13" name="Panama global curve" tags="latam panama usd govt">
+    <chain ric="0#PAGLBBMK="/>
+   </source>
+   <source id="14" name="Panama eurobonds" tags="latam panama corp eurobonds">
+    <chain ric="0#PAEUROSAZ="/>
+   </source>
+   <source id="15" name="Colombia global curve" tags="latam colombia usd govt">
+    <chain ric="0#COGLBBMK="/>
+   </source>
+   <source id="16" name="Colombia eurobonds" tags="latam colombia corp eurobonds">
+    <chain ric="0#COEUROSAZ="/>
+   </source>
+   <source id="17" name="Mexico global curve" tags="latam mexico usd govt">
+    <chain ric="0#MXGLBBMK="/>
+   </source>
+   <source id="18" name="Mexico eurobonds" tags="latam mexico corp eurobonds">
+    <chain ric="0#MXEUROSAZ="/>
+   </source>
+   <source id="19" name="Belarus eurobonds" tags="cis blr corp eurobonds">
+    <chain ric="0#BYEUROSAZ="/>
+   </source>
+   <source id="20" name="Ukraine eurobonds" tags="cis ukr corp eurobonds">
+    <chain ric="0#UAEUROSAZ="/>
+   </source>
+   <source id="21" name="Kazakhstan eurobonds" tags="cis kz corp eurobonds">
+    <chain ric="0#KZEUROSAZ="/>
+   </source>
+   <source id="22" name="Azerbaijan eurobonds" tags="cis az corp eurobonds">
+    <chain ric="0#AZEUROSAZ="/>
+   </source>
+   <source id="23" name="Russian government eurobonds" tags="cis ru govt eurobonds">
+    <chain ric="0#RFGOVBONDS="/>
+   </source>
+   <source id="24" name="Russian MICEX aero bonds" tags="cis ru micex corp rub sector">
+    <chain ric="0#RUAER=MM"/>
+   </source>
+   <source id="25" name="Russian MICEX auto bonds" tags="cis ru micex corp rub sector">
+    <chain ric="0#RUAUT=MM"/>
+   </source>
+   <source id="26" name="Turkey eurobonds" tags="emea turk corp eurobonds">
+    <chain ric="0#TREUROSAZ="/>
+   </source>
+   <source id="27" name="Turkey curve" tags="emea turk govt try">
+    <chain ric="0#TREUROSAZ="/>
+   </source>  
+   <source id="28" name="South africa curve" tags="emea africa govt zar">
+    <chain ric="0#ZATSY="/>
+   </source>  
+   <source id="29" name="Russian eurobonds" tags="ru cis corp eurobonds">
+    <chain ric="0#RUEUROS="/>
+   </source>
+   <source id="30" name="United states curve" tags="amers usa usd govt">
+    <chain ric="0#USBMK="/>
+   </source> 
+   <source id="31" name="United states curve (Tradeweb)" tags="amers usa usd govt contrib tweb">
+    <chain ric="0#USBMK=TWEB"/>
+   </source>
+   <source id="33" name="United states 1Y strips" tags="amers usa usd govt strips">
+    <chain ric="0#US1YT=PX"/>
+   </source>
+   <source id="34" name="United states 2Y strips" tags="amers usa usd govt strips">
+    <chain ric="0#US2YSTRIP=PX"/>
+   </source>
+   <source id="39" name="United states 3Y strips" tags="amers usa usd govt strips">
+    <chain ric="0#US3YSTRIP=PX"/>
+   </source>
+   <source id="35" name="United states 5Y strips" tags="amers usa usd govt strips">
+    <chain ric="0#US5YSTRIP=PX"/>
+   </source>
+   <source id="36" name="United states 7Y strips" tags="amers usa usd govt strips">
+    <chain ric="0#US7YSTRIP=PX"/>
+   </source>
+   <source id="37" name="United states 10Y strips" tags="amers usa usd govt strips">
+    <chain ric="0#US10YSTRIP=PX"/>
+   </source>
+   <source id="38" name="United states 30Y strips" tags="amers usa usd govt strips">
+    <chain ric="0#US30YSTRIP=PX"/>
+   </source>
+   <source id="40" name="United states all strips"  tags="amers usa usd govt strips">
+    <set type="union">
+     <ref ref="33"/>
+     <ref ref="34"/>
+     <ref ref="39"/>
+     <ref ref="35"/>
+     <ref ref="36"/>
+     <ref ref="37"/>
+     <ref ref="38"/>
+    </set>
+   </source>
+   <source id="41" name="Ukraine eurobonds (Dragon capital)" tags="cis ukr eurobonds contrib dragon">
+    <chain ric="0#EURO=DRGN"/>
+   </source>
+   <source id="42" name="Cis eurobonds (Sberbank capital)" tags="cis kz blr az eurobonds contrib sber">
+    <chain ric="0#EURO=DRGN"/>
+   </source>
+   <source id="43" name="Georgia eurobonds" tags="cis georgia eurobonds">
+    <chain ric="0#GEEUROSAZ="/>
+   </source>
+   <source id="44" name="VEB Eurobonds" tags="rus usd issuer bank eurobonds">
+    <chain ric="0#RUEUROS=" filter="$Currency = &quot;USD&quot; AND $IssuerName = &quot;VEB FINANCE PLC&quot;"/>
+   </source>
+   <source id="45" name="VTB Eurobonds" tags="rus usd issuer bank eurobonds">
+    <chain ric="0#RUEUROS=" filter="$Currency = &quot;USD&quot; AND $IssuerName = &quot;VTB CAPITAL SA&quot;"/>
+   </source>
+   <source id="46" name="Sber Eurobonds" tags="rus usd issuer bank eurobonds">
+    <chain ric="0#RUEUROS=" filter="$IssuerName = &quot;SB CAPITAL SA&quot; AND $Currency = &quot;USD&quot;"/>
+   </source>
+   <source id="47" name="Rshb Eurobonds" tags="rus usd issuer bank eurobonds">
+    <chain ric="0#RUEUROS=" filter="$IssuerName LIKE &quot;^RSHB&quot; AND $Currency = &quot;USD&quot;"/>
+   </source> 
+   <source id="48" name="Alfa Eurobonds" tags="rus usd issuer bank eurobonds">
+    <chain ric="0#RUEUROS=" filter="$IssuerName LIKE &quot;^ALFA&quot; AND $Currency = &quot;USD&quot;"/>
+   </source> 
+   <source id="49" name="Lukoil Eurobonds" tags="rus usd issuer oil-gas eurobonds">
+    <chain ric="0#RUEUROS=" filter="$IssuerName LIKE &quot;LUKOIL&quot; AND $Currency = &quot;USD&quot;"/>
+   </source>    
+   <source id="50" name="Rosneft Eurobonds" tags="rus usd issuer oil-gas eurobonds">
+    <chain ric="0#RUEUROS=" filter="$Currency = &quot;USD&quot; AND $IssuerName LIKE &quot;^ROSN&quot;"/>
+   </source> 
+   <source id="51" name="Gazprom Usd Eurobonds" tags="rus usd issuer oil-gas eurobonds">
+    <chain ric="0#RUEUROS=" filter="$Currency = &quot;USD&quot; AND $IssuerName LIKE &quot;GAZ&quot;"/>
+   </source>    
+   <source id="52" name="Gazprom Eur Eurobonds" tags="rus eur issuer oil-gas eurobonds">
+    <chain ric="0#RUEUROS=" filter="$Currency = &quot;EUR&quot; AND $IssuerName LIKE &quot;GAZ&quot;"/>
+   </source>    
+  </bonds>
+  
+  <custom-bonds>
+   <!-- 
+    1) coupon has to be determined on the run!!!!
+    2) other variables might be any variable from metadata
+    including issuer name, rating, issue date and so on
+    "issuerName" : "",
+    "issue" : "01JAN2010"
+   -->
+   <custom-bond id="1" name="Russia '23" isin="Russia23">
+    <![CDATA[
+     {
+      "structure" : "ACC:A5 IC:L1 CLDR:EMU_FI SETTLE:0WD CFADJ:NO DMC:FOLLOWING EMC:LASTDAY FRQ:182D PX:CLEAN REFDATE:MATURITY RATE:0.0488",
+      "maturity"  : "16SEP2023"
+     }
+    ]]>
+   </custom-bond>   
+   
+   <!-- 
+    using variables and expressions look nice
+    but syntax might be confusing
+    and I cannot imagine a builder for such structures
+    
+    It could look like something like this
+    <custom-bond>
+    <params>
+     <param name="calendar" value="RUS_FI"/>
+     <param name="date" value="TODAY()"/>
+     <param name="term" value="1Y"/>
+     <param name="change-date" value="6M"/>
+     <param name="coupon" value="0.06"/>
+     <param name="maturity" value="{$date + [1Y]}"/> 
+    </params>
+    <metadata>
+     <![CDATA[
+     {
+      "structure" : "ACC:A5 IC:L1 CLDR:${calendar} 
+                     SETTLE:0WD CFADJ:NO DMC:FOLLOWING 
+                     EMC:LASTDAY FRQ:2 PX:CLEAN REFDATE:MATURITY 
+                     RATE:0.06 
+                     AMORT:${step-date}:0.2 
+                     AMORT:${maturity}:0.8 
+                     STEP:${step-date}:0.14",
+      "maturity"  : "30SEP2020",
+      "coupon"    : "0.06"
+     }
+    ]]>
+    </metadata>
+   </custom-bond>
+   But it is too complex and not really obvious
+   -->
+   
+   <custom-bond isin="Russia19" id="2" name="Russia '19">
+    <![CDATA[
+     {
+      "maturity"  :  "16SEP2019",
+      "structure" : "ACC:A5 IC:L1 CLDR:EMU_FI SETTLE:0WD CFADJ:NO DMC:FOLLOWING EMC:LASTDAY FRQ:182D PX:CLEAN REFDATE:MATURITY RATE:0.035"
+     }
+    ]]>
+   </custom-bond>
+   
+   <custom-bond isin="Gazprom7YGBP" id="3" name="Gazprom 7Y GBP">
+    <![CDATA[
+     {
+      "maturity"  :  "20SEP2020",
+      "structure" : "ACC:A5 IC:L1 CLDR:UKG_FI SETTLE:0WD CFADJ:NO DMC:FOLLOWING EMC:LASTDAY FRQ:2.00 PX:CLEAN REFDATE:MATURITY RATE:0.06"
+     }
+    ]]>
+   </custom-bond>
+   
+   <custom-bond isin="AmortTest" id="3" name="Some Bond '20">
+    <![CDATA[
+     {
+      "maturity"  :  "30SEP2020",
+      "structure" : "ACC:A5 IC:L1 CLDR:RUS_FI SETTLE:0WD CFADJ:NO DMC:FOLLOWING EMC:LASTDAY FRQ:2 PX:CLEAN REFDATE:MATURITY RATE:0.06 AMORT:23JUL2013:0.2 AMORT:01JAN2014:0.8 STEP:01SEP2013:0.14"
+     }
+    ]]>
+   </custom-bond>
+  </custom-bonds>
+  
+  <!-- 1) Interest rate swaps --> 
+  <!-- todo: fix/fix; fix/float; float/float -->
+  <!-- todo: which index -->
+  <irss>
+   <irs currency="RUB" chain="RUBIRS" ric="(currency)(??)(term-float)(abbr-float)(term-fix)"/> <!-- RUB AM 3 MO 3Y -->
+   <irs currency="RUB" chain="EURIRS" ric="(currency)(??)(term-float)(abbr-float)(term-fix)"/> <!-- EUR AB 6 E 18M -->
+   <irs currency="RUB" chain="EUR1MIRS" ric="(currency)(??)(term-float)(abbr-float)(term-fix)"/> <!-- EUR AM 1 E 6M -->
+   <irs currency="RUB" chain="EUR3MIRS" ric="(currency)(??)(term-float)(abbr-float)(term-fix)"/> <!-- EUR AB 3 E 18M -->
+   <irs currency="RUB" chain="USDIRS" ric="(currency)(??)(term-float)(abbr-float)(term-fix)"/> <!-- USD AM 3 L 3Y= --> 
+   <irs currency="RUB" chain="NOKIRS" ric="(currency)(??)(term-float)(abbr-float)(term-fix)"/> <!-- NOK AB 6 O 5Y= --> 
+   <irs></irs>
+  </irss>
+
+  <!-- 2) Cross currency swaps --> 
+  <ccss>
+   <ccs chain="RUBCCS" ric="(c1)(c2)(??)(term-float)(term-fix)"/> <!-- RU US AM 3L 3Y -->
+  </ccss>
+
+  <!-- 3) Depo curves - what the hell is that -->
+  <!-- These are the curves already quoted in yields (or even in some other plottable representations) -->
+  <!-- For each we have to specify what are the units and what are the fields we should look at -->
+  <depos>
+   <!-- USDOIS -->
+   <!-- RUBDEPO= -->
+   <!-- USDDEPO= -->
+   <!-- 0#NOKD= -->
+   <!-- 0#RUBIRSZ=R -->
+   <!-- 0#RUBCCSZ=R -->
+   <!-- 0#NOKZ=R -->
+   <!-- 0#RUXZ=MM -->
+   <depo></depo>
+  </depos>
+
+  <!-- 4) Forward rate agreements --> 
+  <fras>
+   <fra currency="RUB" chain="RUBFRA" ric="(currency)(t1)X(t2)"></fra>
+   <fra currency="EUR" chain="EURFRA" ric="(currency)(t1)X(t2)"></fra>
+   <fra currency="USD" chain="USDFRA" ric="(currency)(t1)X(t2)"></fra>
+   <fra currency="NOK"  chain="NOKFRA" ric="(currency)(t1)F(t2)"></fra>
+  </fras>
+
+  <!-- 5) Currency forwards --> 
+  <ndfs>   
+   <ndf chain="RUBID=" ric="(currency)(term)ID=" from="RUB" to="USD">
+    <fields bid="22" aks="25"/>
+   </ndf>
+   <ndf chain="0#NOKF=" ric="(currency)(term)" from="NOK" to="USD" quote="points"/>
+  </ndfs>
+
+  <!-- 6) Credit default swaps --> 
+  <!-- CDSINDEX -->
+  <cdss>
+   <cds></cds>
+  </cdss>
+ </sources>
+ 
+ <!-- 7) Basis swaps -->
+ <!-- RUBCBS -->
+ <!-- EURCBS= -->
+ 
+ <!-- Overnight index swaps ??? -->
+ 
+ <views></views>
+</main>

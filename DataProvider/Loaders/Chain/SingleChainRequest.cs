@@ -115,7 +115,8 @@ namespace DataProvider.Loaders.Chain {
 
             protected override void Finish() {
                 lock (LockObj) {
-                    this.Trace(string.Format("Success(rics: {0})", _res.Records.Any() ? _res.Records.First().Rics.Count() : 0)); 
+                    this.Trace(string.Format("Success(rics: {0})", _res.Records.Any() ? _res.Records.First().Rics.Count() : 0));
+                    _res.Status = TimeoutStatus.Ok;
                     if (_setup.Callback != null)
                         _setup.Callback(_res);
                 }

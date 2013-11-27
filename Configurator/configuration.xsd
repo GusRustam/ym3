@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+    targetNamespace="http://www.thomsonreuters.com/yield-map/general"
+    xmlns:gs="http://www.thomsonreuters.com/yield-map/general">
+    <xs:element name="main" type="gs:main">
+        <xs:unique name="uniqueId">
+            <xs:selector xpath=".//gs:source"/>
+            <xs:field xpath="@id"/>
+        </xs:unique>
+    </xs:element>
+    <xs:complexType name="main">
+        <xs:sequence>
+            <xs:element minOccurs="1" name="tags" type="gs:tags"/>
+            <xs:element name="fields" type="gs:fields"/>
+            <xs:element minOccurs="1" name="sources" type="gs:all-sources"> </xs:element>
+            <xs:element minOccurs="1" name="views" type="gs:views"> </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="tags">
+        <xs:sequence maxOccurs="unbounded" minOccurs="0">
+            <xs:element name="tag">
+                <xs:complexType>
+                    <xs:attributeGroup ref="gs:anchor"/>
+                    <xs:attribute name="description" type="xs:string" use="required"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="fields">
+        <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="1" name="field">
+                <xs:complexType>
+                    <xs:attributeGroup ref="gs:anchor"/>
+                    <xs:attributeGroup ref="gs:fields"/>
+                    <xs:attribute name="priority" use="required"/>
+                    <xs:attribute name="rule"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="all-sources">
+        <xs:sequence>
+            <xs:choice maxOccurs="unbounded">
+                <xs:element name="bonds" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence maxOccurs="unbounded">
+                            <xs:element name="source" type="gs:bond-source"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element minOccurs="0" name="custom-bonds">
+                    <xs:complexType>
+                        <xs:sequence maxOccurs="unbounded">
+                            <xs:element name="custom-bond">
+                                <xs:complexType mixed="true">
+                                    <xs:attribute name="isin" type="xs:token" use="required"/>
+                                    <xs:attributeGroup ref="gs:tagged"/>
+                                    <xs:attributeGroup ref="gs:anchor"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element minOccurs="0" name="irss">
+                    <xs:complexType>
+                        <xs:sequence maxOccurs="unbounded">
+                            <xs:element name="irs"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element minOccurs="0" name="ndfs">
+                    <xs:complexType>
+                        <xs:sequence maxOccurs="unbounded">
+                            <xs:element name="ndf"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element minOccurs="0" name="fras">
+                    <xs:complexType>
+                        <xs:sequence maxOccurs="unbounded">
+                            <xs:element name="fra"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element minOccurs="0" name="ccss">
+                    <xs:complexType>
+                        <xs:sequence maxOccurs="unbounded">
+                            <xs:element name="ccs"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element minOccurs="0" name="cdss">
+                    <xs:complexType>
+                        <xs:sequence maxOccurs="unbounded">
+                            <xs:element name="cds"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element minOccurs="0" name="depos">
+                    <xs:complexType>
+                        <xs:sequence maxOccurs="unbounded">
+                            <xs:element name="depo"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:choice>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="bond-source">
+        <xs:choice>
+            <xs:element name="chain" minOccurs="1" type="gs:bond-chain"> </xs:element>
+            <xs:element name="list" minOccurs="1" type="gs:bond-list"> </xs:element>
+            <xs:element name="ref" maxOccurs="1" minOccurs="1">
+                <xs:complexType>
+                    <xs:attributeGroup ref="gs:filterable"/>
+                    <xs:attributeGroup ref="gs:reference"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="set">
+                <xs:complexType>
+                    <xs:complexContent>
+                        <xs:extension base="gs:bond-sub-source">
+                            <xs:attributeGroup ref="gs:filterable"/>
+                            <xs:attribute form="unqualified" name="type" type="gs:set-type-enum"
+                                use="required"/>
+                        </xs:extension>
+                    </xs:complexContent>
+                </xs:complexType>
+            </xs:element>
+        </xs:choice>
+        <xs:attributeGroup ref="gs:anchor"/>
+        <xs:attributeGroup ref="gs:tagged"/>
+    </xs:complexType>
+    <xs:complexType name="bond-sub-source">
+        <xs:sequence maxOccurs="unbounded">
+            <xs:choice>
+                <xs:element name="ref" maxOccurs="1" minOccurs="0">
+                    <xs:complexType>
+                        <xs:attributeGroup ref="gs:filterable"/>
+                        <xs:attributeGroup ref="gs:reference"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="list" maxOccurs="1" minOccurs="0" type="gs:bond-list"> </xs:element>
+                <xs:element name="chain" maxOccurs="1" minOccurs="0" type="gs:bond-chain"
+                > </xs:element>
+            </xs:choice>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="bond-chain">
+        <xs:attributeGroup ref="gs:filterable"/>
+        <xs:attribute name="ric" type="xs:token" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="bond-list">
+        <xs:attributeGroup ref="gs:filterable"/>
+        <xs:attribute name="rics" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="views">
+        <xs:sequence>
+            <xs:element minOccurs="0" name="charts">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="chart">
+                            <xs:complexType>
+                                <xs:attribute name="row" type="xs:int"/>
+                                <xs:attribute name="title" type="xs:string"/>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element minOccurs="0" name="sources">
+                <xs:complexType>
+                    <xs:sequence maxOccurs="unbounded">
+                        <xs:element name="source"> </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element minOccurs="0" name="calculations"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:attributeGroup name="fields">
+        <xs:attribute name="bid"/>
+        <xs:attribute name="ask"/>
+        <xs:attribute name="last"/>
+        <xs:attribute name="hist"/>
+        <xs:attribute name="vwap"/>
+        <xs:attribute name="volume"/>
+        <xs:attribute name="hist-date"/>
+    </xs:attributeGroup>
+    <xs:attributeGroup name="tagged">
+        <xs:attribute name="tags">
+            <xs:simpleType>
+                <xs:list itemType="xs:token"/>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:attributeGroup>
+    <xs:attributeGroup name="filterable">
+        <xs:attribute name="filter" type="xs:string"/>
+    </xs:attributeGroup>
+    <xs:attributeGroup name="anchor">
+        <xs:attribute name="id" type="xs:long" use="required"/>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:attributeGroup>
+    <xs:attributeGroup name="reference">
+        <xs:attribute name="ref" type="xs:long" use="required"/>
+        <xs:attribute name="type" type="gs:reference-type-enum"/>
+    </xs:attributeGroup>
+    <xs:simpleType name="reference-type-enum">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="local"/>
+            <xs:enumeration value="global"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="set-type-enum">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="union"/>
+            <xs:enumeration value="intersect"/>
+            <xs:enumeration value="subtract"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

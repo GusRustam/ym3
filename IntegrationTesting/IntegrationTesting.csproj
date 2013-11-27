@@ -89,6 +89,7 @@
     <Compile Include="Data\HistoryTest.cs" />
     <Compile Include="Data\MetadataTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tools\ChainLoader\Loader.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
