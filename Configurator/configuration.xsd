@@ -64,42 +64,87 @@
                 <xs:element minOccurs="0" name="irss">
                     <xs:complexType>
                         <xs:sequence maxOccurs="unbounded">
-                            <xs:element name="irs"/>
+                            <xs:element name="irs">
+                                <xs:complexType>
+                                    <xs:complexContent>
+                                        <xs:extension base="gs:instrument">
+                                            <xs:attributeGroup ref="gs:single-currency"/>
+                                            <xs:attributeGroup ref="gs:chain-instrument"/>
+                                        </xs:extension>
+                                    </xs:complexContent>
+                                </xs:complexType>
+                            </xs:element>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
                 <xs:element minOccurs="0" name="ndfs">
                     <xs:complexType>
                         <xs:sequence maxOccurs="unbounded">
-                            <xs:element name="ndf"/>
+                            <xs:element name="ndf">
+                                <xs:complexType>
+                                    <xs:complexContent>
+                                        <xs:extension base="gs:instrument">
+                                            <xs:attributeGroup ref="gs:chain-instrument"/>
+                                            <xs:attributeGroup ref="gs:dual-currency"/>
+                                        </xs:extension>
+                                    </xs:complexContent>
+                                </xs:complexType>
+                            </xs:element>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
                 <xs:element minOccurs="0" name="fras">
                     <xs:complexType>
                         <xs:sequence maxOccurs="unbounded">
-                            <xs:element name="fra"/>
+                            <xs:element name="fra">
+                                <xs:complexType>
+                                    <xs:complexContent>
+                                        <xs:extension base="gs:instrument">
+                                            <xs:attributeGroup ref="gs:single-currency"/>
+                                            <xs:attributeGroup ref="gs:chain-instrument"/>
+                                        </xs:extension>
+                                    </xs:complexContent>
+                                </xs:complexType>
+                            </xs:element>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
                 <xs:element minOccurs="0" name="ccss">
                     <xs:complexType>
                         <xs:sequence maxOccurs="unbounded">
-                            <xs:element name="ccs"/>
+                            <xs:element name="ccs">
+                                <xs:complexType>
+                                    <xs:complexContent>
+                                        <xs:extension base="gs:instrument">
+                                            <xs:attributeGroup ref="gs:dual-currency"/>
+                                            <xs:attributeGroup ref="gs:chain-instrument"/>
+                                        </xs:extension>
+                                    </xs:complexContent>
+                                </xs:complexType>
+                            </xs:element>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
                 <xs:element minOccurs="0" name="cdss">
                     <xs:complexType>
                         <xs:sequence maxOccurs="unbounded">
-                            <xs:element name="cds"/>
+                            <xs:element name="cds">
+                                <xs:complexType>
+                                    <xs:complexContent>
+                                        <xs:extension base="gs:instrument">
+                                            <xs:attributeGroup ref="gs:chain-instrument"/>
+                                            <xs:attributeGroup ref="gs:single-currency"/>
+                                        </xs:extension>
+                                    </xs:complexContent>
+                                </xs:complexType>
+                            </xs:element>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
                 <xs:element minOccurs="0" name="depos">
                     <xs:complexType>
                         <xs:sequence maxOccurs="unbounded">
-                            <xs:element name="depo"/>
+                            <xs:element name="depo" type="gs:all-sources"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
@@ -154,6 +199,28 @@
         <xs:attributeGroup ref="gs:filterable"/>
         <xs:attribute name="rics" type="xs:string" use="required"/>
     </xs:complexType>
+    <xs:complexType name="instrument">
+        <xs:sequence minOccurs="0">
+            <xs:choice>
+                <xs:element name="fields">
+                    <xs:complexType>
+                        <xs:attributeGroup ref="gs:fields"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element minOccurs="0" name="rics">
+                    <xs:complexType>
+                        <xs:sequence maxOccurs="unbounded" minOccurs="1">
+                            <xs:element name="ric">
+                                <xs:complexType>
+                                    <xs:attribute name="name" type="xs:token"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:choice>
+        </xs:sequence>
+    </xs:complexType>
     <xs:complexType name="views">
         <xs:sequence>
             <xs:element minOccurs="0" name="charts">
@@ -178,6 +245,18 @@
             <xs:element minOccurs="0" name="calculations"/>
         </xs:sequence>
     </xs:complexType>
+    <xs:attributeGroup name="chain-instrument">
+        <xs:attribute name="chain" type="xs:token"/>
+        <xs:attribute name="structure" type="xs:string"/>
+        <xs:attribute name="ric" type="xs:string"/>
+    </xs:attributeGroup>
+    <xs:attributeGroup name="single-currency">
+        <xs:attribute name="currency" type="xs:token"/>
+    </xs:attributeGroup>
+    <xs:attributeGroup name="dual-currency">
+        <xs:attribute name="from" type="xs:token"/>
+        <xs:attribute name="to" type="xs:token"/>
+    </xs:attributeGroup>
     <xs:attributeGroup name="fields">
         <xs:attribute name="bid"/>
         <xs:attribute name="ask"/>

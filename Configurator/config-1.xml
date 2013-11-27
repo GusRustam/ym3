@@ -262,18 +262,17 @@
   <!-- todo: fix/fix; fix/float; float/float -->
   <!-- todo: which index -->
   <irss>
-   <irs currency="RUB" chain="RUBIRS" ric="(currency)(??)(term-float)(abbr-float)(term-fix)"/> <!-- RUB AM 3 MO 3Y -->
-   <irs currency="RUB" chain="EURIRS" ric="(currency)(??)(term-float)(abbr-float)(term-fix)"/> <!-- EUR AB 6 E 18M -->
-   <irs currency="RUB" chain="EUR1MIRS" ric="(currency)(??)(term-float)(abbr-float)(term-fix)"/> <!-- EUR AM 1 E 6M -->
-   <irs currency="RUB" chain="EUR3MIRS" ric="(currency)(??)(term-float)(abbr-float)(term-fix)"/> <!-- EUR AB 3 E 18M -->
-   <irs currency="RUB" chain="USDIRS" ric="(currency)(??)(term-float)(abbr-float)(term-fix)"/> <!-- USD AM 3 L 3Y= --> 
-   <irs currency="RUB" chain="NOKIRS" ric="(currency)(??)(term-float)(abbr-float)(term-fix)"/> <!-- NOK AB 6 O 5Y= --> 
-   <irs></irs>
+   <irs currency="RUB" chain="RUBIRS" ric="(?&lt;term&gt;[0-9]+?[DWMY])" structure="RUB_AM3MO"/> <!-- RUB AM 3 MO 3Y -->
+   <irs currency="EUR" chain="EURIRS" ric="(?&lt;term&gt;[0-9]+?[DWMY])" structure="EUR_AB6E"/> <!-- EUR AB 6 E 18M -->
+   <irs currency="EUR" chain="EUR1MIRS" ric="(?&lt;term&gt;[0-9]+?[DWMY])" structure="EUR_AM1E"/> <!-- EUR AM 1 E 6M -->
+   <irs currency="EUR" chain="EUR3MIRS" ric="(?&lt;term&gt;[0-9]+?[DWMY])" structure="EUR_AB3E"/> <!-- EUR AB 3 E 18M -->
+   <irs currency="USD" chain="USDIRS" ric="(?&lt;term&gt;[0-9]+?[DWMY])" structure="USD_AM3L"/> <!-- USD AM 3 L 3Y= --> 
+   <irs currency="NOK" chain="NOKIRS" ric="(?&lt;term&gt;[0-9]+?[DWMY])" structure="NOK_AB6O"/> <!-- NOK AB 6 O 5Y= --> 
   </irss>
 
   <!-- 2) Cross currency swaps --> 
   <ccss>
-   <ccs chain="RUBCCS" ric="(c1)(c2)(??)(term-float)(term-fix)"/> <!-- RU US AM 3L 3Y -->
+   <ccs chain="RUBCCS" ric="(?&lt;term&gt;[0-9]+?[DWMY])" from="RUB" to="USD" structure=""/> <!-- RU US AM 3L 3Y -->
   </ccss>
 
   <!-- 3) Depo curves - what the hell is that -->
@@ -289,22 +288,57 @@
    <!-- 0#NOKZ=R -->
    <!-- 0#RUXZ=MM -->
    <depo></depo>
+
   </depos>
 
   <!-- 4) Forward rate agreements --> 
   <fras>
-   <fra currency="RUB" chain="RUBFRA" ric="(currency)(t1)X(t2)"></fra>
-   <fra currency="EUR" chain="EURFRA" ric="(currency)(t1)X(t2)"></fra>
-   <fra currency="USD" chain="USDFRA" ric="(currency)(t1)X(t2)"></fra>
-   <fra currency="NOK"  chain="NOKFRA" ric="(currency)(t1)F(t2)"></fra>
+   <fra currency="RUB" chain="RUBFRA" ric="(?&lt;start&gt;[0-9]+?)X(?&lt;end&gt;[0-9]+?)F"></fra>
+   <fra currency="EUR" chain="EURFRA" ric="(?&lt;start&gt;[0-9]+?)X(?&lt;end&gt;[0-9]+?)F"></fra>
+   <fra currency="USD" chain="USDFRA" ric="(?&lt;start&gt;[0-9]+?)X(?&lt;end&gt;[0-9]+?)F"></fra>
+   <fra currency="NOK"  chain="NOKFRA" ric="(?&lt;start&gt;[0-9]+?)F(?&lt;end&gt;[0-9]+?)"></fra>
   </fras>
 
   <!-- 5) Currency forwards --> 
   <ndfs>   
    <ndf chain="RUBID=" ric="(currency)(term)ID=" from="RUB" to="USD">
-    <fields bid="22" aks="25"/>
+    <fields bid="22" ask="25"/>
    </ndf>
-   <ndf chain="0#NOKF=" ric="(currency)(term)" from="NOK" to="USD" quote="points"/>
+   <ndf chain="0#NOKF=" ric="(currency)(term)" from="NOK" to="USD">
+    <rics>
+     <ric name="NOKONV="/>
+     <ric name="NOKTNV="/>
+     <ric name="NOKSNV="/>
+     <ric name="NOKSWV="/>
+     <ric name="NOK2WV="/>
+     <ric name="NOK3WV="/>
+     <ric name="NOK1MV="/>
+     <ric name="NOK2MV="/>
+     <ric name="NOK3MV="/>
+     <ric name="NOK4MV="/>
+     <ric name="NOK5MV="/>
+     <ric name="NOK6MV="/>
+     <ric name="NOK7MV="/>
+     <ric name="NOK8MV="/>
+     <ric name="NOK9MV="/>
+     <ric name="NOK10MV="/>
+     <ric name="NOK11MV="/>
+     <ric name="NOK1YV="/>
+     <ric name="NOK15MV="/>
+     <ric name="NOK18MV="/>
+     <ric name="NOK21MV="/>
+     <ric name="NOK1YV="/>
+     <ric name="NOK2YV="/>
+     <ric name="NOK3YV="/>
+     <ric name="NOK4YV="/>
+     <ric name="NOK5YV="/>
+     <ric name="NOK6YV="/>
+     <ric name="NOK7YV="/>
+     <ric name="NOK8YV="/>
+     <ric name="NOK9YV="/>
+     <ric name="NOK10YV="/>
+    </rics>
+   </ndf>
   </ndfs>
 
   <!-- 6) Credit default swaps --> 
@@ -312,13 +346,17 @@
   <cdss>
    <cds></cds>
   </cdss>
+  
+  
+  <!-- 7) Basis swaps -->
+  <!-- RUBCBS -->
+  <!-- EURCBS= -->
+  
+  <!-- Overnight index swaps ??? -->
+  
+  <!-- 8) Constant maturity swpas -->
  </sources>
- 
- <!-- 7) Basis swaps -->
- <!-- RUBCBS -->
- <!-- EURCBS= -->
- 
- <!-- Overnight index swaps ??? -->
+
  
  <views></views>
 </main>
