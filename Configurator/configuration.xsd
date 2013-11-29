@@ -132,8 +132,8 @@
                                 <xs:complexType>
                                     <xs:complexContent>
                                         <xs:extension base="gs:instrument">
-                                            <xs:attributeGroup ref="gs:chain-instrument"/>
                                             <xs:attributeGroup ref="gs:single-currency"/>
+                                            <xs:attributeGroup ref="gs:chain-instrument"/>
                                         </xs:extension>
                                     </xs:complexContent>
                                 </xs:complexType>
@@ -144,7 +144,16 @@
                 <xs:element minOccurs="0" name="depos">
                     <xs:complexType>
                         <xs:sequence maxOccurs="unbounded">
-                            <xs:element name="depo" type="gs:all-sources"/>
+                            <xs:element name="depo">
+                                <xs:complexType>
+                                    <xs:complexContent>
+                                        <xs:extension base="gs:instrument">
+                                            <xs:attributeGroup ref="gs:chain-instrument"/>
+                                            <xs:attributeGroup ref="gs:single-currency"/>
+                                        </xs:extension>
+                                    </xs:complexContent>
+                                </xs:complexType>
+                            </xs:element>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
@@ -249,9 +258,16 @@
         <xs:attribute name="chain" type="xs:token"/>
         <xs:attribute name="structure" type="xs:string"/>
         <xs:attribute name="ric" type="xs:string"/>
+        <xs:attribute name="contributors">
+            <xs:simpleType>
+                <xs:list itemType="xs:token"/>
+            </xs:simpleType>
+        </xs:attribute>
     </xs:attributeGroup>
     <xs:attributeGroup name="single-currency">
         <xs:attribute name="currency" type="xs:token"/>
+        <xs:attribute name="index-ric" type="xs:token"/>
+        <xs:attribute name="index-field" type="xs:token"/>
     </xs:attributeGroup>
     <xs:attributeGroup name="dual-currency">
         <xs:attribute name="from" type="xs:token"/>

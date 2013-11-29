@@ -13,7 +13,7 @@
   <field id="1" name="micex" priority="1" rule="=MM$" bid="BID" ask="ASK" last="LAST" hist="CF_CLOSW" vwap="VWAP" volume="CF_VOLUME" hist-date="CF_DATE"/>
   <field id="2" name="euro" priority="2" bid="393" ask="275"/>
  </fields>
-
+ 
  <sources>
   <bonds>
    <source id="1" name="OFZ" tags="ru cis rub micex govt">
@@ -258,53 +258,73 @@
    </custom-bond>
   </custom-bonds>
   
+  <!-- todo BOND QUOTATION MODE!!! -->
+  <!-- todo LEGGGGS -->
+  <!-- todo PLATFORM-LOCATED CONFIG FILE WITH SWAPS AND SO ON -->
+  
   <!-- 1) Interest rate swaps --> 
-  <!-- todo: fix/fix; fix/float; float/float -->
-  <!-- todo: which index -->
   <irss>
-   <irs currency="RUB" chain="RUBIRS" ric="(?&lt;term&gt;[0-9]+?[DWMY])" structure="RUB_AM3MO"/> <!-- RUB AM 3 MO 3Y -->
-   <irs currency="EUR" chain="EURIRS" ric="(?&lt;term&gt;[0-9]+?[DWMY])" structure="EUR_AB6E"/> <!-- EUR AB 6 E 18M -->
-   <irs currency="EUR" chain="EUR1MIRS" ric="(?&lt;term&gt;[0-9]+?[DWMY])" structure="EUR_AM1E"/> <!-- EUR AM 1 E 6M -->
-   <irs currency="EUR" chain="EUR3MIRS" ric="(?&lt;term&gt;[0-9]+?[DWMY])" structure="EUR_AB3E"/> <!-- EUR AB 3 E 18M -->
-   <irs currency="USD" chain="USDIRS" ric="(?&lt;term&gt;[0-9]+?[DWMY])" structure="USD_AM3L"/> <!-- USD AM 3 L 3Y= --> 
-   <irs currency="NOK" chain="NOKIRS" ric="(?&lt;term&gt;[0-9]+?[DWMY])" structure="NOK_AB6O"/> <!-- NOK AB 6 O 5Y= --> 
+   <irs currency="RUB" chain="RUBIRS" ric="(?&lt;term&gt;[0-9]+?[DWMY])" structure="RUB_AM3MO" index-ric="MOSPRIME3MD=" index-field="393" contributors="ALFA SBRR"/> <!-- RUB AM 3 MO 3Y -->
+   <irs currency="EUR" chain="EURIRS" ric="(?&lt;term&gt;[0-9]+?[DWMY])" structure="EUR_AB6E" index-ric="EURIBOR6MD=" index-field="393"/> <!-- EUR AB 6 E 18M -->
+   <irs currency="EUR" chain="EUR1MIRS" ric="(?&lt;term&gt;[0-9]+?[DWMY])" structure="EUR_AM1E" index-ric="EURIBOR1MD=" index-field="393"/> <!-- EUR AM 1 E 6M -->
+   <irs currency="EUR" chain="EUR3MIRS" ric="(?&lt;term&gt;[0-9]+?[DWMY])" structure="EUR_AB3E" index-ric="EURIBOR3MD=" index-field="393"/> <!-- EUR AB 3 E 18M -->
+   <irs currency="USD" chain="USDIRS" ric="(?&lt;term&gt;[0-9]+?[DWMY])" structure="USD_AM3L" index-ric="USD3MFSR=" index-field="393"/> <!-- USD AM 3 L 3Y= --> 
+   <irs currency="NOK" chain="NOKIRS" ric="(?&lt;term&gt;[0-9]+?[DWMY])" structure="NOK_AB6O" index-ric="OINOK3MD=" index-field="393"/> <!-- NOK AB 6 O 5Y= --> 
   </irss>
 
   <!-- 2) Cross currency swaps --> 
   <ccss>
-   <ccs chain="RUBCCS" ric="(?&lt;term&gt;[0-9]+?[DWMY])" from="RUB" to="USD" structure=""/> <!-- RU US AM 3L 3Y -->
+   <ccs chain="RUBCCS" ric="(?&lt;term&gt;[0-9]+?[DWMY])" structure="" from="RUB" to="USD" type="fix/float"/>
   </ccss>
 
   <!-- 3) Depo curves - what the hell is that -->
   <!-- These are the curves already quoted in yields (or even in some other plottable representations) -->
   <!-- For each we have to specify what are the units and what are the fields we should look at -->
+  
   <depos>
-   <!-- USDOIS -->
-   <!-- RUBDEPO= -->
-   <!-- USDDEPO= -->
-   <!-- 0#NOKD= -->
-   <!-- 0#RUBIRSZ=R -->
-   <!-- 0#RUBCCSZ=R -->
-   <!-- 0#NOKZ=R -->
-   <!-- 0#RUXZ=MM -->
-   <depo></depo>
-
+   <depo chain="RUBDEPO=" currency="RUB" contributors="HCFB RVTB BPMO WELB CKCC MCIT RENC RNWB DEXB">
+    <fields bid="BID" ask="ASK"/>
+   </depo>
+   <depo chain="USDDEPO=" currency="USD">
+    <fields bid="BID" ask="ASK"/>
+   </depo>
+   <depo chain="NOKDEPO=" currency="NOK"> <!-- or 0#NOKD= -->
+    <fields bid="BID" ask="ASK"/>
+   </depo>
+   <depo chain="0#RUBIRSZ=R" currency="RUB">
+    <fields bid="356" ask="970"/>
+   </depo>
+   <depo chain="0#NOKZ=R" currency="NOK">
+    <fields bid="393"/>
+   </depo>
+   <depo chain="0#RUBCCSZ=R" currency="RUB">
+    <fields bid="393"/>
+   </depo>
+   <depo chain="0#RUXZ=R" currency="RUB">
+    <fields bid="393"/>
+   </depo>
+   <depo chain="OIBOR=" currency="NOK">
+    <fields bid="393"/>
+   </depo>
+   <depo chain="MOSPRIME=" currency="RUB">
+    <fields bid="393"/>
+   </depo>
   </depos>
 
   <!-- 4) Forward rate agreements --> 
   <fras>
-   <fra currency="RUB" chain="RUBFRA" ric="(?&lt;start&gt;[0-9]+?)X(?&lt;end&gt;[0-9]+?)F"></fra>
-   <fra currency="EUR" chain="EURFRA" ric="(?&lt;start&gt;[0-9]+?)X(?&lt;end&gt;[0-9]+?)F"></fra>
-   <fra currency="USD" chain="USDFRA" ric="(?&lt;start&gt;[0-9]+?)X(?&lt;end&gt;[0-9]+?)F"></fra>
-   <fra currency="NOK"  chain="NOKFRA" ric="(?&lt;start&gt;[0-9]+?)F(?&lt;end&gt;[0-9]+?)"></fra>
+   <fra currency="RUB" chain="RUBFRA" ric="(?&lt;start&gt;[0-9]+?)X(?&lt;end&gt;[0-9]+?)F$"></fra>
+   <fra currency="EUR" chain="EURFRA" ric="(?&lt;start&gt;[0-9]+?)X(?&lt;end&gt;[0-9]+?)F$"></fra>
+   <fra currency="USD" chain="USDFRA" ric="(?&lt;start&gt;[0-9]+?)X(?&lt;end&gt;[0-9]+?)F$"></fra>
+   <fra currency="NOK"  chain="NOKFRA" ric="(?&lt;start&gt;[0-9]+?)F(?&lt;end&gt;[0-9]+?)$"></fra>
   </fras>
 
   <!-- 5) Currency forwards --> 
   <ndfs>   
-   <ndf chain="RUBID=" ric="(currency)(term)ID=" from="RUB" to="USD">
+   <ndf chain="RUBID=" ric="(?&lt;term&gt;[0-9]+?[DWMY])ID=$" from="RUB" to="USD">
     <fields bid="22" ask="25"/>
    </ndf>
-   <ndf chain="0#NOKF=" ric="(currency)(term)" from="NOK" to="USD">
+   <ndf chain="0#NOKF=" ric="(?&lt;term&gt;[0-9]+?[DWMY])$" from="NOK" to="USD">
     <rics>
      <ric name="NOKONV="/>
      <ric name="NOKTNV="/>
@@ -343,8 +363,9 @@
 
   <!-- 6) Credit default swaps --> 
   <!-- CDSINDEX -->
+  <!-- TODO : Now, I need only rics and fields, that's all at the moment. At the same time, I have to keep slots for additional data -->
   <cdss>
-   <cds></cds>
+   <cds chain="" currency="" ric=""></cds>
   </cdss>
   
   
@@ -352,7 +373,7 @@
   <!-- RUBCBS -->
   <!-- EURCBS= -->
   
-  <!-- Overnight index swaps ??? -->
+  <!-- Overnight index swaps ??? ~ USDOIS -->
   
   <!-- 8) Constant maturity swpas -->
  </sources>
