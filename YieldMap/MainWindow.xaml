@@ -4,7 +4,7 @@
         xmlns:ym="clr-namespace:YieldMapUI;assembly=YieldMapUI"
         Title="MainWindow" Height="350" Width="525" WindowStyle="None">
     <Window.Background>
-        <SolidColorBrush Color="#1D1D1D"/>
+        <SolidColorBrush Color="#1D1D1D"     />
     </Window.Background>
     <StackPanel>
         <DockPanel Background="#FF2D2D30">
